@@ -1,11 +1,11 @@
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "qamster.h"
 
 
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-    qamster qamster;
+    Qamster qamster;
     qamster.show();
     return app.exec();
 }

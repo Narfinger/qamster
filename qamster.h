@@ -1,15 +1,18 @@
 #ifndef qamster_H
 #define qamster_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
+#include "ui_qamster.h"
 
-class qamster : public QMainWindow
+
+class Qamster : public QMainWindow
 {
-    Q_OBJECT
-
+Q_OBJECT
+private:
+  Ui::MainWindow ui_;
 public:
-    qamster();
-    virtual ~qamster();
+    Qamster();
+    virtual ~Qamster() {};
 };
 
 #endif // qamster_H
