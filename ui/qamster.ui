@@ -14,7 +14,7 @@
    <string>Qamster</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLineEdit" name="taskedit">
+   <widget class="QLineEdit" name="activityEdit">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -24,7 +24,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="stoptrackbutton">
+   <widget class="QPushButton" name="stopActivityButton">
     <property name="geometry">
      <rect>
       <x>430</x>
@@ -45,6 +45,19 @@
       <width>521</width>
       <height>401</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>10</y>
+      <width>161</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tracking</string>
     </property>
    </widget>
   </widget>

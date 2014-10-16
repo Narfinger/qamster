@@ -19,6 +19,12 @@ private:
   Ui::MainWindow ui_;
   TimeDatabase tdb_;
   std::unique_ptr<QSqlRelationalTableModel> rtm_;
+  bool activity_running_ = false;
+  QSqlRecord current_activity_;
+
+  void stopActivity();
+  void startActivity();
+
 };
 
 #endif // qamster_H

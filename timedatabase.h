@@ -31,6 +31,15 @@ public:
   ~TimeDatabase();
   QSqlDatabase connect();
 
+  //db shortcuts
+  static const int T_ID;
+  static const int T_START;
+  static const int T_END;
+  static const int T_ACTIVITY;
+  static const int T_CATEGORY;
+  static const int C_ID;
+  static const int C_NAME;
+
 private:  
   bool created = false;
   QSqlDatabase db_;

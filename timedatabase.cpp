@@ -20,6 +20,16 @@
 #include "timedatabase.h"
 
 int TimeDatabase::conNum = 0;
+
+const int TimeDatabase::T_ID    = 0;
+const int TimeDatabase::T_START = 1;
+const int TimeDatabase::T_END   = 2;
+const int TimeDatabase::T_ACTIVITY = 3;
+const int TimeDatabase::T_CATEGORY = 4;
+const int TimeDatabase::C_ID = 0;
+const int TimeDatabase::C_NAME = 1;
+
+
 TimeDatabase::TimeDatabase() {
   db_ = QSqlDatabase::addDatabase("QSQLITE");
   db_.setDatabaseName("tmp.db");
@@ -44,17 +54,12 @@ bool TimeDatabase::createConnection() {
   bool res = false;
   QSqlQuery q(db_);
   res = q.exec("CREATE TABLE if not exists category (id INTEGER PRIMARY KEY, name TEXT);");
-  
-  q.exec("CREATE TABLE if not exists activity (id INTEGER PRIMARY KEY,"
-				"name TEXT,"
-				"category INTEGER,"
-				"FOREIGN KEY (category) REFERENCES category(id));");
-  if (!res) qDebug() << q.lastError();
-  q.exec("CREATE TABLE if not exists time (id integer primary key,"
-				 "start text,"
-				 "end   text,"
-				 "activity INTEGER,"
-				 "FOREIGN KEY (activity) REFERENCES activity(id));");
+  q.exec("CREATE TABLE if not exists time (id INTEGER PRIMARY KEY,"
+				 "start TEXT,"
+				 "end   TEXT,"
+				 "activity TEXT,"
+				 "category INTEGER,"
+				 "FOREIGN KEY (category) REFERENCES category(id));");
   if (!res) qDebug() << q.lastError();
   created = true;
   return true;
