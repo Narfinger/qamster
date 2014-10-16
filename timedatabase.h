@@ -37,6 +37,7 @@ private:
   
   bool createConnection();
   
+  static int conNum;
 };
 
 #endif // TIMEDATABASE_H

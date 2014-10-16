@@ -14,16 +14,6 @@
    <string>Qamster</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListView" name="timeview">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>91</y>
-      <width>351</width>
-      <height>371</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="taskedit">
     <property name="geometry">
      <rect>
@@ -45,6 +35,16 @@
     </property>
     <property name="text">
      <string>Stop Tracking</string>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>521</width>
+      <height>401</height>
+     </rect>
     </property>
    </widget>
   </widget>

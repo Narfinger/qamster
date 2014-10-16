@@ -2,9 +2,11 @@
 #define qamster_H
 
 #include <QMainWindow>
+#include <memory>
 
 #include "ui_qamster.h"
 #include "timedatabase.h"
+class QSqlRelationalTableModel;
 
 class Qamster : public QMainWindow
 {
@@ -16,6 +18,7 @@ public:
 private:
   Ui::MainWindow ui_;
   TimeDatabase tdb_;
+  std::unique_ptr<QSqlRelationalTableModel> rtm_;
 };
 
 #endif // qamster_H

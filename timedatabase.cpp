@@ -19,22 +19,26 @@
 
 #include "timedatabase.h"
 
-TimeDatabase::TimeDatabase()
-{
+int TimeDatabase::conNum = 0;
+TimeDatabase::TimeDatabase() {
+  db_ = QSqlDatabase::addDatabase("QSQLITE");
+  db_.setDatabaseName("tmp.db");
 }
 
-TimeDatabase::~TimeDatabase()
-{
+TimeDatabase::~TimeDatabase() {
+  db_.close();
 }
 
 QSqlDatabase TimeDatabase::connect() {
   if (!created) createConnection();
-  return QSqlDatabase::cloneDatabase(db_, "OutsideConn");
+  if (!db_.isOpen()) qDebug() << "Database not open";
+  conNum++;
+  QSqlDatabase newdb = QSqlDatabase::cloneDatabase(db_, QString(conNum));
+  newdb.open();
+  return newdb;
 }
 
 bool TimeDatabase::createConnection() {
-  db_ = QSqlDatabase::addDatabase("QSQLITE");
-  db_.setDatabaseName("tmp.db");
   if (!db_.open()) return false;
   
   bool res = false;
