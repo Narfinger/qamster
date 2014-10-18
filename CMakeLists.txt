@@ -8,8 +8,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 set(qamster_SRCS
+  activityitemdelegate.cpp
   qamster.cpp
   timedatabase.cpp
+  timetablemodel.cpp
   main.cpp
 )
 SET(qamster_FORMS

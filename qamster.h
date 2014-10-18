@@ -6,7 +6,7 @@
 
 #include "ui_qamster.h"
 #include "timedatabase.h"
-class QSqlRelationalTableModel;
+#include "timetablemodel.h"
 
 class Qamster : public QMainWindow
 {
@@ -18,7 +18,7 @@ public:
 private:
   Ui::MainWindow ui_;
   TimeDatabase tdb_;
-  std::unique_ptr<QSqlRelationalTableModel> rtm_;
+  std::unique_ptr<TimeTableModel> rtm_;
   bool activity_running_ = false;
   QSqlRecord current_activity_;
 
