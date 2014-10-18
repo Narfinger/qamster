@@ -20,18 +20,30 @@
 #ifndef TIMETABLEMODEL_H
 #define TIMETABLEMODEL_H
 
+#include <QSqlRecord>
 #include <QSqlRelationalTableModel>
+#include <QTimer>
 
 class TimeTableModel : public QSqlRelationalTableModel
 {
     Q_OBJECT
 public:
   TimeTableModel(QObject* parent, QSqlDatabase db);
-  int columnCount(const QModelIndex& parent = QModelIndex()) const { return 6; };
+  int columnCount(const QModelIndex& parent = QModelIndex()) const { Q_UNUSED(parent); return 6; };
   QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const;
   Qt::ItemFlags flags(const QModelIndex& index) const;
 
+  void stopActivity();
+  void startActivity(const QString& name, const QString& category);
+
+signals:
+  void minutesPassed(const int minutes);
+
 private:
+  bool activity_running_ = false;
+  QSqlRecord current_activity_;
+  QTimer timer_;
+  int minutes_passed_ = 0;
 };
 
 #endif // TIMETABLEMODEL_H

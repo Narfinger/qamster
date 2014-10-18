@@ -19,8 +19,8 @@ private:
   Ui::MainWindow ui_;
   TimeDatabase tdb_;
   std::unique_ptr<TimeTableModel> rtm_;
-  bool activity_running_ = false;
-  QSqlRecord current_activity_;
+
+  void minutesPassed(const int minutes);
 
   void stopActivity();
   void startActivity();

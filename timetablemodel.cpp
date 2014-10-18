@@ -31,6 +31,10 @@ TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) : QSqlRelationa
   setHeaderData(5, Qt::Horizontal, "Time");
   setEditStrategy(QSqlTableModel::OnRowChange);
   select();
+
+  current_activity_ = database().record("time");
+
+  connect(&timer_, &QTimer::timeout, this, [=](){ minutes_passed_++; emit minutesPassed(minutes_passed_); });
 }
 
 QVariant TimeTableModel::data(const QModelIndex& item, int role) const
@@ -43,7 +47,7 @@ QVariant TimeTableModel::data(const QModelIndex& item, int role) const
       const QDateTime end = QDateTime::fromString(endstring, Qt::ISODate);
       const QTime diff = QTime::fromMSecsSinceStartOfDay(end.toMSecsSinceEpoch() - start.toMSecsSinceEpoch());
       
-      QString format = QString("%1m").arg(diff.minute());
+      QString format = QString("%1min").arg(diff.minute());
       if (diff.hour()!=0)
 	format.prepend(QString("%1h ").arg(diff.hour()));
       return QVariant(format);
@@ -60,4 +64,32 @@ Qt::ItemFlags TimeTableModel::flags(const QModelIndex& index) const {
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;  
   }
   return QSqlTableModel::flags(index);
+}
+
+void TimeTableModel::stopActivity() {
+  const QDateTime d(QDateTime::currentDateTime());
+  if (activity_running_) {
+    current_activity_.setValue(TimeDatabase::T_END, d.toString(Qt::ISODate));
+    insertRecord(-1, current_activity_);
+    current_activity_.clearValues();
+    activity_running_ = false;
+    select();
+
+    timer_.stop();
+  }
+}
+
+void TimeTableModel::startActivity(const QString& name, const QString& category) {
+  if (activity_running_) {
+    stopActivity();
+  }
+  const QDateTime d(QDateTime::currentDateTime());
+
+  current_activity_.setValue(TimeDatabase::T_START, d.toString(Qt::ISODate));
+  current_activity_.setValue(TimeDatabase::T_ACTIVITY, name);
+  current_activity_.setValue(TimeDatabase::T_CATEGORY, 1);
+  activity_running_ = true;
+
+  timer_.start(60*1000);
+  minutes_passed_ = 0;
 }

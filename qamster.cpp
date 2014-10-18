@@ -20,44 +20,29 @@ Qamster::Qamster() {
   ui_.tableView->setColumnHidden(0, true);
   ui_.tableView->setItemDelegate(new ActivityItemDelegate);
 
-  QSqlDatabase db(tdb_.connect());
-  QSqlQuery q(db);
-  q.exec("select * from time;");
-  while (q.next()) {
-    qDebug() << q.value(0) << q.value(1);
-  }
-
-  current_activity_ = rtm_->database().record("time");
-
   connect(ui_.activityEdit, &QLineEdit::returnPressed, this, &Qamster::startActivity);
   connect(ui_.stopActivityButton, &QPushButton::pressed, this, &Qamster::stopActivity);
+  connect(rtm_.get(), &TimeTableModel::minutesPassed, this, &Qamster::minutesPassed);
+}
+
+void Qamster::minutesPassed(const int minutes) {
+  const div_t divresult = div(minutes, 60);
+  QString text;
+  if (divresult.quot > 0) {
+    text = QString("%1 h %2 min").arg(divresult.quot).arg(divresult.rem);
+  } else {
+    text = QString("%1 min").arg(minutes);
+  }
+  ui_.timeLabel->setText(text);
 }
 
 void Qamster::stopActivity() {
-  const QDateTime d(QDateTime::currentDateTime());
-  if (activity_running_) {
-    current_activity_.setValue(TimeDatabase::T_END, d.toString(Qt::ISODate));
-    rtm_->insertRecord(-1, current_activity_);
-
-    qDebug() << "record inserted:" << current_activity_;
-    current_activity_.clearValues();
-    ui_.checkBox->setCheckState(Qt::Unchecked);
-    activity_running_ = false;
-    rtm_->select();
-  }
+  rtm_->stopActivity();
+  ui_.checkBox->setCheckState(Qt::Unchecked);
 }
 
 void Qamster::startActivity() {
-  if (activity_running_) {
-    stopActivity();
-  }
-  const QDateTime d(QDateTime::currentDateTime());
-
-  current_activity_.setValue(TimeDatabase::T_START, d.toString(Qt::ISODate));
-  current_activity_.setValue(TimeDatabase::T_ACTIVITY, ui_.activityEdit->text());
-  current_activity_.setValue(TimeDatabase::T_CATEGORY, 1);
+  rtm_->startActivity(ui_.activityEdit->text(), "1");
   ui_.activityEdit->clear();
-
-  activity_running_ = true;
   ui_.checkBox->setCheckState(Qt::Checked);
 }
