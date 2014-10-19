@@ -29,10 +29,12 @@ TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) : QSqlRelationa
   setHeaderData(3, Qt::Horizontal, "Activity");
   setHeaderData(4, Qt::Horizontal, "Category");
   setHeaderData(5, Qt::Horizontal, "Time");
-  setEditStrategy(QSqlTableModel::OnRowChange);
+
+  setRelation(4, QSqlRelation("category", "id", "name"));
+  setEditStrategy(QSqlTableModel::OnFieldChange);
   select();
 
-  current_activity_ = database().record("time");
+  current_activity_ = record();
 
   connect(&timer_, &QTimer::timeout, this, [=](){ minutes_passed_++; emit minutesPassed(minutes_passed_); });
 }
@@ -71,10 +73,10 @@ void TimeTableModel::stopActivity() {
   if (activity_running_) {
     current_activity_.setValue(TimeDatabase::T_END, d.toString(Qt::ISODate));
     insertRecord(-1, current_activity_);
+
     current_activity_.clearValues();
     activity_running_ = false;
     select();
-
     timer_.stop();
   }
 }
@@ -83,11 +85,36 @@ void TimeTableModel::startActivity(const QString& name, const QString& category)
   if (activity_running_) {
     stopActivity();
   }
-  const QDateTime d(QDateTime::currentDateTime());
+  //check if we need to insert category and insert it
+  QSqlQuery q(database());
+  q.prepare("SELECT count(*) FROM category WHERE name = :name");
+  q.bindValue(":name", category);
+  q.exec();
+  q.next();
+  const int size = q.value(0).toInt();
 
+  //insert new category
+  QSqlTableModel* catmodel = relationModel(TimeDatabase::T_CATEGORY);
+  QSqlRecord r(catmodel->record());
+  if (size == 0) {
+    r.setValue(1, category);
+    catmodel->insertRecord(-1, r);
+    catmodel->select();	//this updates the internal model otherwise new category is not yet there
+  }
+
+  //get id
+  QSqlQuery idq(database());
+  idq.prepare("SELECT id AS 'id' FROM category WHERE name = :name");
+  idq.bindValue(":name", category);
+  idq.exec();
+  idq.next();
+  const int cid = idq.value(0).toInt();
+
+  //prepare QSqlRecord
+  const QDateTime d(QDateTime::currentDateTime());
   current_activity_.setValue(TimeDatabase::T_START, d.toString(Qt::ISODate));
   current_activity_.setValue(TimeDatabase::T_ACTIVITY, name);
-  current_activity_.setValue(TimeDatabase::T_CATEGORY, 1);
+  current_activity_.setValue(TimeDatabase::T_CATEGORY, cid);
   activity_running_ = true;
 
   timer_.start(60*1000);

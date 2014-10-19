@@ -39,10 +39,17 @@ void Qamster::minutesPassed(const int minutes) {
 void Qamster::stopActivity() {
   rtm_->stopActivity();
   ui_.checkBox->setCheckState(Qt::Unchecked);
+  ui_.activityLabel->clear();
 }
 
 void Qamster::startActivity() {
-  rtm_->startActivity(ui_.activityEdit->text(), "1");
+  const QStringList slist = ui_.activityEdit->text().split("@");
+  if (slist.size()==1) {
+    rtm_->startActivity(slist[0], "uncategorized");
+  } else {
+    rtm_->startActivity(slist[0], slist[1]);
+  }
   ui_.activityEdit->clear();
+  ui_.activityLabel->setText(slist[0]);
   ui_.checkBox->setCheckState(Qt::Checked);
 }
