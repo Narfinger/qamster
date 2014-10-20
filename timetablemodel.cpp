@@ -32,6 +32,7 @@ TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) :
   setHeaderData(3, Qt::Horizontal, "Activity");
   setHeaderData(4, Qt::Horizontal, "Category");
   setHeaderData(5, Qt::Horizontal, "Time");
+  setHeaderData(6, Qt::Horizontal, "");
 
   setRelation(4, QSqlRelation("category", "id", "name"));
   setEditStrategy(QSqlTableModel::OnFieldChange);
@@ -46,7 +47,7 @@ TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) :
 
 QVariant TimeTableModel::data(const QModelIndex& item, int role) const
 {
-  if (item.column()==5) {
+  if (item.column() == 5) {
     if (role==Qt::DisplayRole) {
       const QString startstring = data(item.sibling(item.row(), TimeDatabase::T_START)).toString();
       const QString endstring = data(item.sibling(item.row(), TimeDatabase::T_END)).toString();
@@ -62,15 +63,16 @@ QVariant TimeTableModel::data(const QModelIndex& item, int role) const
       const QModelIndex i = item.sibling(item.row(), item.column()-1); //item.parent().child(item.row(), item.column()-1);
       return QSqlRelationalTableModel::data(i, role);
     }
+  } else if (item.column() == 6) {
+    if (role == Qt::DecorationRole) {
+      return QIcon::fromTheme("document-properties");
+    } else return QVariant();
   } else
-    return QSqlRelationalTableModel::data(item, role);
+      return QSqlRelationalTableModel::data(item, role);
 }
 
 Qt::ItemFlags TimeTableModel::flags(const QModelIndex& index) const {
-  if (index.column()==5) {
-    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;  
-  }
-  return QSqlTableModel::flags(index);
+  return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 void TimeTableModel::stopActivity() {

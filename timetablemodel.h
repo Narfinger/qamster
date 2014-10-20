@@ -30,7 +30,7 @@ class TimeTableModel : public QSqlRelationalTableModel
     Q_OBJECT
 public:
   TimeTableModel(QObject* parent, QSqlDatabase db);
-  int columnCount(const QModelIndex& parent = QModelIndex()) const { Q_UNUSED(parent); return 6; };
+  int columnCount(const QModelIndex& parent = QModelIndex()) const { Q_UNUSED(parent); return 7; };
   QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const;
   Qt::ItemFlags flags(const QModelIndex& index) const;
 

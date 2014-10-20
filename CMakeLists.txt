@@ -12,6 +12,7 @@ set(qamster_SRCS
   qamster.cpp
   timedatabase.cpp
   timetablemodel.cpp
+  timetableview.cpp
   main.cpp
 )
 SET(qamster_FORMS
