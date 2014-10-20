@@ -18,4 +18,8 @@
  */
 
 #include "timetableview.h"
+#include <QDebug>
 
+TimeTableView::TimeTableView(QWidget* parent): QTableView(parent) {
+  connect(this, &QTableView::doubleClicked, [=](const QModelIndex& index) { emit start(index); });
+}

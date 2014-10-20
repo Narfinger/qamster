@@ -22,8 +22,10 @@ private:
 
   void minutesPassed(const int minutes);
 
+  void doubleClicked(const QModelIndex& index);
   void stopActivity();
   void startActivity();
+  void startActivityStrings(const QStringList& slist);
 
 };
 

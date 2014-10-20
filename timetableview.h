@@ -20,13 +20,16 @@
 #ifndef TIMETABLEVIEW_H
 #define TIMETABLEVIEW_H
 
-#include <QObject>
+#include <QTableView>
 
-class TimeTableView : public QObject
-{
+class TimeTableView : public QTableView {
     Q_OBJECT
+public:
+  TimeTableView(QWidget* parent = 0);
+  ~TimeTableView() {};
 
-private:
+signals:
+  void start(QModelIndex);
 };
 
 #endif // TIMETABLEVIEW_H

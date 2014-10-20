@@ -58,7 +58,7 @@
      </widget>
     </item>
     <item row="2" column="0" colspan="6">
-     <widget class="QTableView" name="tableView"/>
+     <widget class="TimeTableView" name="tableView"/>
     </item>
     <item row="1" column="0" colspan="5">
      <widget class="QLineEdit" name="activityEdit"/>
@@ -77,6 +77,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TimeTableView</class>
+   <extends>QTableView</extends>
+   <header>timetableview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

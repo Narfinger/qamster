@@ -1,7 +1,9 @@
 #include "qamster.h"
 
 #include "activityitemdelegate.h"
+#include "timedatabase.h"
 #include "timetablemodel.h"
+#include "timetableview.h"
 
 
 
@@ -23,6 +25,7 @@ Qamster::Qamster() {
   connect(ui_.activityEdit, &QLineEdit::returnPressed, this, &Qamster::startActivity);
   connect(ui_.stopActivityButton, &QPushButton::pressed, this, &Qamster::stopActivity);
   connect(rtm_.get(), &TimeTableModel::minutesPassed, this, &Qamster::minutesPassed);
+  connect(ui_.tableView, &TimeTableView::start, this, &Qamster::doubleClicked);
 }
 
 void Qamster::minutesPassed(const int minutes) {
@@ -36,6 +39,15 @@ void Qamster::minutesPassed(const int minutes) {
   ui_.timeLabel->setText(text);
 }
 
+void Qamster::doubleClicked(const QModelIndex& index) {
+  QStringList slist;
+  const QModelIndex nameindex = rtm_->index(index.row(), TimeDatabase::T_ACTIVITY);
+  slist << rtm_->data(nameindex).toString();
+  const QModelIndex categoryindex = rtm_->index(index.row(), TimeDatabase::T_CATEGORY);
+  slist << rtm_->data(categoryindex).toString();
+  startActivityStrings(slist);
+}
+
 void Qamster::stopActivity() {
   rtm_->stopActivity();
   ui_.checkBox->setCheckState(Qt::Unchecked);
@@ -44,6 +56,10 @@ void Qamster::stopActivity() {
 
 void Qamster::startActivity() {
   const QStringList slist = ui_.activityEdit->text().split("@");
+  startActivityStrings(slist);
+}
+
+void Qamster::startActivityStrings(const QStringList& slist) {
   if (slist.size()==1) {
     rtm_->startActivity(slist[0], "uncategorized");
   } else {
@@ -53,3 +69,4 @@ void Qamster::startActivity() {
   ui_.activityLabel->setText(slist[0]);
   ui_.checkBox->setCheckState(Qt::Checked);
 }
+
