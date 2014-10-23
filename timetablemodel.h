@@ -36,6 +36,7 @@ public:
 
   void stopActivity();
   void startActivity(const QString& name, const QString& category);
+  const QString getTodaysStatusbarText() const;
 
 signals:
   void minutesPassed(const int minutes);

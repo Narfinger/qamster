@@ -22,10 +22,15 @@ Qamster::Qamster() {
   ui_.tableView->setColumnHidden(0, true);
   ui_.tableView->setItemDelegate(new ActivityItemDelegate);
 
+  sbarText = new QLabel(this);
+  statusBar()->addPermanentWidget(sbarText);
+
   connect(ui_.activityEdit, &QLineEdit::returnPressed, this, &Qamster::startActivity);
   connect(ui_.stopActivityButton, &QPushButton::pressed, this, &Qamster::stopActivity);
   connect(rtm_.get(), &TimeTableModel::minutesPassed, this, &Qamster::minutesPassed);
   connect(ui_.tableView, &TimeTableView::start, this, &Qamster::doubleClicked);
+
+  stateChanged();
 }
 
 void Qamster::minutesPassed(const int minutes) {
@@ -37,6 +42,10 @@ void Qamster::minutesPassed(const int minutes) {
     text = QString("%1 min").arg(minutes);
   }
   ui_.timeLabel->setText(text);
+}
+
+void Qamster::stateChanged() {
+  sbarText->setText(rtm_->getTodaysStatusbarText());
 }
 
 void Qamster::doubleClicked(const QModelIndex& index) {
@@ -52,11 +61,15 @@ void Qamster::stopActivity() {
   rtm_->stopActivity();
   ui_.checkBox->setCheckState(Qt::Unchecked);
   ui_.activityLabel->clear();
+
+  stateChanged();
 }
 
 void Qamster::startActivity() {
   const QStringList slist = ui_.activityEdit->text().split("@");
   startActivityStrings(slist);
+
+  stateChanged();
 }
 
 void Qamster::startActivityStrings(const QStringList& slist) {

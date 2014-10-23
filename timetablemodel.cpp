@@ -17,6 +17,7 @@
  * 
  */
 
+#include <QSqlError>
 #include <QTime>
 
 #include "timedatabase.h"
@@ -72,6 +73,7 @@ QVariant TimeTableModel::data(const QModelIndex& item, int role) const
 }
 
 Qt::ItemFlags TimeTableModel::flags(const QModelIndex& index) const {
+  Q_UNUSED(index);
   return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
@@ -79,8 +81,9 @@ void TimeTableModel::stopActivity() {
   const QDateTime d(QDateTime::currentDateTime());
   if (activity_running_) {
     current_activity_.setValue(TimeDatabase::T_END, d.toString(TimeTableModel::DATEFORMAT));
-    insertRecord(-1, current_activity_);
-
+    insertRowIntoTable(current_activity_);
+    QSqlError e = lastError();
+    //qDebug() << e << e.type() << e.databaseText() << e.driverText();
     current_activity_.clearValues();
     activity_running_ = false;
     timer_.stop();
@@ -128,6 +131,36 @@ void TimeTableModel::startActivity(const QString& name, const QString& category)
   minutes_passed_ = 0;
 
   update();
+}
+
+const QString TimeTableModel::getTodaysStatusbarText() const {
+  const QDateTime d(QDate::currentDate().addDays(-1));
+  QSqlQuery sums(database());
+  QSqlQuery total(database());
+  //gives in secs
+  sums.prepare("SELECT category.id AS cid,category.name AS name,sum(strftime('%s', end) - strftime('%s', start)) AS diff \
+	       FROM time INNER JOIN  category ON category.id = time.category GROUP BY cid ORDER BY cid");
+  sums.bindValue(":date", d.toString(TimeTableModel::DATEFORMAT));
+  sums.exec();
+  total.prepare("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum \
+		FROM time WHERE date(end)>=:date");
+  total.bindValue(":date", d.toString(TimeTableModel::DATEFORMAT));
+  total.exec();
+  total.next();
+
+  const unsigned long long totalsecs = total.value(0).toLongLong();
+  QString result;
+  while (sums.next()) {
+    const QString cname = sums.value(1).toString();
+    const unsigned long long cattotal = sums.value(2).toLongLong();
+    const double ratio = static_cast<double>(cattotal) / static_cast<double>(totalsecs);
+    const QTime t(0,0,cattotal);
+
+    result.append(QString("%1: %2h (%3%) | ").arg(cname).arg(t.toString("H:mm")).arg(QString::number(ratio, 'f', 2)));
+  }
+  const QTime t(0,0,totalsecs);
+  result.append(QString("total: %1").arg(t.toString("H:mm")));
+  return result;
 }
 
 void TimeTableModel::update() {

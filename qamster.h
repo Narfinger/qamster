@@ -19,8 +19,10 @@ private:
   Ui::MainWindow ui_;
   TimeDatabase tdb_;
   std::unique_ptr<TimeTableModel> rtm_;
+  QLabel* sbarText;
 
   void minutesPassed(const int minutes);
+  void stateChanged();	//call whenever state changed to update some stuff
 
   void doubleClicked(const QModelIndex& index);
   void stopActivity();
