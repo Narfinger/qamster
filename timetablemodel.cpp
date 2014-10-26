@@ -39,9 +39,9 @@ TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) :
   setEditStrategy(QSqlTableModel::OnFieldChange);
   setSort(TimeDatabase::T_START, Qt::AscendingOrder);
 
-  update();
-
   current_activity_ = record();
+  //set filter
+  update(true);
 
   connect(&timer_, &QTimer::timeout, this, [=](){ minutes_passed_++; emit minutesPassed(minutes_passed_); });
 }
@@ -163,8 +163,8 @@ const QString TimeTableModel::getTodaysStatusbarText() const {
   return result;
 }
 
-void TimeTableModel::update() {
-  if( currentdate_ != QDate::currentDate()) {
+void TimeTableModel::update(const bool force) {
+  if(force || currentdate_ != QDate::currentDate()) {
     //set filter for today
     const QDateTime d(QDate::currentDate().addDays(-1));
     setFilter("date(end)>='" + d.toString(TimeTableModel::DATEFORMAT) + "'");

@@ -49,8 +49,7 @@ private:
   QTimer timer_;
   int minutes_passed_ = 0;
   QDate currentdate_;	//we save the date last time to check if we need to update the filter in update()
-
-  void update();	//do select and update the filter if necessary
+  void update(const bool force = false);	//do select and update the filter if necessary
 };
 
 #endif // TIMETABLEMODEL_H
