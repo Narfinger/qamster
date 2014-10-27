@@ -8,6 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 set(qamster_SRCS
+  activitycompletermodel.cpp
   activityitemdelegate.cpp
   qamster.cpp
   timedatabase.cpp

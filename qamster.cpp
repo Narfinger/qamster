@@ -5,16 +5,19 @@
 #include "timetablemodel.h"
 #include "timetableview.h"
 
-
-
+#include <QCompleter>
 #include <QDateTime>
-
+#include <QSqlQuery>
 
 Qamster::Qamster() {
   ui_.setupUi(this);
   { //i don't know a different way. scoped because of tm would leak outside
     std::unique_ptr<TimeTableModel> tm(new TimeTableModel(this, tdb_.connect()));
     rtm_ = std::move(tm);
+  }
+  {
+    std::unique_ptr<ActivityCompleterModel> up(new ActivityCompleterModel(tdb_.connect(), this));
+    acm_ = std::move(up);
   }
 
   //rtm_->setRelation(3, QSqlRelation("category", "id", "name"));
@@ -24,6 +27,12 @@ Qamster::Qamster() {
 
   sbarText = new QLabel(this);
   statusBar()->addPermanentWidget(sbarText);
+
+  //completer enter == lineedit enter which gives us weird behaviour and no clear
+  QCompleter* c = new QCompleter(acm_.get(), ui_.activityEdit);
+  c->setCaseSensitivity(Qt::CaseInsensitive);
+  c->setCompletionMode(QCompleter::PopupCompletion);
+  ui_.activityEdit->setCompleter(c);
 
   connect(ui_.activityEdit, &QLineEdit::returnPressed, this, &Qamster::startActivity);
   connect(ui_.stopActivityButton, &QPushButton::pressed, this, &Qamster::stopActivity);
@@ -46,6 +55,7 @@ void Qamster::minutesPassed(const int minutes) {
 
 void Qamster::stateChanged() {
   sbarText->setText(rtm_->getTodaysStatusbarText());
+  acm_->select();
 }
 
 void Qamster::doubleClicked(const QModelIndex& index) {

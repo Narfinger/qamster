@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "ui_qamster.h"
+#include "activitycompletermodel.h"
 #include "timedatabase.h"
 #include "timetablemodel.h"
 
@@ -19,6 +20,7 @@ private:
   Ui::MainWindow ui_;
   TimeDatabase tdb_;
   std::unique_ptr<TimeTableModel> rtm_;
+  std::unique_ptr<ActivityCompleterModel> acm_;
   QLabel* sbarText;
 
   void minutesPassed(const int minutes);
