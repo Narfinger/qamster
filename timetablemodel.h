@@ -31,6 +31,7 @@ class TimeTableModel : public QSqlRelationalTableModel
 public:
   TimeTableModel(QObject* parent, QSqlDatabase db);
   int columnCount(const QModelIndex& parent = QModelIndex()) const { Q_UNUSED(parent); return 7; };
+  int rowCount(const QModelIndex& parent = QModelIndex()) const;
   QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const;
   Qt::ItemFlags flags(const QModelIndex& index) const;
 
@@ -50,6 +51,8 @@ private:
   int minutes_passed_ = 0;
   QDate currentdate_;	//we save the date last time to check if we need to update the filter in update()
   void update(const bool force = false);	//do select and update the filter if necessary
+
+  QVariant runningActivityData(const QModelIndex& item, int role = Qt::DisplayRole) const;	//when we have the running row use this data
 };
 
 #endif // TIMETABLEMODEL_H

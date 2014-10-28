@@ -17,6 +17,7 @@
  * 
  */
 
+#include <QDebug>
 #include <QSqlError>
 #include <QTime>
 
@@ -46,8 +47,16 @@ TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) :
   connect(&timer_, &QTimer::timeout, this, [=](){ minutes_passed_++; emit minutesPassed(minutes_passed_); });
 }
 
+int TimeTableModel::rowCount(const QModelIndex& parent) const {
+  const int count = QSqlTableModel::rowCount(parent);
+  if (activity_running_) return count+1;
+  return count;
+}
+
 QVariant TimeTableModel::data(const QModelIndex& item, int role) const
 {
+  if (activity_running_ && QSqlRelationalTableModel::rowCount() == item.row()) return runningActivityData(item,role);
+
   if (item.column() == 5) {
     if (role==Qt::DisplayRole) {
       const QString startstring = data(item.sibling(item.row(), TimeDatabase::T_START)).toString();
@@ -171,4 +180,19 @@ void TimeTableModel::update(const bool force) {
     currentdate_ = d.date();
   }
   select();
+}
+
+QVariant TimeTableModel::runningActivityData(const QModelIndex& item, int role) const {
+  if (role == Qt::DecorationRole && item.column() == 6) return QIcon::fromTheme("document-properties");
+  if (role != Qt::DisplayRole) return QSqlRelationalTableModel::data(item, role);
+  if (role == Qt::DisplayRole && item.column() == 4) {	//get the correct category name
+    QSqlQuery q(database());
+    q.prepare("SELECT name FROM category WHERE id = :id");
+    q.bindValue(":id", current_activity_.value(4).toInt());
+    q.exec();
+    q.next();
+    return q.value(0);
+  }
+
+  return current_activity_.value(item.column());
 }
