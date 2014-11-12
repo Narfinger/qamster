@@ -32,7 +32,7 @@ void ActivityItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     QStyle* style = QApplication::style();
     QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &option);
     const QDateTime d = QDateTime::fromString(o.text, Qt::ISODate);
-    painter->drawText(textRect, o.displayAlignment, d.toString("h:m"));
+    painter->drawText(textRect, o.displayAlignment, d.toString("h:mm"));
     painter->restore();
   } else
     QStyledItemDelegate::paint(painter, o, index); 
