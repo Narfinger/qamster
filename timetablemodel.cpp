@@ -163,11 +163,11 @@ const QString TimeTableModel::getTodaysStatusbarText() const {
     const QString cname = sums.value(1).toString();
     const unsigned long long cattotal = sums.value(2).toLongLong();
     const double ratio = static_cast<double>(cattotal) / static_cast<double>(totalsecs);
-    const QTime t(0,0,cattotal);
+    const QTime t = secsToQTime(cattotal);
 
     result.append(QString("%1: %2h (%3%) | ").arg(cname).arg(t.toString("H:mm")).arg(QString::number(ratio, 'f', 2)));
   }
-  const QTime t(0,0,totalsecs);
+  const QTime t = secsToQTime(totalsecs);
   result.append(QString("total: %1").arg(t.toString("H:mm")));
   return result;
 }
@@ -180,6 +180,13 @@ void TimeTableModel::update(const bool force) {
     currentdate_ = d.date();
   }
   select();
+}
+
+const QTime TimeTableModel::secsToQTime(const int seconds) const {
+  const int s = seconds % 60;
+  const int m = (seconds / 60) % 60;
+  const int h = ((seconds / 60) /60);
+  return QTime(h,m,s);
 }
 
 QVariant TimeTableModel::runningActivityData(const QModelIndex& item, int role) const {
