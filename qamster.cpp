@@ -71,11 +71,14 @@ void Qamster::stopActivity() {
   rtm_->stopActivity();
   ui_.checkBox->setCheckState(Qt::Unchecked);
   ui_.activityLabel->clear();
+  ui_.timeLabel->setText("0 min");
 
   stateChanged();
 }
 
 void Qamster::startActivity() {
+  stopActivity();
+  
   const QStringList slist = ui_.activityEdit->text().split("@");
   startActivityStrings(slist);
 
@@ -83,12 +86,12 @@ void Qamster::startActivity() {
 }
 
 void Qamster::startActivityStrings(const QStringList& slist) {
+  stopActivity();
   if (slist.size()==1) {
     rtm_->startActivity(slist[0], "uncategorized");
   } else {
     rtm_->startActivity(slist[0], slist[1]);
   }
-  ui_.activityEdit->clear();
   ui_.activityLabel->setText(slist[0]);
   ui_.checkBox->setCheckState(Qt::Checked);
 }
