@@ -15,31 +15,20 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Currently Tracking:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="5">
-     <widget class="QPushButton" name="stopActivityButton">
-      <property name="text">
-       <string>Stop Tracking</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="3" alignment="Qt::AlignHCenter">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Tracking Time:</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="4">
      <widget class="QLabel" name="timeLabel">
       <property name="text">
        <string>0 min</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="6">
+     <widget class="TimeTableView" name="tableView"/>
+    </item>
+    <item row="0" column="2">
+     <widget class="QLabel" name="activityLabel">
+      <property name="text">
+       <string>Nothing</string>
       </property>
      </widget>
     </item>
@@ -50,18 +39,36 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="activityLabel">
+    <item row="0" column="1">
+     <widget class="QLabel" name="label">
       <property name="text">
-       <string>Nothing</string>
+       <string>Currently Tracking:</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="6">
-     <widget class="TimeTableView" name="tableView"/>
+    <item row="0" column="3" alignment="Qt::AlignHCenter">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Tracking Time:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <widget class="QPushButton" name="stopActivityButton">
+      <property name="text">
+       <string>Stop Tracking</string>
+      </property>
+     </widget>
     </item>
     <item row="1" column="0" colspan="5">
      <widget class="QLineEdit" name="activityEdit"/>
+    </item>
+    <item row="0" column="5">
+     <widget class="QPushButton" name="refilterButton">
+      <property name="text">
+       <string>Refilter</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

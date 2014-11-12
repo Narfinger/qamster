@@ -36,6 +36,8 @@ Qamster::Qamster() {
 
   connect(ui_.activityEdit, &QLineEdit::returnPressed, this, &Qamster::startActivityFromLineEdit);
   connect(ui_.stopActivityButton, &QPushButton::pressed, this, &Qamster::stopActivity);
+  connect(ui_.refilterButton, &QPushButton::pressed, [=]() { rtm_->update();
+							     stateChanged(); });
   connect(rtm_.get(), &TimeTableModel::minutesPassed, this, &Qamster::minutesPassed);
   connect(ui_.tableView, &TimeTableView::start, this, &Qamster::doubleClicked);
 

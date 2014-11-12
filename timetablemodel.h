@@ -38,6 +38,7 @@ public:
   void stopActivity();
   void startActivity(const QString& name, const QString& category);
   const QString getTodaysStatusbarText() const;
+  void update(const bool force = false);	//do select and update the filter if necessary
 
 signals:
   void minutesPassed(const int minutes);
@@ -50,7 +51,6 @@ private:
   QTimer timer_;
   int minutes_passed_ = 0;
   QDate currentdate_;	//we save the date last time to check if we need to update the filter in update()
-  void update(const bool force = false);	//do select and update the filter if necessary
 
   const QTime secsToQTime(const int seconds) const;
   QVariant runningActivityData(const QModelIndex& item, int role = Qt::DisplayRole) const;	//when we have the running row use this data
