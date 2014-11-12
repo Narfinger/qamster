@@ -34,7 +34,7 @@ Qamster::Qamster() {
   c->setCompletionMode(QCompleter::PopupCompletion);
   ui_.activityEdit->setCompleter(c);
 
-  connect(ui_.activityEdit, &QLineEdit::returnPressed, this, &Qamster::startActivity);
+  connect(ui_.activityEdit, &QLineEdit::returnPressed, this, &Qamster::startActivityFromLineEdit);
   connect(ui_.stopActivityButton, &QPushButton::pressed, this, &Qamster::stopActivity);
   connect(rtm_.get(), &TimeTableModel::minutesPassed, this, &Qamster::minutesPassed);
   connect(ui_.tableView, &TimeTableView::start, this, &Qamster::doubleClicked);
@@ -76,13 +76,11 @@ void Qamster::stopActivity() {
   stateChanged();
 }
 
-void Qamster::startActivity() {
+void Qamster::startActivityFromLineEdit() {
   stopActivity();
   
   const QStringList slist = ui_.activityEdit->text().split("@");
   startActivityStrings(slist);
-
-  stateChanged();
 }
 
 void Qamster::startActivityStrings(const QStringList& slist) {
@@ -92,7 +90,10 @@ void Qamster::startActivityStrings(const QStringList& slist) {
   } else {
     rtm_->startActivity(slist[0], slist[1]);
   }
+  stateChanged();
+
   ui_.activityLabel->setText(slist[0]);
   ui_.checkBox->setCheckState(Qt::Checked);
+  ui_.tableView->scrollToBottom();
 }
 

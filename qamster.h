@@ -28,7 +28,7 @@ private:
 
   void doubleClicked(const QModelIndex& index);
   void stopActivity();
-  void startActivity();
+  void startActivityFromLineEdit();
   void startActivityStrings(const QStringList& slist);
 
 };
