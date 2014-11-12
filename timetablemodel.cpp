@@ -148,7 +148,7 @@ const QString TimeTableModel::getTodaysStatusbarText() const {
   QSqlQuery total(database());
   //gives in secs
   sums.prepare("SELECT category.id AS cid,category.name AS name,sum(strftime('%s', end) - strftime('%s', start)) AS diff \
-	       FROM time INNER JOIN  category ON category.id = time.category GROUP BY cid ORDER BY cid");
+	       FROM time INNER JOIN  category ON category.id = time.category WHERE date(end)>=:date GROUP BY cid ORDER BY cid");
   sums.bindValue(":date", d.toString(TimeTableModel::DATEFORMAT));
   sums.exec();
   total.prepare("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum \
