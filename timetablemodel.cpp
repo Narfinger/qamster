@@ -168,7 +168,7 @@ const QString TimeTableModel::getTodaysStatusbarText() const {
     result.append(QString("%1: %2h (%3%) | ").arg(cname).arg(t.toString("H:mm")).arg(QString::number(ratio, 'f', 2)));
   }
   const QTime t = secsToQTime(totalsecs);
-  result.append(QString("total: %1").arg(t.toString("H:mm")));
+  result.append(QString("total: %1h").arg(t.toString("H:mm")));
   return result;
 }
 
