@@ -40,6 +40,8 @@ public:
   void startActivity(const QString& name, const QString& category);
   const QString getTodaysStatusbarText() const;
   void update(const bool force = false);	//do select and update the filter if necessary
+  const QStringList categories() const;
+  int categoryIdForIndex(const QModelIndex& index) const;
 
 signals:
   void minutesPassed(const int minutes);

@@ -19,7 +19,7 @@ public:
 private:
   Ui::MainWindow ui_;
   TimeDatabase tdb_;
-  std::unique_ptr<TimeTableModel> rtm_;
+  QSharedPointer<TimeTableModel> rtm_;
   std::unique_ptr<ActivityCompleterModel> acm_;
   QLabel* sbarText;
 

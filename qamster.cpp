@@ -1,6 +1,7 @@
 #include "qamster.h"
 
 #include "activityitemdelegate.h"
+#include "editdialog.h"
 #include "timedatabase.h"
 #include "timetablemodel.h"
 #include "timetableview.h"
@@ -12,8 +13,9 @@
 Qamster::Qamster() {
   ui_.setupUi(this);
   { //i don't know a different way. scoped because of tm would leak outside
-    std::unique_ptr<TimeTableModel> tm(new TimeTableModel(this, tdb_.connect()));
-    rtm_ = std::move(tm);
+    rtm_ = QSharedPointer<TimeTableModel>(new TimeTableModel(this, tdb_.connect()));
+    /*std::unique_ptr<TimeTableModel> tm(new TimeTableModel(this, tdb_.connect()));
+    rtm_ = std::move(tm);*/
   }
   {
     std::unique_ptr<ActivityCompleterModel> up(new ActivityCompleterModel(tdb_.connect(), this));
@@ -21,7 +23,7 @@ Qamster::Qamster() {
   }
 
   //rtm_->setRelation(3, QSqlRelation("category", "id", "name"));
-  ui_.tableView->setModel(rtm_.get());
+  ui_.tableView->setModel(rtm_.data());
   ui_.tableView->setColumnHidden(0, true);
   ui_.tableView->setItemDelegate(new ActivityItemDelegate);
 
@@ -38,7 +40,7 @@ Qamster::Qamster() {
   connect(ui_.stopActivityButton, &QPushButton::pressed, this, &Qamster::stopActivity);
   connect(ui_.refilterButton, &QPushButton::pressed, [=]() { rtm_->update();
 							     stateChanged(); });
-  connect(rtm_.get(), &TimeTableModel::minutesPassed, this, &Qamster::minutesPassed);
+  connect(rtm_.data(), &TimeTableModel::minutesPassed, this, &Qamster::minutesPassed);
   connect(ui_.tableView, &TimeTableView::start, this, &Qamster::doubleClicked);
 
   stateChanged();
@@ -61,12 +63,18 @@ void Qamster::stateChanged() {
 }
 
 void Qamster::doubleClicked(const QModelIndex& index) {
-  QStringList slist;
-  const QModelIndex nameindex = rtm_->index(index.row(), TimeDatabase::T_ACTIVITY);
-  slist << rtm_->data(nameindex).toString();
-  const QModelIndex categoryindex = rtm_->index(index.row(), TimeDatabase::T_CATEGORY);
-  slist << rtm_->data(categoryindex).toString();
-  startActivityStrings(slist);
+  if (index.column() == 6) {
+    EditDialog d(rtm_, tdb_.connect(), index);
+    int result = d.exec();
+    qDebug() << result;
+  } else {
+    QStringList slist;
+    const QModelIndex nameindex = rtm_->index(index.row(), TimeDatabase::T_ACTIVITY);
+    slist << rtm_->data(nameindex).toString();
+    const QModelIndex categoryindex = rtm_->index(index.row(), TimeDatabase::T_CATEGORY);
+    slist << rtm_->data(categoryindex).toString();
+    startActivityStrings(slist);
+  }
 }
 
 void Qamster::stopActivity() {

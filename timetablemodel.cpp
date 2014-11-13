@@ -19,6 +19,7 @@
 
 #include <QDebug>
 #include <QSqlError>
+#include <QStringList>
 #include <QTime>
 
 #include "timedatabase.h"
@@ -185,6 +186,26 @@ void TimeTableModel::update(const bool force) {
     currentdate_ = d.date();
   }
   select();
+}
+
+const QStringList TimeTableModel::categories() const {
+  QSqlQuery q(database());
+  q.exec("SELECT name FROM category ORDER BY id");
+  QStringList l;
+  while (q.next()) {
+    l << q.value(0).toString();
+  }
+  return l;
+}
+
+int TimeTableModel::categoryIdForIndex(const QModelIndex& index) const {
+  const int id = data(index.sibling(index.row(), 0)).toInt();
+  QSqlQuery q(database());
+  q.prepare("SELECT category FROM time WHERE id = :id");
+  q.bindValue(":id", id);
+  q.exec();
+  if (!q.next()) return 0;
+  return q.value(0).toInt();
 }
 
 const QTime TimeTableModel::secsToQTime(const int seconds) const {

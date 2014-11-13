@@ -10,6 +10,7 @@ set(CMAKE_AUTOMOC ON)
 set(qamster_SRCS
   activitycompletermodel.cpp
   activityitemdelegate.cpp
+  editdialog.cpp
   qamster.cpp
   timedatabase.cpp
   timetablemodel.cpp
@@ -18,6 +19,7 @@ set(qamster_SRCS
 )
 SET(qamster_FORMS
   ui/qamster.ui
+  ui/editdialog.ui
 )
 QT5_WRAP_UI(qamster_FORMS_HDRS ${qamster_FORMS})
 
