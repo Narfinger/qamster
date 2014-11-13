@@ -47,6 +47,11 @@ TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) :
   connect(&timer_, &QTimer::timeout, this, [=](){ minutes_passed_++; emit minutesPassed(minutes_passed_); });
 }
 
+TimeTableModel::~TimeTableModel() {
+  if(activity_running_)
+    stopActivity();
+}
+
 int TimeTableModel::rowCount(const QModelIndex& parent) const {
   const int count = QSqlTableModel::rowCount(parent);
   if (activity_running_) return count+1;
