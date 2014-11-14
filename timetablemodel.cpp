@@ -38,7 +38,7 @@ TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) :
   setHeaderData(6, Qt::Horizontal, "");
 
   setRelation(4, QSqlRelation("category", "id", "name"));
-  setEditStrategy(QSqlTableModel::OnFieldChange);
+  setEditStrategy(QSqlTableModel::OnManualSubmit);
   setSort(TimeDatabase::T_START, Qt::AscendingOrder);
 
   current_activity_ = record();
@@ -87,9 +87,17 @@ QVariant TimeTableModel::data(const QModelIndex& item, int role) const
       return QSqlRelationalTableModel::data(item, role);
 }
 
+bool TimeTableModel::setData(const QModelIndex& index, const QDateTime& d, int role) {
+  if (index.column() != 1 && index.column() != 2) return false;
+  const QString date = d.toString(TimeTableModel::DATEFORMAT);
+  return setData(index, date, role);
+}
+
 Qt::ItemFlags TimeTableModel::flags(const QModelIndex& index) const {
-  Q_UNUSED(index);
-  return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+  if (index.column()== 5 || index.column()==6)
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+  else
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
 }
 
 void TimeTableModel::stopActivity() {
@@ -205,7 +213,16 @@ int TimeTableModel::categoryIdForIndex(const QModelIndex& index) const {
   q.bindValue(":id", id);
   q.exec();
   if (!q.next()) return 0;
-  return q.value(0).toInt();
+  return q.value(0).toInt() -1; //indices start at one cbox starts at zero
+}
+
+void TimeTableModel::setCategory(const QModelIndex& index, const int c) {
+  const int id = data(index.sibling(index.row(), 0)).toInt();
+  QSqlQuery q(database());
+  q.prepare("UPDATE time SET category = :cid WHERE id = :id");
+  q.bindValue(":cid", c +1); //indices start at one cbox starts at zero
+  q.bindValue(":id", id);
+  q.exec();
 }
 
 const QTime TimeTableModel::secsToQTime(const int seconds) const {

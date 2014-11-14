@@ -23,7 +23,11 @@
      </widget>
     </item>
     <item row="2" column="0" colspan="6">
-     <widget class="TimeTableView" name="tableView"/>
+     <widget class="TimeTableView" name="tableView">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+     </widget>
     </item>
     <item row="0" column="2">
      <widget class="QLabel" name="activityLabel">

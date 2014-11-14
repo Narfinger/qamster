@@ -40,7 +40,7 @@ private:
     QSharedPointer<TimeTableModel> ttm_;
     QSqlDatabase db_;
     const QModelIndex index_;
-    bool changed = false;
+    bool changed_ = false;
     
 private slots:
     void accept();

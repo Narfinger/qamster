@@ -46,17 +46,30 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
 
    ui_.categoryCBox->addItems(ptr->categories());
 
-   ui_.categoryCBox->setCurrentIndex(ttm_->categoryIdForIndex(index)-1); //indices start at one cbox starts at zero
+   ui_.categoryCBox->setCurrentIndex(ttm_->categoryIdForIndex(index));
    
-   connect(ui_.activityEdit, &QLineEdit::textEdited, [=]() { changed = true; });
-   connect(ui_.startTimeEdit, &QAbstractSpinBox::editingFinished, [=]() { changed = true; });
-   connect(ui_.endTimeEdit, &QAbstractSpinBox::editingFinished, [=]() { changed = true; });
-   connect(ui_.categoryCBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]() { changed = true; });
+   connect(ui_.activityEdit, &QLineEdit::textEdited, [=]() { changed_ = true; });
+   connect(ui_.startTimeEdit, &QAbstractSpinBox::editingFinished, [=]() { changed_ = true; });
+   connect(ui_.endTimeEdit, &QAbstractSpinBox::editingFinished, [=]() { changed_ = true; });
+   connect(ui_.categoryCBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]() { changed_ = true; });
 }
 
 void EditDialog::accept() {
-  qDebug() << "sorry no modification yet";
+  if (changed_) {
+    ttm_->setData(index_.sibling(index_.row(), TimeDatabase::T_ACTIVITY), ui_.activityEdit->text());
 
+    QDateTime start = ttm_->data(index_.sibling(index_.row(), TimeDatabase::T_START)).toDateTime();
+    start.setTime(ui_.startTimeEdit->time());
+    ttm_->setData(index_.sibling(index_.row(), TimeDatabase::T_START), start);
+
+    QDateTime end = ttm_->data(index_.sibling(index_.row(), TimeDatabase::T_END)).toDateTime();
+    end.setTime(ui_.endTimeEdit->time());
+    ttm_->setData(index_.sibling(index_.row(), TimeDatabase::T_END), end);
+
+    ttm_->setCategory(index_.sibling(index_.row(), TimeDatabase::T_CATEGORY), ui_.categoryCBox->currentIndex());
+
+    ttm_->submitAll();
+  }
   QDialog::accept();
 }
 

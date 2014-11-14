@@ -67,6 +67,7 @@ void Qamster::doubleClicked(const QModelIndex& index) {
     EditDialog d(rtm_, tdb_.connect(), index);
     int result = d.exec();
     qDebug() << result;
+    rtm_->update();
   } else {
     QStringList slist;
     const QModelIndex nameindex = rtm_->index(index.row(), TimeDatabase::T_ACTIVITY);
