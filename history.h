@@ -38,7 +38,10 @@ private:
   QSqlDatabase db_;
 
 private:
+  const QTime getTotal(const QDateTime& start, const QDateTime& end);
+  void insertIntoTable(QTableWidget* w, const QString& one, const QString& two);
   void d_fillCategory(const QDate& date);
+  void d_fillActivity(const QDate& date);
   void d_activated(const QDate& date);
 };
 

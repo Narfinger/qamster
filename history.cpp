@@ -44,23 +44,32 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   d_activated(QDate::currentDate());
 }
 
-void History::d_fillCategory(const QDate& date) {
-  ui_.d_activityTable->setRowCount(0);
-  ui_.d_categoryTable->setRowCount(0);
-
-  const QDateTime start(date);
-  const QDateTime end = QDateTime(date.addDays(1)).addSecs(-1);
-
-  //total sum
+const QTime History::getTotal(const QDateTime& start, const QDateTime& end) {
   QString tqstring("SELECT sum(strftime('%s', end)- strftime('%s', start)) from time where start>='%1' and start<='%2'");
   tqstring = tqstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
   QSqlQuery tquery(tqstring, db_);
   tquery.exec();
   tquery.next();
-  const QTime totaltime = TDBHelper::secsToQTime(tquery.value(0).toInt());
+  return TDBHelper::secsToQTime(tquery.value(0).toInt());
+}
+
+void History::insertIntoTable(QTableWidget* w, const QString& one, const QString& two) {
+  const int row = w->rowCount();
+  w->insertRow(row);
+  QTableWidgetItem *c = new QTableWidgetItem(one);
+  QTableWidgetItem *d = new QTableWidgetItem(two);
+  w->setItem(row, 0, c);
+  w->setItem(row, 1, d);
+}
+
+void History::d_fillCategory(const QDate& date) {
+  ui_.d_categoryTable->setRowCount(0);
+
+  const QDateTime start(date);
+  const QDateTime end = QDateTime(date.addDays(1)).addSecs(-1);
 
   QString qstring("SELECT category.id AS cid, category.name,sum(strftime('%s', end) - strftime('%s', start)) AS diff FROM \
-  time INNER JOIN category ON category.id = time.category WHERE start>='%1' and start<='%2' GROUP BY category ORDER BY diff");
+  time INNER JOIN category ON category.id = time.category WHERE start>='%1' and start<='%2' GROUP BY category ORDER BY diff DESC");
   qstring = qstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
   QSqlQuery cquery(qstring, db_);
  /* QSqlQuery cquery(db_);
@@ -70,26 +79,39 @@ void History::d_fillCategory(const QDate& date) {
   cquery.bindValue(":end", "'" + end.toString(TimeDatabase::DATEFORMAT) + "'");*/
 
   cquery.exec();
-  int row = 0;
   while (cquery.next()) {
-    ui_.d_categoryTable->insertRow(row);
-    QTableWidgetItem *c = new QTableWidgetItem(cquery.value(1).toString());
     const QTime t = TDBHelper::secsToQTime(cquery.value(2).toInt());
-    QTableWidgetItem *d = new QTableWidgetItem(t.toString("h:mm"));
-    ui_.d_categoryTable->setItem(row, 0, c);
-    ui_.d_categoryTable->setItem(row, 1, d);
-
-    row++;
+    insertIntoTable(ui_.d_categoryTable, cquery.value(1).toString(), t.toString("h:mm"));
   }
 
   //total
-  ui_.d_categoryTable->insertRow(row);
-  QTableWidgetItem *c = new QTableWidgetItem("Total");
-  QTableWidgetItem *d = new QTableWidgetItem(totaltime.toString("h:mm"));
-  ui_.d_categoryTable->setItem(row, 0, c);
-  ui_.d_categoryTable->setItem(row, 1, d);
+  const QTime totaltime = getTotal(start, end);
+  insertIntoTable(ui_.d_categoryTable, "Total", totaltime.toString("h:mm"));
+}
+
+void History::d_fillActivity(const QDate& date) {
+  ui_.d_activityTable->setRowCount(0);
+
+  const QDateTime start(date);
+  const QDateTime end = QDateTime(date.addDays(1)).addSecs(-1);
+
+  QString qstring("SELECT activity, sum(strftime('%s', end) - strftime('%s', start)) AS diff FROM \
+  time WHERE start>='%1' and start<='%2' GROUP BY activity ORDER BY diff DESC");
+  qstring = qstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
+  QSqlQuery cquery(qstring, db_);
+
+  cquery.exec();
+  while (cquery.next()) {
+    const QTime t = TDBHelper::secsToQTime(cquery.value(1).toInt());
+    insertIntoTable(ui_.d_activityTable, cquery.value(0).toString(), t.toString("h:mm"));
+  }
+
+  //total
+  const QTime totaltime = getTotal(start, end);
+  insertIntoTable(ui_.d_activityTable, "Total", totaltime.toString("h:mm"));
 }
 
 void History::d_activated(const QDate& date) {
   d_fillCategory(date);
+  d_fillActivity(date);
 }
