@@ -37,7 +37,8 @@ private:
   Ui::History ui_;
   QSqlDatabase db_;
 
-private slots:
+private:
+  void d_fillCategory(const QDate& date);
   void d_activated(const QDate& date);
 };
 
