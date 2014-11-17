@@ -50,15 +50,12 @@ signals:
   void minutesPassed(const int minutes);
 
 private:
-  static const QString DATEFORMAT;//sqlite dateformat
-
   bool activity_running_ = false;
   QSqlRecord current_activity_;
   QTimer timer_;
   int minutes_passed_ = 0;
   QDate currentdate_;	//we save the date last time to check if we need to update the filter in update()
 
-  const QTime secsToQTime(const int seconds) const;
   QVariant runningActivityData(const QModelIndex& item, int role = Qt::DisplayRole) const;	//when we have the running row use this data
 };
 

@@ -17,39 +17,28 @@
  * 
  */
 
-#ifndef TIMEDATABASE_H
-#define TIMEDATABASE_H
+#ifndef HISTORY_H
+#define HISTORY_H
 
-#include <QtSql/QtSql>
+#include <QSqlDatabase>
+#include <QDate>
+#include <QDialog>
 
-class TimeDatabase : public QObject
+#include "ui_history.h"
+
+class TimeTableModel;
+class History : public QDialog
 {
-Q_OBJECT
-
+  Q_OBJECT
 public:
-  TimeDatabase();
-  ~TimeDatabase();
-  QSqlDatabase connect();
+  History(QSqlDatabase db, QWidget* parent = 0);
 
-  //db shortcuts
-  static const int T_ID;
-  static const int T_START;
-  static const int T_END;
-  static const int T_ACTIVITY;
-  static const int T_CATEGORY;
-  static const int C_ID;
-  static const int C_NAME;
-
-  static const QString DATEFORMAT;
-
-private:  
-  bool created = false;
+private:
+  Ui::History ui_;
   QSqlDatabase db_;
-  
-  bool createConnection();
-  
-  static int conNum;
+
+private slots:
+  void d_activated(const QDate& date);
 };
 
-
-#endif // TIMEDATABASE_H
+#endif // HISTORY_H

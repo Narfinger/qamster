@@ -11,8 +11,10 @@ set(qamster_SRCS
   activitycompletermodel.cpp
   activityitemdelegate.cpp
   editdialog.cpp
+  history.cpp
   qamster.cpp
   timedatabase.cpp
+  helperfunctions.cpp
   timetablemodel.cpp
   timetableview.cpp
   main.cpp
@@ -20,6 +22,7 @@ set(qamster_SRCS
 SET(qamster_FORMS
   ui/qamster.ui
   ui/editdialog.ui
+  ui/history.ui
 )
 QT5_WRAP_UI(qamster_FORMS_HDRS ${qamster_FORMS})
 

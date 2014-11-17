@@ -22,10 +22,9 @@
 #include <QStringList>
 #include <QTime>
 
+#include "helperfunctions.h"
 #include "timedatabase.h"
 #include "timetablemodel.h"
-
-const QString TimeTableModel::DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
 TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) :
     QSqlRelationalTableModel(parent, db), currentdate_(QDate::currentDate()) {
@@ -67,8 +66,8 @@ QVariant TimeTableModel::data(const QModelIndex& item, int role) const
     if (role==Qt::DisplayRole) {
       const QString startstring = data(item.sibling(item.row(), TimeDatabase::T_START)).toString();
       const QString endstring = data(item.sibling(item.row(), TimeDatabase::T_END)).toString();
-      const QDateTime start = QDateTime::fromString(startstring, TimeTableModel::DATEFORMAT);
-      const QDateTime end = QDateTime::fromString(endstring, TimeTableModel::DATEFORMAT);
+      const QDateTime start = QDateTime::fromString(startstring, TimeDatabase::DATEFORMAT);
+      const QDateTime end = QDateTime::fromString(endstring, TimeDatabase::DATEFORMAT);
       const QTime diff = QTime::fromMSecsSinceStartOfDay(end.toMSecsSinceEpoch() - start.toMSecsSinceEpoch());
       
       QString format = QString("%1min").arg(diff.minute());
@@ -89,7 +88,7 @@ QVariant TimeTableModel::data(const QModelIndex& item, int role) const
 
 bool TimeTableModel::setData(const QModelIndex& index, const QDateTime& d, int role) {
   if (index.column() != 1 && index.column() != 2) return false;
-  const QString date = d.toString(TimeTableModel::DATEFORMAT);
+  const QString date = d.toString(TimeDatabase::DATEFORMAT);
   return setData(index, date, role);
 }
 
@@ -103,7 +102,7 @@ Qt::ItemFlags TimeTableModel::flags(const QModelIndex& index) const {
 void TimeTableModel::stopActivity() {
   const QDateTime d(QDateTime::currentDateTime());
   if (activity_running_) {
-    current_activity_.setValue(TimeDatabase::T_END, d.toString(TimeTableModel::DATEFORMAT));
+    current_activity_.setValue(TimeDatabase::T_END, d.toString(TimeDatabase::DATEFORMAT));
     insertRowIntoTable(current_activity_);
     QSqlError e = lastError();
     //qDebug() << e << e.type() << e.databaseText() << e.driverText();
@@ -145,7 +144,7 @@ void TimeTableModel::startActivity(const QString& name, const QString& category)
 
   //prepare QSqlRecord
   const QDateTime d(QDateTime::currentDateTime());
-  current_activity_.setValue(TimeDatabase::T_START, d.toString(TimeTableModel::DATEFORMAT));
+  current_activity_.setValue(TimeDatabase::T_START, d.toString(TimeDatabase::DATEFORMAT));
   current_activity_.setValue(TimeDatabase::T_ACTIVITY, name);
   current_activity_.setValue(TimeDatabase::T_CATEGORY, cid);
   activity_running_ = true;
@@ -163,11 +162,11 @@ const QString TimeTableModel::getTodaysStatusbarText() const {
   //gives in secs
   sums.prepare("SELECT category.id AS cid,category.name AS name,sum(strftime('%s', end) - strftime('%s', start)) AS diff \
 	       FROM time INNER JOIN  category ON category.id = time.category WHERE date(end)>=:date GROUP BY cid ORDER BY cid");
-  sums.bindValue(":date", d.toString(TimeTableModel::DATEFORMAT));
+  sums.bindValue(":date", d.toString(TimeDatabase::DATEFORMAT));
   sums.exec();
   total.prepare("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum \
 		FROM time WHERE date(end)>=:date");
-  total.bindValue(":date", d.toString(TimeTableModel::DATEFORMAT));
+  total.bindValue(":date", d.toString(TimeDatabase::DATEFORMAT));
   total.exec();
   total.next();
 
@@ -177,11 +176,11 @@ const QString TimeTableModel::getTodaysStatusbarText() const {
     const QString cname = sums.value(1).toString();
     const unsigned long long cattotal = sums.value(2).toLongLong();
     const double ratio = static_cast<double>(cattotal) / static_cast<double>(totalsecs);
-    const QTime t = secsToQTime(cattotal);
+    const QTime t = TDBHelper::secsToQTime(cattotal);
 
     result.append(QString("%1: %2h (%3%) | ").arg(cname).arg(t.toString("H:mm")).arg(QString::number(ratio, 'f', 2)));
   }
-  const QTime t = secsToQTime(totalsecs);
+  const QTime t = TDBHelper::secsToQTime(totalsecs);
   result.append(QString("total: %1h").arg(t.toString("H:mm")));
   return result;
 }
@@ -190,7 +189,7 @@ void TimeTableModel::update(const bool force) {
   if(force || currentdate_ != QDate::currentDate()) {
     //set filter for today
     const QDateTime d(QDate::currentDate().addDays(-1));
-    setFilter("date(end)>='" + d.toString(TimeTableModel::DATEFORMAT) + "'");
+    setFilter("date(end)>='" + d.toString(TimeDatabase::DATEFORMAT) + "'");
     currentdate_ = d.date();
   }
   select();
@@ -223,13 +222,6 @@ void TimeTableModel::setCategory(const QModelIndex& index, const int c) {
   q.bindValue(":cid", c +1); //indices start at one cbox starts at zero
   q.bindValue(":id", id);
   q.exec();
-}
-
-const QTime TimeTableModel::secsToQTime(const int seconds) const {
-  const int s = seconds % 60;
-  const int m = (seconds / 60) % 60;
-  const int h = ((seconds / 60) /60);
-  return QTime(h,m,s);
 }
 
 QVariant TimeTableModel::runningActivityData(const QModelIndex& item, int role) const {

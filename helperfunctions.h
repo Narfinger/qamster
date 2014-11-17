@@ -17,39 +17,14 @@
  * 
  */
 
-#ifndef TIMEDATABASE_H
-#define TIMEDATABASE_H
+#ifndef HELPERFUNCTIONS_H
+#define HELPERFUNCTIONS_H
 
-#include <QtSql/QtSql>
+#include <QTime>
 
-class TimeDatabase : public QObject
-{
-Q_OBJECT
-
-public:
-  TimeDatabase();
-  ~TimeDatabase();
-  QSqlDatabase connect();
-
-  //db shortcuts
-  static const int T_ID;
-  static const int T_START;
-  static const int T_END;
-  static const int T_ACTIVITY;
-  static const int T_CATEGORY;
-  static const int C_ID;
-  static const int C_NAME;
-
-  static const QString DATEFORMAT;
-
-private:  
-  bool created = false;
-  QSqlDatabase db_;
-  
-  bool createConnection();
-  
-  static int conNum;
-};
+namespace TDBHelper {
+  const QTime secsToQTime(const int seconds);
+}
 
 
-#endif // TIMEDATABASE_H
+#endif // HELPERFUNCTIONS_H

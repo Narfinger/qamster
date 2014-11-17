@@ -85,8 +85,23 @@
      <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuQamster">
+    <property name="title">
+     <string>Qamster</string>
+    </property>
+    <addaction name="actionHistory"/>
+   </widget>
+   <addaction name="menuQamster"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionHistory">
+   <property name="icon">
+    <iconset theme="appointment-new"/>
+   </property>
+   <property name="text">
+    <string>Show History</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

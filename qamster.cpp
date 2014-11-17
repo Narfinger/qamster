@@ -2,6 +2,7 @@
 
 #include "activityitemdelegate.h"
 #include "editdialog.h"
+#include "history.h"
 #include "timedatabase.h"
 #include "timetablemodel.h"
 #include "timetableview.h"
@@ -43,6 +44,9 @@ Qamster::Qamster() {
   connect(rtm_.data(), &TimeTableModel::minutesPassed, this, &Qamster::minutesPassed);
   connect(ui_.tableView, &TimeTableView::start, this, &Qamster::doubleClicked);
 
+  //actions
+  connect(ui_.actionHistory, &QAction::triggered, this, &Qamster::showHistory);
+
   stateChanged();
 }
 
@@ -65,8 +69,7 @@ void Qamster::stateChanged() {
 void Qamster::doubleClicked(const QModelIndex& index) {
   if (index.column() == 6) {
     EditDialog d(rtm_, tdb_.connect(), index);
-    int result = d.exec();
-    qDebug() << result;
+    d.exec();
     rtm_->update();
   } else {
     QStringList slist;
@@ -108,3 +111,7 @@ void Qamster::startActivityStrings(const QStringList& slist) {
   ui_.tableView->scrollToBottom();
 }
 
+void Qamster::showHistory() {
+  History h(tdb_.connect());
+  h.exec();
+}

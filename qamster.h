@@ -31,6 +31,8 @@ private:
   void startActivityFromLineEdit();
   void startActivityStrings(const QStringList& slist);
 
+private slots:
+  void showHistory();
 };
 
 #endif // qamster_H

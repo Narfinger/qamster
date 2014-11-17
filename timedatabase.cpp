@@ -29,6 +29,7 @@ const int TimeDatabase::T_CATEGORY = 4;
 const int TimeDatabase::C_ID = 0;
 const int TimeDatabase::C_NAME = 1;
 
+const QString TimeDatabase::DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
 TimeDatabase::TimeDatabase() {
   db_ = QSqlDatabase::addDatabase("QSQLITE");
