@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QProgressBar>
 
 History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) { 
   ui_.setupUi(this);
@@ -53,11 +54,27 @@ const QTime History::getTotal(const QDateTime& start, const QDateTime& end) {
   return TDBHelper::secsToQTime(tquery.value(0).toInt());
 }
 
-void History::insertIntoTable(QTableWidget* w, const QString& one, const QString& two) {
+void History::insertProgressBarIntoTable(QTableWidget* w, const QString& one, const QTime& time, const int totalsecs) {
+  if (w==nullptr) { qDebug() << "null tablewidget given"; return; }
+  const int row = w->rowCount();
+  w->insertRow(row);
+  QTableWidgetItem* c = new QTableWidgetItem(one);
+  QProgressBar* b = new QProgressBar();
+  b->setMaximum(totalsecs);
+  const int seconds = time.hour()*60*60 + time.minute()*60 + time.second();
+  b->setValue(seconds);
+  b->setFormat(time.toString("h:mm"));
+  w->setItem(row, 0, c);
+  w->setCellWidget(row, 1, b);
+}
+
+void History::insertItemIntoTable(QTableWidget* w, const QString& one, const QString& two) {
+  if (w==nullptr) { qDebug() << "null tablewidget given"; return; }
   const int row = w->rowCount();
   w->insertRow(row);
   QTableWidgetItem *c = new QTableWidgetItem(one);
   QTableWidgetItem *d = new QTableWidgetItem(two);
+  d->setTextAlignment(Qt::AlignCenter);
   w->setItem(row, 0, c);
   w->setItem(row, 1, d);
 }
@@ -78,15 +95,16 @@ void History::d_fillCategory(const QDate& date) {
   cquery.bindValue(":start", "'" + start.toString(TimeDatabase::DATEFORMAT) + "'");
   cquery.bindValue(":end", "'" + end.toString(TimeDatabase::DATEFORMAT) + "'");*/
 
+  const QTime totaltime = getTotal(start, end);
+  const int totalsecs = totaltime.hour()*60*60 + totaltime.minute()*60 + totaltime.second();
+
   cquery.exec();
   while (cquery.next()) {
     const QTime t = TDBHelper::secsToQTime(cquery.value(2).toInt());
-    insertIntoTable(ui_.d_categoryTable, cquery.value(1).toString(), t.toString("h:mm"));
+    insertProgressBarIntoTable(ui_.d_categoryTable, cquery.value(1).toString(), t, totalsecs);
   }
-
   //total
-  const QTime totaltime = getTotal(start, end);
-  insertIntoTable(ui_.d_categoryTable, "Total", totaltime.toString("h:mm"));
+  insertItemIntoTable(ui_.d_categoryTable, "Total", totaltime.toString("h:mm"));
 }
 
 void History::d_fillActivity(const QDate& date) {
@@ -100,15 +118,15 @@ void History::d_fillActivity(const QDate& date) {
   qstring = qstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
   QSqlQuery cquery(qstring, db_);
 
+  const QTime totaltime = getTotal(start, end);
+  const int totalsecs = totaltime.hour()*60*60 + totaltime.minute()*60 + totaltime.second();
   cquery.exec();
   while (cquery.next()) {
     const QTime t = TDBHelper::secsToQTime(cquery.value(1).toInt());
-    insertIntoTable(ui_.d_activityTable, cquery.value(0).toString(), t.toString("h:mm"));
+    insertProgressBarIntoTable(ui_.d_activityTable, cquery.value(0).toString(), t, totalsecs);
   }
-
   //total
-  const QTime totaltime = getTotal(start, end);
-  insertIntoTable(ui_.d_activityTable, "Total", totaltime.toString("h:mm"));
+  insertItemIntoTable(ui_.d_activityTable, "Total", totaltime.toString("h:mm"));
 }
 
 void History::d_activated(const QDate& date) {

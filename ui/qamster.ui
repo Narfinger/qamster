@@ -90,16 +90,29 @@
      <string>Qamster</string>
     </property>
     <addaction name="actionHistory"/>
+    <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuQamster"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionHistory">
    <property name="icon">
-    <iconset theme="appointment-new"/>
+    <iconset theme="appointment-new">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
     <string>Show History</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset theme="application-exit">
+     <normaloff/>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Quit</string>
    </property>
   </action>
  </widget>

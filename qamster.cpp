@@ -46,6 +46,7 @@ Qamster::Qamster() {
 
   //actions
   connect(ui_.actionHistory, &QAction::triggered, this, &Qamster::showHistory);
+  connect(ui_.actionQuit, &QAction::triggered, qApp, &QApplication::quit);
 
   stateChanged();
 }

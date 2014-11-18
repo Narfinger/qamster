@@ -39,7 +39,8 @@ private:
 
 private:
   const QTime getTotal(const QDateTime& start, const QDateTime& end);
-  void insertIntoTable(QTableWidget* w, const QString& one, const QString& two);
+  void insertProgressBarIntoTable(QTableWidget* w, const QString& one, const QTime& time, const int totalsecs);
+  void insertItemIntoTable(QTableWidget* w, const QString& one, const QString& two);
   void d_fillCategory(const QDate& date);
   void d_fillActivity(const QDate& date);
   void d_activated(const QDate& date);
