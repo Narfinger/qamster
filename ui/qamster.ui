@@ -120,7 +120,7 @@
   <customwidget>
    <class>TimeTableView</class>
    <extends>QTableView</extends>
-   <header>timetableview.h</header>
+   <header>src/timetableview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

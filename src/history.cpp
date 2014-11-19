@@ -43,6 +43,29 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   ui_.d_calendarWidget->setMaximumDate(max);
 
   d_activated(QDate::currentDate());
+  
+  QCustomPlot* p = ui_.w_history;
+  p->clearGraphs();
+  QCPBars* first = new QCPBars(p->xAxis, p->yAxis);
+  p->addPlottable(first);
+  QVector<double> ticks;
+  QVector<QString> labels;
+  ticks << 1 << 2 << 3 << 4 << 5 << 6 << 7;
+  labels << "Monday" << "Tuesday" << "Wednesday" << "Thursday" << "Friday" << "Saturday" << "Sunday";
+  p->xAxis->setAutoTicks(false);
+  p->xAxis->setAutoTickLabels(false);
+  p->xAxis->setTickVector(ticks);
+  p->xAxis->setTickVectorLabels(labels);
+  p->xAxis->setSubTickCount(0);
+  p->xAxis->setTickLength(0,10);
+  p->xAxis->grid()->setVisible(false);
+  p->xAxis->setRange(0,7);
+  
+  p->yAxis->setRange(0,10);
+  QVector<double> data;
+  data << 7.2 << 7.0 << 5.0 << 8.0 << 7.5 << 7.5 << 0.0;
+  first->setData(ticks, data);  
+  
 }
 
 const QTime History::getTotal(const QDateTime& start, const QDateTime& end) {
