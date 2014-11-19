@@ -29,7 +29,7 @@
 History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) { 
   ui_.setupUi(this);
   connect(ui_.buttonBox, &QDialogButtonBox::rejected, this, &History::reject);
-  connect(ui_.d_calendarWidget, &QCalendarWidget::activated, this, &History::d_activated);
+  connect(ui_.d_calendarWidget, &QCalendarWidget::clicked, this, &History::d_activated);
 
   QSqlQuery q("SELECT start FROM time ORDER BY id LIMIT 1", db_);
   q.exec();
