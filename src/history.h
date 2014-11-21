@@ -37,13 +37,20 @@ private:
   Ui::History ui_;
   QSqlDatabase db_;
 
+  QSharedPointer<QCPBars> bars_;
+  QVector<double> ticks_;
+
 private:
   const QTime getTotal(const QDateTime& start, const QDateTime& end);
+  const QPair<QDate,QDate> getWeek(const QDate& date);
+  void activated(const QDate& date);
   void insertProgressBarIntoTable(QTableWidget* w, const QString& one, const QTime& time, const int totalsecs);
   void insertItemIntoTable(QTableWidget* w, const QString& one, const QString& two);
   void d_fillCategory(const QDate& date);
   void d_fillActivity(const QDate& date);
   void d_activated(const QDate& date);
+
+  void w_activated(const QDate& date);
 };
 
 #endif // HISTORY_H

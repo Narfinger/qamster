@@ -24,12 +24,14 @@
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QPair>
 #include <QProgressBar>
 
 History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) { 
   ui_.setupUi(this);
   connect(ui_.buttonBox, &QDialogButtonBox::rejected, this, &History::reject);
-  connect(ui_.d_calendarWidget, &QCalendarWidget::clicked, this, &History::d_activated);
+  connect(ui_.tabWidget, &QTabWidget::currentChanged, [=]() { activated(ui_.calendarWidget->selectedDate()); });
+  connect(ui_.calendarWidget, &QCalendarWidget::clicked, this, &History::activated);
 
   QSqlQuery q("SELECT start FROM time ORDER BY id LIMIT 1", db_);
   q.exec();
@@ -39,33 +41,28 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   q.next();
   const QDate max = q.value(0).toDateTime().date();
   
-  ui_.d_calendarWidget->setMinimumDate(min);
-  ui_.d_calendarWidget->setMaximumDate(max);
-
-  d_activated(QDate::currentDate());
+  ui_.calendarWidget->setMinimumDate(min);
+  ui_.calendarWidget->setMaximumDate(max);
   
+  //setup plots
   QCustomPlot* p = ui_.w_history;
   p->clearGraphs();
-  QCPBars* first = new QCPBars(p->xAxis, p->yAxis);
-  p->addPlottable(first);
-  QVector<double> ticks;
+  bars_ = QSharedPointer<QCPBars>(new QCPBars(p->xAxis, p->yAxis));
+  bars_->setWidth(0.25); 
+  ticks_ << 0.5 << 1.0 << 1.5 << 2.0 << 2.5 << 3.0 << 3.5;
   QVector<QString> labels;
-  ticks << 1 << 2 << 3 << 4 << 5 << 6 << 7;
-  labels << "Monday" << "Tuesday" << "Wednesday" << "Thursday" << "Friday" << "Saturday" << "Sunday";
+  labels << "Mon" << "Tue" << "Wed" << "Thu" << "Fri" << "Sat" << "Sun";
   p->xAxis->setAutoTicks(false);
   p->xAxis->setAutoTickLabels(false);
-  p->xAxis->setTickVector(ticks);
+  p->xAxis->setTickVector(ticks_);
   p->xAxis->setTickVectorLabels(labels);
   p->xAxis->setSubTickCount(0);
   p->xAxis->setTickLength(0,10);
   p->xAxis->grid()->setVisible(false);
   p->xAxis->setRange(0,7);
-  
   p->yAxis->setRange(0,10);
-  QVector<double> data;
-  data << 7.2 << 7.0 << 5.0 << 8.0 << 7.5 << 7.5 << 0.0;
-  first->setData(ticks, data);  
-  
+
+  d_activated(QDate::currentDate());
 }
 
 const QTime History::getTotal(const QDateTime& start, const QDateTime& end) {
@@ -75,6 +72,20 @@ const QTime History::getTotal(const QDateTime& start, const QDateTime& end) {
   tquery.exec();
   tquery.next();
   return TDBHelper::secsToQTime(tquery.value(0).toInt());
+}
+
+const QPair<QDate, QDate> History::getWeek(const QDate& date) {
+  const int day = date.dayOfWeek();
+  const QDate start = date.addDays(-(day-1));
+  const QDate end = date.addDays(7-day);
+  return QPair<QDate, QDate>(start, end);
+}
+
+void History::activated(const QDate& date) {
+  switch(ui_.tabWidget->currentIndex()) {
+    case 0: d_activated(date); break;
+    case 1: w_activated(date); break;
+  }
 }
 
 void History::insertProgressBarIntoTable(QTableWidget* w, const QString& one, const QTime& time, const int totalsecs) {
@@ -155,4 +166,34 @@ void History::d_fillActivity(const QDate& date) {
 void History::d_activated(const QDate& date) {
   d_fillCategory(date);
   d_fillActivity(date);
+}
+
+void History::w_activated(const QDate& date) {
+  const QPair<QDate,QDate> pdate = getWeek(date);
+  const QDate start = pdate.first;
+  const QDate end = pdate.second;
+  qDebug() << pdate;
+  QVector<double> b;
+
+  for(int i = 0; i < 7; i++) {
+    const QDateTime t_start = QDateTime(start).addDays(i);
+    const QDateTime t_end = QDateTime(start).addDays(i+1).addSecs(-1);
+
+    //fill bars
+    QString qstring("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum FROM \
+		     time WHERE start>='%1' and end<='%2'");
+    qstring = qstring.arg(t_start.toString(TimeDatabase::DATEFORMAT)).arg(t_end.toString(TimeDatabase::DATEFORMAT));
+    QSqlQuery cquery(qstring, db_);
+    cquery.exec();
+    cquery.next();
+
+    const QTime t = TDBHelper::secsToQTime(cquery.value(0).toInt());
+    const double hours = t.hour();
+    const double minutes = ((double)t.minute() / 60l);
+    b << hours + minutes;
+  }
+
+  bars_->clearData();
+  bars_->addData(ticks_, b);
+  ui_.w_history->replot();
 }
