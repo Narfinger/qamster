@@ -6,102 +6,142 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>805</width>
-    <height>575</height>
+    <width>857</width>
+    <height>515</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>History</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="currentIndex">
-      <number>1</number>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Daily</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
-        <widget class="QCalendarWidget" name="d_calendarWidget">
-         <property name="firstDayOfWeek">
-          <enum>Qt::Monday</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QTableWidget" name="d_activityTable">
-         <property name="columnCount">
-          <number>2</number>
-         </property>
-         <column>
-          <property name="text">
-           <string>Activity</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Hours</string>
-          </property>
-         </column>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label">
+     <property name="opaqueResize">
+      <bool>true</bool>
+     </property>
+     <property name="handleWidth">
+      <number>3</number>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>true</bool>
+     </property>
+     <widget class="QCalendarWidget" name="calendarWidget">
+      <property name="firstDayOfWeek">
+       <enum>Qt::Monday</enum>
+      </property>
+     </widget>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Daily</string>
+       </attribute>
+       <widget class="QTableWidget" name="d_activityTable">
+        <property name="geometry">
+         <rect>
+          <x>4</x>
+          <y>22</y>
+          <width>254</width>
+          <height>256</height>
+         </rect>
+        </property>
+        <property name="columnCount">
+         <number>2</number>
+        </property>
+        <column>
          <property name="text">
           <string>Activity</string>
          </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QTableWidget" name="d_categoryTable">
-         <column>
-          <property name="text">
-           <string>Category</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Hours</string>
-          </property>
-         </column>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_2">
+        </column>
+        <column>
+         <property name="text">
+          <string>Hours</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>4</x>
+          <y>4</y>
+          <width>46</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Activity</string>
+        </property>
+       </widget>
+       <widget class="QTableWidget" name="d_categoryTable">
+        <property name="geometry">
+         <rect>
+          <x>262</x>
+          <y>22</y>
+          <width>254</width>
+          <height>256</height>
+         </rect>
+        </property>
+        <column>
          <property name="text">
           <string>Category</string>
          </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Weekly</string>
-      </attribute>
-      <widget class="QCustomPlot" name="w_history" native="true">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>601</width>
-         <height>161</height>
-        </rect>
-       </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Hours</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>262</x>
+          <y>4</y>
+          <width>58</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Category</string>
+        </property>
+       </widget>
       </widget>
-     </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Overall</string>
-      </attribute>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Weekly</string>
+       </attribute>
+       <widget class="QCustomPlot" name="w_history" native="true">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>601</width>
+          <height>161</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Overall</string>
+       </attribute>
+      </widget>
      </widget>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item alignment="Qt::AlignRight">
     <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Close</set>
      </property>

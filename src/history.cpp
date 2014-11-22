@@ -27,6 +27,8 @@
 #include <QPair>
 #include <QProgressBar>
 
+const QVector<QColor> History::COLORS = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::magenta, Qt::yellow };
+
 History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) { 
   ui_.setupUi(this);
   connect(ui_.buttonBox, &QDialogButtonBox::rejected, this, &History::reject);
@@ -43,12 +45,40 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   
   ui_.calendarWidget->setMinimumDate(min);
   ui_.calendarWidget->setMaximumDate(max);
+  setupBarGraph();
   
-  //setup plots
+  d_activated(QDate::currentDate());
+}
+
+void History::setupBarGraph() {
+  // show values too
+  //give categories different color
   QCustomPlot* p = ui_.w_history;
   p->clearGraphs();
-  bars_ = QSharedPointer<QCPBars>(new QCPBars(p->xAxis, p->yAxis));
-  bars_->setWidth(0.25); 
+  QBrush brush(palette().color(QPalette::Background));
+  p->setBackground(brush);
+  //legend
+  p->legend->setVisible(true);
+  p->legend->setBrush(palette().color(QPalette::Foreground));
+  p->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignHCenter);
+  p->legend->setBrush(QColor(255, 255, 255, 200));
+
+
+  QSqlQuery q("SELECT name FROM category", db_);
+  q.exec();
+  while (q.next()) {
+    QSharedPointer<QCPBars> bar = QSharedPointer<QCPBars>(new QCPBars(p->xAxis, p->yAxis));
+    bar->setWidth(0.25); 
+    bar->setPen(QPen(COLORS[bars_.count()]));
+    bar->setBrush(COLORS[bars_.count()]);
+    bar->rescaleAxes();
+    bar->setName(q.value(0).toString());
+    p->addPlottable(bar.data());
+    bars_ << bar;
+  }
+  for(int i = 1; i<bars_.size(); i++) {
+    bars_[i]->moveAbove(bars_[i-1].data());
+  }
   ticks_ << 0.5 << 1.0 << 1.5 << 2.0 << 2.5 << 3.0 << 3.5;
   QVector<QString> labels;
   labels << "Mon" << "Tue" << "Wed" << "Thu" << "Fri" << "Sat" << "Sun";
@@ -60,9 +90,14 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   p->xAxis->setTickLength(0,10);
   p->xAxis->grid()->setVisible(false);
   p->xAxis->setRange(0,7);
+  p->xAxis->setTickPen(palette().color(QPalette::Text));
+  p->xAxis->setTickLabelColor(palette().color(QPalette::Text));
+  p->xAxis->setBasePen(palette().color(QPalette::Text));
+  
   p->yAxis->setRange(0,10);
-
-  d_activated(QDate::currentDate());
+  p->yAxis->setTickPen(palette().color(QPalette::Text));
+  p->yAxis->setTickLabelColor(palette().color(QPalette::Text));
+  p->yAxis->setBasePen(palette().color(QPalette::Text));
 }
 
 const QTime History::getTotal(const QDateTime& start, const QDateTime& end) {
@@ -172,28 +207,43 @@ void History::w_activated(const QDate& date) {
   const QPair<QDate,QDate> pdate = getWeek(date);
   const QDate start = pdate.first;
   const QDate end = pdate.second;
-  qDebug() << pdate;
-  QVector<double> b;
+  QVector<QVector<double> > b;
 
+  QSqlQuery cat("SELECT id FROM category", db_);
+  cat.exec();
+  QVector<int> cid;
+  while (cat.next()) {
+    cid << cat.value(0).toInt();
+    b.append(QVector<double>());
+  }
+  
   for(int i = 0; i < 7; i++) {
     const QDateTime t_start = QDateTime(start).addDays(i);
     const QDateTime t_end = QDateTime(start).addDays(i+1).addSecs(-1);
 
-    //fill bars
-    QString qstring("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum FROM \
-		     time WHERE start>='%1' and end<='%2'");
-    qstring = qstring.arg(t_start.toString(TimeDatabase::DATEFORMAT)).arg(t_end.toString(TimeDatabase::DATEFORMAT));
-    QSqlQuery cquery(qstring, db_);
-    cquery.exec();
-    cquery.next();
+    for(const int j : cid) {
+      //fill bars
+      QString qstring("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum FROM \
+		      time WHERE start>='%1' AND end<='%2' AND category=%3");
+      qstring = qstring.arg(t_start.toString(TimeDatabase::DATEFORMAT)).arg(t_end.toString(TimeDatabase::DATEFORMAT)).arg(j);
+      QSqlQuery cquery(qstring, db_);
+      cquery.exec();
+      cquery.next();
 
-    const QTime t = TDBHelper::secsToQTime(cquery.value(0).toInt());
-    const double hours = t.hour();
-    const double minutes = ((double)t.minute() / 60l);
-    b << hours + minutes;
+      const QTime t = TDBHelper::secsToQTime(cquery.value(0).toInt());
+      const double hours = t.hour();
+      const double minutes = ((double)t.minute() / 60l);
+      b[j-1] << hours + minutes;
+    }
   }
+  qDebug() << b;
 
-  bars_->clearData();
-  bars_->addData(ticks_, b);
+  for(int i=0; i< bars_.size(); i++) {
+    QSharedPointer<QCPBars> bar = bars_[i];
+    bar->clearData();
+    bar->addData(ticks_, b[i]);
+  }
+  //bars_->clearData();
+  //bars_->addData(ticks_, b);
   ui_.w_history->replot();
 }

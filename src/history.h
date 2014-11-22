@@ -37,10 +37,12 @@ private:
   Ui::History ui_;
   QSqlDatabase db_;
 
-  QSharedPointer<QCPBars> bars_;
+  QVector<QSharedPointer<QCPBars> > bars_;
   QVector<double> ticks_;
+  const static QVector<QColor> COLORS;
 
 private:
+  void setupBarGraph();
   const QTime getTotal(const QDateTime& start, const QDateTime& end);
   const QPair<QDate,QDate> getWeek(const QDate& date);
   void activated(const QDate& date);
