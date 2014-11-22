@@ -37,7 +37,7 @@ private:
   Ui::History ui_;
   QSqlDatabase db_;
 
-  QVector<QSharedPointer<QCPBars> > bars_;
+  QVector<QCPBars*> bars_;	//the widget is responsible for destruction
   QVector<double> ticks_;
   const static QVector<QColor> COLORS;
 

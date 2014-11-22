@@ -67,17 +67,17 @@ void History::setupBarGraph() {
   QSqlQuery q("SELECT name FROM category", db_);
   q.exec();
   while (q.next()) {
-    QSharedPointer<QCPBars> bar = QSharedPointer<QCPBars>(new QCPBars(p->xAxis, p->yAxis));
+    QCPBars* bar = new QCPBars(p->xAxis, p->yAxis);
     bar->setWidth(0.25); 
     bar->setPen(QPen(COLORS[bars_.count()]));
     bar->setBrush(COLORS[bars_.count()]);
     bar->rescaleAxes();
     bar->setName(q.value(0).toString());
-    p->addPlottable(bar.data());
+    p->addPlottable(bar);
     bars_ << bar;
   }
   for(int i = 1; i<bars_.size(); i++) {
-    bars_[i]->moveAbove(bars_[i-1].data());
+    bars_[i]->moveAbove(bars_[i-1]);
   }
   ticks_ << 0.5 << 1.0 << 1.5 << 2.0 << 2.5 << 3.0 << 3.5;
   QVector<QString> labels;
@@ -236,14 +236,11 @@ void History::w_activated(const QDate& date) {
       b[j-1] << hours + minutes;
     }
   }
-  qDebug() << b;
 
   for(int i=0; i< bars_.size(); i++) {
-    QSharedPointer<QCPBars> bar = bars_[i];
+    QCPBars* bar = bars_[i];
     bar->clearData();
     bar->addData(ticks_, b[i]);
   }
-  //bars_->clearData();
-  //bars_->addData(ticks_, b);
   ui_.w_history->replot();
 }
