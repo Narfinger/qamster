@@ -37,7 +37,8 @@ Qamster::Qamster() {
   c->setCompletionMode(QCompleter::PopupCompletion);
   ui_.activityEdit->setCompleter(c);
 
-  connect(ui_.activityEdit, &QLineEdit::returnPressed, this, &Qamster::startActivityFromLineEdit);
+  connect(ui_.activityEdit, &QLineEdit::editingFinished, this, &Qamster::startActivityFromLineEdit);
+  connect(c, SIGNAL(activated(const QString&)), ui_.activityEdit, SLOT(clear()), Qt::QueuedConnection);	//i could not get this to work with the new syntax
   connect(ui_.stopActivityButton, &QPushButton::pressed, this, &Qamster::stopActivity);
   connect(ui_.refilterButton, &QPushButton::pressed, [=]() { rtm_->update();
 							     stateChanged(); });
@@ -96,6 +97,8 @@ void Qamster::startActivityFromLineEdit() {
   
   const QStringList slist = ui_.activityEdit->text().split("@");
   startActivityStrings(slist);
+
+  ui_.activityEdit->clear();
 }
 
 void Qamster::startActivityStrings(const QStringList& slist) {
