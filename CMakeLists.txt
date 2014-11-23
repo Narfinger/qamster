@@ -12,6 +12,7 @@ set(qamster_SRCS
   src/activitycompletermodel.cpp
   src/activityitemdelegate.cpp
   src/editdialog.cpp
+  src/histogram.cpp
   src/history.cpp
   src/qamster.cpp
   src/timedatabase.cpp

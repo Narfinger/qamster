@@ -115,7 +115,7 @@
        <attribute name="title">
         <string>Weekly</string>
        </attribute>
-       <widget class="QCustomPlot" name="w_history" native="true">
+       <widget class="Histogram" name="w_history" native="true">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -154,9 +154,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
+   <class>Histogram</class>
    <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
+   <header>src/histogram.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

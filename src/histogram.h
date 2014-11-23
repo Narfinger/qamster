@@ -17,38 +17,29 @@
  * 
  */
 
-#ifndef HISTORY_H
-#define HISTORY_H
+#ifndef HISTOGRAM_H
+#define HISTOGRAM_H
 
 #include <QSqlDatabase>
-#include <QDate>
-#include <QDialog>
 
-#include "ui_history.h"
+#include "../lib/qcustomplot.h"
 
-class TimeTableModel;
-class History : public QDialog
+class Histogram : public QCustomPlot
 {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  History(QSqlDatabase db, QWidget* parent = 0);
+  Histogram(QWidget* parent = 0);
+
+  void setDb(QSqlDatabase db) { db_ = db; setupHistogram(); };
+  void drawWeek(const QDate& start, const QDate& end);
 
 private:
-  Ui::History ui_;
   QSqlDatabase db_;
+  QVector<QCPBars*> bars_;	//the widget is responsible for destruction
+  QVector<double> ticks_;
+  const static QVector<QColor> COLORS;
 
-private:
-  void setupBarGraph();
-  const QTime getTotal(const QDateTime& start, const QDateTime& end);
-  const QPair<QDate,QDate> getWeek(const QDate& date);
-  void activated(const QDate& date);
-  void insertProgressBarIntoTable(QTableWidget* w, const QString& one, const QTime& time, const int totalsecs);
-  void insertItemIntoTable(QTableWidget* w, const QString& one, const QString& two);
-  void d_fillCategory(const QDate& date);
-  void d_fillActivity(const QDate& date);
-  void d_activated(const QDate& date);
-
-  void w_activated(const QDate& date);
+  void setupHistogram();	//this can only be called if we set a db and not in the constructor
 };
 
-#endif // HISTORY_H
+#endif // HISTOGRAM_H
