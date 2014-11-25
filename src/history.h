@@ -24,6 +24,8 @@
 #include <QDate>
 #include <QDialog>
 
+#include "helperfunctions.h"
+
 #include "ui_history.h"
 
 class TimeTableModel;
@@ -39,7 +41,13 @@ private:
 
 private:
   void setupBarGraph();
-  const QTime getTotal(const QDateTime& start, const QDateTime& end);
+
+  //black template magic, see comment in code
+  template <typename Func=decltype(&TDBHelper::secsToQTime)>
+  typename std::result_of<Func(int)>::type getTotal(const QDate& start, const QDate& end, Func f = TDBHelper::secsToQTime);
+  template <typename Func=decltype(&TDBHelper::secsToQTime)>
+  typename std::result_of<Func(int)>::type getTotal(const QDateTime& start, const QDateTime& end, Func f = TDBHelper::secsToQTime);
+
   const QPair<QDate,QDate> getWeek(const QDate& date);
   void activated(const QDate& date);
   void insertProgressBarIntoTable(QTableWidget* w, const QString& one, const QTime& time, const int totalsecs);

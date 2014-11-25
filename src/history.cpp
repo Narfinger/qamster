@@ -21,6 +21,7 @@
 #include "history.h"
 #include "timedatabase.h"
 
+#include <functional>
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -49,13 +50,26 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   d_activated(QDate::currentDate());
 }
 
-const QTime History::getTotal(const QDateTime& start, const QDateTime& end) {
+/** this is some c++ magic which i got from some guy on irc
+ * notes: decltype(&foo) need the &
+ * in C++14 we can omit the return type and write auto
+ */
+template <typename Func>
+typename std::result_of<Func(int)>::type History::getTotal(const QDate& start, const QDate& end, Func f) {
+  const QDateTime s = QDateTime(start);
+  const QDateTime e = QDateTime(end).addDays(1).addSecs(-1);
+  return getTotal(s,e,f);
+}
+
+template <typename Func>
+typename std::result_of<Func(int)>::type History::getTotal(const QDateTime& start, const QDateTime& end, Func f) {
   QString tqstring("SELECT sum(strftime('%s', end)- strftime('%s', start)) from time where start>='%1' and start<='%2'");
   tqstring = tqstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
   QSqlQuery tquery(tqstring, db_);
   tquery.exec();
   tquery.next();
-  return TDBHelper::secsToQTime(tquery.value(0).toInt());
+  const int value = tquery.value(0).toInt();
+  return f(value);
 }
 
 const QPair<QDate, QDate> History::getWeek(const QDate& date) {
@@ -157,4 +171,7 @@ void History::w_activated(const QDate& date) {
   const QDate start = pdate.first;
   const QDate end = pdate.second;
   ui_.w_history->drawWeek(start, end);
+  
+  const QString total = getTotal(start, end, std::function<QString(int)>(TDBHelper::secsToQString));
+  ui_.w_total->setText(total);
 }

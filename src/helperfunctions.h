@@ -24,6 +24,7 @@
 
 namespace TDBHelper {
   const QTime secsToQTime(const int seconds);
+  const QString secsToQString(const int seconds);
 }
 
 

@@ -19,10 +19,19 @@
 
 #include "helperfunctions.h"
 
+#include <QDebug>
+
 const QTime TDBHelper::secsToQTime(const int seconds) {
   const int s = seconds % 60;
   const int m = (seconds / 60) % 60;
-  const int h = ((seconds / 60) /60);
+  const int h = ((seconds / 60) / 60);
+  if (h>24) qDebug() << "Error in conversion, hours =" << h;
   return QTime(h,m,s);
 }
 
+const QString TDBHelper::secsToQString(const int seconds) {
+  const int s = seconds % 60;
+  const int m = (seconds / 60) % 60;
+  const int h = (seconds / 60) / 60;
+  return QString("%1:%2").arg(h).arg(m, 2, 10, QChar('0'));
+}
