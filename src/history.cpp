@@ -164,6 +164,17 @@ void History::d_fillActivity(const QDate& date) {
 void History::d_activated(const QDate& date) {
   d_fillCategory(date);
   d_fillActivity(date);
+
+  const QDateTime start(date);
+  const QDateTime end = QDateTime(date.addDays(1)).addSecs(-1);
+  //number of context switches
+  QString qstring("SELECT count(*) FROM time WHERE start>='%1' and start<='%2'");
+  qstring = qstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
+  QSqlQuery cquery(qstring, db_);
+  cquery.exec();
+  cquery.next();
+  const int contextswitches = std::max(cquery.value(0).toInt() -1, 0);
+  ui_.d_contextSwitch->setText(QString::number(contextswitches));
 }
 
 void History::w_activated(const QDate& date) {
