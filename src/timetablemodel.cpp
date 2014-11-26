@@ -238,3 +238,15 @@ QVariant TimeTableModel::runningActivityData(const QModelIndex& item, int role) 
 
   return current_activity_.value(item.column());
 }
+
+void TimeTableModel::cleanup() {
+  qDebug() << "starting cleanup";
+  for (int i = 0; i<rowCount(); i++) {
+    const QString diff = data(index(i, 5)).toString();
+    if (diff == "0min") {
+      qDebug() << "remove";
+      removeRow(i);
+    }
+  }
+  update();
+}

@@ -46,6 +46,7 @@ public:
   int categoryIdForIndex(const QModelIndex& index) const;
   void setCategory(const QModelIndex& index, const int c);
 
+  void cleanup(); //tmp public
 signals:
   void minutesPassed(const int minutes);
 

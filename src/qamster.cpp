@@ -48,6 +48,8 @@ Qamster::Qamster() {
   connect(ui_.actionHistory, &QAction::triggered, this, &Qamster::showHistory);
   connect(ui_.actionQuit, &QAction::triggered, qApp, &QApplication::quit);
 
+  connect(ui_.tmpbutton, &QPushButton::pressed, rtm_.data(), &TimeTableModel::cleanup);
+
   stateChanged();
 }
 
