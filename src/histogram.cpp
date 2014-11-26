@@ -35,9 +35,8 @@ void Histogram::setupHistogram() {
   //legend
   legend->setVisible(true);
   legend->setBrush(palette().color(QPalette::Foreground));
-  axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignHCenter);
+  axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
   legend->setBrush(QColor(255, 255, 255, 200));
-
 
   QSqlQuery q("SELECT name FROM category", db_);
   q.exec();
