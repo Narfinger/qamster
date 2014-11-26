@@ -33,7 +33,8 @@ const QString TimeDatabase::DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
 TimeDatabase::TimeDatabase() {
   db_ = QSqlDatabase::addDatabase("QSQLITE");
-  db_.setDatabaseName("tmp.db");
+  const QString path = QStandardPaths::standardLocations(QStandardPaths::DataLocation).at(0) + "/time.db";
+  db_.setDatabaseName(path);
 }
 
 TimeDatabase::~TimeDatabase() {

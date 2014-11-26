@@ -57,6 +57,8 @@ private:
   void d_activated(const QDate& date);
 
   void w_activated(const QDate& date);
+
+  void g_activated();
 };
 
 #endif // HISTORY_H

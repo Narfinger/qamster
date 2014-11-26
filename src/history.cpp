@@ -83,6 +83,7 @@ void History::activated(const QDate& date) {
   switch(ui_.tabWidget->currentIndex()) {
     case 0: d_activated(date); break;
     case 1: w_activated(date); break;
+    case 2: g_activated(); break;
   }
 }
 
@@ -186,3 +187,22 @@ void History::w_activated(const QDate& date) {
   const QString total = getTotal(start, end, std::function<QString(int)>(TDBHelper::secsToQString));
   ui_.w_total->setText(total);
 }
+
+void History::g_activated() {
+  const QString total = getTotal(QDate(1,0,0), QDate::currentDate(), std::function<QString(int)>(TDBHelper::secsToQString));
+  ui_.g_totalTrack->setText(total);
+
+  const QDate start(1,0,0);
+  const QDate end = QDate::currentDate();
+
+  QString qstring("SELECT activity, sum(strftime('%s', end) - strftime('%s', start)) AS diff FROM \
+  time WHERE start>='%1' and start<='%2' GROUP BY activity ORDER BY diff DESC");
+  qstring = qstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
+  QSqlQuery cquery(qstring, db_);
+  cquery.exec();
+  while (cquery.next()) {
+    const QString t = TDBHelper::secsToQString(cquery.value(1).toInt());
+    insertItemIntoTable(ui_.g_categoryTable, cquery.value(0).toString(), t);
+  }
+}
+

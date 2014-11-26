@@ -43,8 +43,10 @@ void Histogram::setupHistogram() {
   q.exec();
   while (q.next()) {
     QCPBars* bar = new QCPBars(xAxis, yAxis);
-    bar->setWidth(0.25); 
-    bar->setPen(QPen(COLORS[bars_.count()]));
+    bar->setWidth(0.25);
+    QPen p(COLORS[bars_.count()]);
+    p.setStyle(Qt::NoPen);
+    bar->setPen(p);
     bar->setBrush(COLORS[bars_.count()]);
     bar->rescaleAxes();
     bar->setName(q.value(0).toString());
