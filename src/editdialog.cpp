@@ -32,15 +32,18 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
 
    const QDateTime start = ttm_->data(index.sibling(index.row(), TimeDatabase::T_START)).toDateTime();
    const QDateTime lastEnd = ttm_->data(index.sibling(index.row() -1, TimeDatabase::T_END)).toDateTime();
-   ui_.startTimeEdit->setDateTime(start);
-   if (lastEnd.isValid() && start.date() == lastEnd.date()) {	//if this is not the first element and on the same day
-     ui_.startTimeEdit->setMinimumDateTime(lastEnd);
-   }
-
    const QDateTime end = ttm_->data(index.sibling(index.row(), TimeDatabase::T_END)).toDateTime();
    const QDateTime nextStart = ttm_->data(index.sibling(index.row() +1, TimeDatabase::T_START)).toDateTime();
+
+   ui_.startTimeEdit->setDateTime(start);
    ui_.endTimeEdit->setDateTime(end);
-   if (nextStart.isValid() && end.date() == start.date()) {
+
+   if (lastEnd.isValid()) {	//if this is not the first element and on the same day
+     ui_.startTimeEdit->setMinimumDateTime(lastEnd);
+     ui_.endTimeEdit->setMinimumDateTime(lastEnd);
+   }
+   if (nextStart.isValid()) {
+     ui_.startTimeEdit->setMaximumDateTime(nextStart);
      ui_.endTimeEdit->setMaximumDateTime(nextStart);
    }
 
