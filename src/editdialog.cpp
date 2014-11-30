@@ -37,14 +37,21 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
 
    ui_.startTimeEdit->setDateTime(start);
    ui_.endTimeEdit->setDateTime(end);
+   ui_.endTimeEdit->setMinimumDateTime(start);
+   ui_.startTimeEdit->setMaximumDateTime(nextStart);
 
    if (lastEnd.isValid()) {	//if this is not the first element and on the same day
      ui_.startTimeEdit->setMinimumDateTime(lastEnd);
-     ui_.endTimeEdit->setMinimumDateTime(lastEnd);
+   } else {
+     QDateTime d(start);
+     d.setTime(QTime(0,0,0));
+     ui_.startTimeEdit->setMinimumDateTime(d);
    }
    if (nextStart.isValid()) {
-     ui_.startTimeEdit->setMaximumDateTime(nextStart);
      ui_.endTimeEdit->setMaximumDateTime(nextStart);
+   } else {
+     const QDateTime d = QDateTime(QDate::currentDate()).addSecs(-1);
+     ui_.endTimeEdit->setMaximumDateTime(d);
    }
 
    ui_.categoryCBox->addItems(ptr->categories());
