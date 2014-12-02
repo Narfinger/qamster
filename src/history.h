@@ -39,6 +39,8 @@ private:
   Ui::History ui_;
   QSqlDatabase db_;
 
+  QSharedPointer<TimeTableModel> dd_ttm_;
+
 private:
   void setupBarGraph();
 
@@ -55,6 +57,8 @@ private:
   void d_fillCategory(const QDate& date);
   void d_fillActivity(const QDate& date);
   void d_activated(const QDate& date);
+
+  void dd_activated(const QDate& date);
 
   void w_activated(const QDate& date);
 

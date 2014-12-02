@@ -17,9 +17,11 @@
  * 
  */
 
+#include "activityitemdelegate.h"
 #include "helperfunctions.h"
 #include "history.h"
 #include "timedatabase.h"
+#include "timetablemodel.h"
 
 #include <functional>
 #include <QDebug>
@@ -46,7 +48,15 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   ui_.calendarWidget->setMaximumDate(max);
   
   ui_.w_history->setDb(db_);
-  
+
+  //setup detailed day
+  dd_ttm_ = QSharedPointer<TimeTableModel>(new TimeTableModel(this, db_));
+  ui_.dd_tableView->setModel(dd_ttm_.data());
+  dd_ttm_->select();
+  ui_.dd_tableView->setColumnHidden(0, true);
+  ui_.dd_tableView->setColumnHidden(6, true);
+  ui_.dd_tableView->setItemDelegate(new ActivityItemDelegate);
+
   d_activated(QDate::currentDate());
 }
 
@@ -82,8 +92,9 @@ const QPair<QDate, QDate> History::getWeek(const QDate& date) {
 void History::activated(const QDate& date) {
   switch(ui_.tabWidget->currentIndex()) {
     case 0: d_activated(date); break;
-    case 1: w_activated(date); break;
-    case 2: g_activated(); break;
+    case 1: dd_activated(date); break;
+    case 2: w_activated(date); break;
+    case 3: g_activated(); break;
   }
 }
 
@@ -176,6 +187,14 @@ void History::d_activated(const QDate& date) {
   cquery.next();
   const int contextswitches = std::max(cquery.value(0).toInt() -1, 0);
   ui_.d_contextSwitch->setText(QString::number(contextswitches));
+}
+
+void History::dd_activated(const QDate& date) {
+  const QDateTime start(date);
+  const QDateTime end = QDateTime(date.addDays(1)).addSecs(-1);
+  const QString filterstring = "start>='" + start.toString(TimeDatabase::DATEFORMAT) + "' AND end<='" + end.toString(TimeDatabase::DATEFORMAT) + "'";
+  dd_ttm_->setFilter(filterstring);
+  dd_ttm_->select();
 }
 
 void History::w_activated(const QDate& date) {

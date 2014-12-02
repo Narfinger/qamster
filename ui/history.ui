@@ -103,6 +103,16 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>Daily Detail</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="0">
+         <widget class="TimeTableView" name="dd_tableView"/>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
         <string>Weekly</string>
@@ -192,6 +202,11 @@
    <extends>QWidget</extends>
    <header>src/histogram.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TimeTableView</class>
+   <extends>QTableView</extends>
+   <header>src/timetableview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
