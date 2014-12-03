@@ -18,6 +18,7 @@
  */
 
 #include "editdialog.h"
+#include <QCompleter>
 #include <QTime>
 
 #include "timedatabase.h"
@@ -25,6 +26,14 @@
 
 EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, const QModelIndex& index) : ttm_(ptr), db_(db), index_(index) {
    ui_.setupUi(this);
+   {
+     std::unique_ptr<ActivityCompleterModel> up(new ActivityCompleterModel(db_, this));
+     acm_ = std::move(up);
+   }
+   QCompleter* c = new QCompleter(acm_.get(), ui_.activityEdit);
+   c->setCaseSensitivity(Qt::CaseInsensitive);
+   c->setCompletionMode(QCompleter::PopupCompletion);
+   ui_.activityEdit->setCompleter(c);
 
    //fill data
    const QString activity = ttm_->data(index.sibling(index.row(), TimeDatabase::T_ACTIVITY)).toString();
@@ -56,7 +65,7 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
 
    ui_.categoryCBox->addItems(ptr->categories());
 
-   ui_.categoryCBox->setCurrentIndex(ttm_->categoryIdForIndex(index));
+   ui_.categoryCBox->setCurrentIndex(ttm_->categoryIdForIndex(index));   
    
    connect(ui_.activityEdit, &QLineEdit::textEdited, [=]() { changed_ = true; });
    connect(ui_.startTimeEdit, &QAbstractSpinBox::editingFinished, [=]() { changed_ = true; });

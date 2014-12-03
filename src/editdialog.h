@@ -23,7 +23,9 @@
 #include <QDialog>
 #include <QSqlDatabase>
 #include "ui_editdialog.h"
+#include <memory>
 
+#include "activitycompletermodel.h"
 
 class TimeTableModel;
 
@@ -37,6 +39,7 @@ public:
 private:
     Ui::EditDialog ui_;
     
+    std::unique_ptr<ActivityCompleterModel> acm_;
     QSharedPointer<TimeTableModel> ttm_;
     QSqlDatabase db_;
     const QModelIndex index_;

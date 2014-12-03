@@ -21,11 +21,16 @@
 
 #include "timedatabase.h"
 
-ActivityCompleterModel::ActivityCompleterModel(QSqlDatabase db, QObject* parent) : QSqlQueryModel(parent), db_(db) {
+ActivityCompleterModel::ActivityCompleterModel(QSqlDatabase db, QObject* parent) : QSqlQueryModel(parent) {
+  const QSqlQuery q("SELECT DISTINCT activity FROM time", db);
+  setQuery(q);
+}
+
+ActivityCategoryCompleterModel::ActivityCategoryCompleterModel(QSqlDatabase db, QObject* parent) : QSqlQueryModel(parent), db_(db) {
   select();
 }
 
-QVariant ActivityCompleterModel::data(const QModelIndex& item, int role) const {
+QVariant ActivityCategoryCompleterModel::data(const QModelIndex& item, int role) const {
   if (!item.isValid() ||
      (role != Qt::DisplayRole && role != Qt::EditRole)) {
     return QSqlQueryModel::data(item, role);
@@ -36,7 +41,7 @@ QVariant ActivityCompleterModel::data(const QModelIndex& item, int role) const {
   return QVariant(final);
 }
 
-void ActivityCompleterModel::select() {
+void ActivityCategoryCompleterModel::select() {
   const QSqlQuery q("SELECT DISTINCT time.activity AS name, category.name AS category \
 		    FROM time inner join category ON time.category=category.id ORDER BY datetime(time.end)",
 		    db_);

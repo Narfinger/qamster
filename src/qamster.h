@@ -20,7 +20,7 @@ private:
   Ui::MainWindow ui_;
   TimeDatabase tdb_;
   QSharedPointer<TimeTableModel> rtm_;
-  std::unique_ptr<ActivityCompleterModel> acm_;
+  std::unique_ptr<ActivityCategoryCompleterModel> acm_;
   QLabel* sbarText;
 
   void minutesPassed(const int minutes);

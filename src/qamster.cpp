@@ -19,7 +19,7 @@ Qamster::Qamster() {
     rtm_ = std::move(tm);*/
   }
   {
-    std::unique_ptr<ActivityCompleterModel> up(new ActivityCompleterModel(tdb_.connect(), this));
+    std::unique_ptr<ActivityCategoryCompleterModel> up(new ActivityCategoryCompleterModel(tdb_.connect(), this));
     acm_ = std::move(up);
   }
 

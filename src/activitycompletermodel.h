@@ -20,14 +20,23 @@
 #ifndef ACTIVITYCOMPLETERMODEL_H
 #define ACTIVITYCOMPLETERMODEL_H
 
+#include <QDebug>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
 
 class ActivityCompleterModel : public QSqlQueryModel
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
   ActivityCompleterModel(QSqlDatabase db, QObject* parent = 0);
+  virtual QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const { qDebug() << "bla"; return  QSqlQueryModel::data(item, role); }
+};
+
+class ActivityCategoryCompleterModel : public QSqlQueryModel
+{
+    Q_OBJECT
+public:
+  ActivityCategoryCompleterModel(QSqlDatabase db, QObject* parent = 0);
   virtual QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const;
   
   void select();	//refreshes the query
