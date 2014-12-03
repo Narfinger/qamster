@@ -100,6 +100,9 @@ void Qamster::startActivityFromLineEdit() {
   startActivityStrings(slist);
 
   ui_.activityEdit->clear();
+
+  //this is kind of hacky but when I do completion, it doesn't clear it
+  QTimer::singleShot(10, ui_.activityEdit, SLOT(clear()));
 }
 
 void Qamster::startActivityStrings(const QStringList& slist) {
