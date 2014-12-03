@@ -59,7 +59,7 @@
         <item row="1" column="0">
          <widget class="QTableWidget" name="d_activityTable">
           <property name="columnCount">
-           <number>2</number>
+           <number>3</number>
           </property>
           <column>
            <property name="text">
@@ -69,6 +69,11 @@
           <column>
            <property name="text">
             <string>Hours</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Percentage</string>
            </property>
           </column>
          </widget>
@@ -83,6 +88,11 @@
           <column>
            <property name="text">
             <string>Hours</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Percentage</string>
            </property>
           </column>
          </widget>

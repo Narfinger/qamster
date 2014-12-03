@@ -110,6 +110,10 @@ void History::insertProgressBarIntoTable(QTableWidget* w, const QString& one, co
   b->setFormat(time.toString("h:mm"));
   w->setItem(row, 0, c);
   w->setCellWidget(row, 1, b);
+
+  const double percentage = static_cast<double>(seconds) / static_cast<double>(totalsecs);
+  QTableWidgetItem* p = new QTableWidgetItem(QString::number(percentage, 'f', 2));
+  w->setItem(row, 2, p);
 }
 
 void History::insertItemIntoTable(QTableWidget* w, const QString& one, const QString& two) {
