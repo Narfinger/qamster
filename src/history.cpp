@@ -25,6 +25,7 @@
 
 #include <functional>
 #include <QDebug>
+#include <QSettings>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QPair>
@@ -58,6 +59,17 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   ui_.dd_tableView->setItemDelegate(new ActivityItemDelegate);
 
   d_activated(QDate::currentDate());
+
+  //restore from qsettings
+  QSettings s("qamster");
+  ui_.splitter->restoreState(s.value("history_splitter").toByteArray());
+  restoreGeometry(s.value("history_dialog").toByteArray());
+}
+
+History::~History() {
+  QSettings s("qamster");
+  s.setValue("history_splitter", ui_.splitter->saveState());
+  s.setValue("history_dialog", saveGeometry());
 }
 
 /** this is some c++ magic which i got from some guy on irc

@@ -34,6 +34,7 @@ class History : public QDialog
   Q_OBJECT
 public:
   History(QSqlDatabase db, QWidget* parent = 0);
+  ~History();
 
 private:
   Ui::History ui_;

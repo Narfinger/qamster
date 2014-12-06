@@ -50,7 +50,15 @@ Qamster::Qamster() {
 
   connect(ui_.tmpbutton, &QPushButton::pressed, rtm_.data(), &TimeTableModel::cleanup);
 
+  QSettings s("qamster");
+  restoreGeometry(s.value("main_window").toByteArray());
+
   stateChanged();
+}
+
+Qamster::~Qamster() {
+  QSettings s("qamster");
+  s.setValue("main_window", saveGeometry());
 }
 
 void Qamster::minutesPassed(const int minutes) {

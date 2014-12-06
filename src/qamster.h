@@ -14,7 +14,7 @@ class Qamster : public QMainWindow
 Q_OBJECT
 public:
     Qamster();
-    virtual ~Qamster() {};
+    virtual ~Qamster();
 
 private:
   Ui::MainWindow ui_;
