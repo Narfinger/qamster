@@ -20,11 +20,17 @@
 #ifndef HELPERFUNCTIONS_H
 #define HELPERFUNCTIONS_H
 
+#include <QSqlQuery>
 #include <QTime>
 
 namespace TDBHelper {
   const QTime secsToQTime(const int seconds);
   const QString secsToQString(const int seconds);
+
+  //functions that replace %1 and %2 with the start and end time
+  QSqlQuery queryTimeSubstitution(const QString& query, const QSqlDatabase& db, const QDateTime& start, const QDateTime& end);
+  QSqlQuery queryTimeSubstitution(const QString& query, const QSqlDatabase& db, const QDate& start, const QDate& end);
+  QSqlQuery queryTimeSubstitution(const QString& query, const QSqlDatabase& db, const QDate& date);
 }
 
 

@@ -45,10 +45,8 @@ private:
   void setupBarGraph();
 
   //black template magic, see comment in code
-  template <typename Func=decltype(&TDBHelper::secsToQTime)>
-  typename std::result_of<Func(int)>::type getTotal(const QDate& start, const QDate& end, Func f = TDBHelper::secsToQTime);
-  template <typename Func=decltype(&TDBHelper::secsToQTime)>
-  typename std::result_of<Func(int)>::type getTotal(const QDateTime& start, const QDateTime& end, Func f = TDBHelper::secsToQTime);
+  template <typename Func=decltype(&TDBHelper::secsToQTime), typename Date>
+  typename std::result_of<Func(int)>::type getTotal(const Date& start, const Date& end, Func f = TDBHelper::secsToQTime);
 
   const QPair<QDate,QDate> getWeek(const QDate& date);
   void activated(const QDate& date);

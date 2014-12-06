@@ -64,18 +64,10 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
  * notes: decltype(&foo) need the &
  * in C++14 we can omit the return type and write auto
  */
-template <typename Func>
-typename std::result_of<Func(int)>::type History::getTotal(const QDate& start, const QDate& end, Func f) {
-  const QDateTime s = QDateTime(start);
-  const QDateTime e = QDateTime(end).addDays(1).addSecs(-1);
-  return getTotal(s,e,f);
-}
-
-template <typename Func>
-typename std::result_of<Func(int)>::type History::getTotal(const QDateTime& start, const QDateTime& end, Func f) {
-  QString tqstring("SELECT sum(strftime('%s', end)- strftime('%s', start)) from time where start>='%1' and start<='%2'");
-  tqstring = tqstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
-  QSqlQuery tquery(tqstring, db_);
+template <typename Func, typename Date>
+typename std::result_of<Func(int)>::type History::getTotal(const Date& start, const Date& end, Func f) {
+  QSqlQuery tquery = TDBHelper::queryTimeSubstitution("SELECT sum(strftime('%s', end)- strftime('%s', start)) from time where start>='%1' and start<='%2'",
+						      db_, start, end);
   tquery.exec();
   tquery.next();
   const int value = tquery.value(0).toInt();
@@ -132,16 +124,11 @@ void History::d_fillCategory(const QDate& date) {
 
   const QDateTime start(date);
   const QDateTime end = QDateTime(date.addDays(1)).addSecs(-1);
-
+  
   QString qstring("SELECT category.id AS cid, category.name,sum(strftime('%s', end) - strftime('%s', start)) AS diff FROM \
   time INNER JOIN category ON category.id = time.category WHERE start>='%1' and start<='%2' GROUP BY category ORDER BY diff DESC");
   qstring = qstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
   QSqlQuery cquery(qstring, db_);
- /* QSqlQuery cquery(db_);
-  cquery.prepare("SELECT category.id AS cid, category.name,sum(strftime('%s', end) - strftime('%s', start)) AS diff FROM \
-  time INNER JOIN category ON category.id = time.category WHERE start>=:start and start<=:end GROUP BY category ORDER BY diff");
-  cquery.bindValue(":start", "'" + start.toString(TimeDatabase::DATEFORMAT) + "'");
-  cquery.bindValue(":end", "'" + end.toString(TimeDatabase::DATEFORMAT) + "'");*/
 
   const QTime totaltime = getTotal(start, end);
   const int totalsecs = totaltime.hour()*60*60 + totaltime.minute()*60 + totaltime.second();
@@ -181,15 +168,12 @@ void History::d_activated(const QDate& date) {
   d_fillCategory(date);
   d_fillActivity(date);
 
-  const QDateTime start(date);
-  const QDateTime end = QDateTime(date.addDays(1)).addSecs(-1);
   //number of context switches
-  QString qstring("SELECT count(*) FROM time WHERE start>='%1' and start<='%2'");
-  qstring = qstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
-  QSqlQuery cquery(qstring, db_);
-  cquery.exec();
-  cquery.next();
-  const int contextswitches = std::max(cquery.value(0).toInt() -1, 0);
+  QSqlQuery q = TDBHelper::queryTimeSubstitution("SELECT count(*) FROM time WHERE start>='%1' and start<='%2'",
+						 db_, date);
+  q.exec();
+  q.next();
+  const int contextswitches = std::max(q.value(0).toInt() -1, 0);
   ui_.d_contextSwitch->setText(QString::number(contextswitches));
 }
 
@@ -218,14 +202,13 @@ void History::g_activated() {
   const QDate start(1,0,0);
   const QDate end = QDate::currentDate();
 
-  QString qstring("SELECT activity, sum(strftime('%s', end) - strftime('%s', start)) AS diff FROM \
-  time WHERE start>='%1' and start<='%2' GROUP BY activity ORDER BY diff DESC");
-  qstring = qstring.arg(start.toString(TimeDatabase::DATEFORMAT)).arg(end.toString(TimeDatabase::DATEFORMAT));
-  QSqlQuery cquery(qstring, db_);
-  cquery.exec();
-  while (cquery.next()) {
-    const QString t = TDBHelper::secsToQString(cquery.value(1).toInt());
-    insertItemIntoTable(ui_.g_categoryTable, cquery.value(0).toString(), t);
+  QSqlQuery q = TDBHelper::queryTimeSubstitution("SELECT activity, sum(strftime('%s', end) - strftime('%s', start)) AS diff FROM \
+						 time WHERE start>='%1' and start<='%2' GROUP BY activity ORDER BY diff DESC",
+						 db_, start, end);
+  q.exec();
+  while (q.next()) {
+    const QString t = TDBHelper::secsToQString(q.value(1).toInt());
+    insertItemIntoTable(ui_.g_categoryTable, q.value(0).toString(), t);
   }
 }
 
