@@ -18,6 +18,8 @@
  */
 
 #include "settings.h"
+#include "helperfunctions.h"
+
 #include <QColorDialog>
 #include <QDebug>
 #include <QSqlError>
@@ -32,14 +34,9 @@ Settings::Settings(QSqlDatabase db, QWidget* parent): QDialog(parent), db_(db) {
   while (q.next()) {
    QTableWidgetItem* cid =  new QTableWidgetItem(q.value(0).toString());
    QTableWidgetItem* name = new QTableWidgetItem(q.value(1).toString());
-   const QStringList colors = q.value(2).toString().split(",");
-   
-   QColor c;
+   const QColor c = TDBHelper::stringToColor(q.value(2).toString());
    QTableWidgetItem* ci = new QTableWidgetItem();
-   if (colors.size() == 3) {
-     c.setRgb(colors[0].toInt(), colors[1].toInt(), colors[2].toInt());
-     ci->setBackground(c);
-   }
+   ci->setBackground(c);
    
    const int row = ui_.categoryTable->rowCount();
    ui_.categoryTable->insertRow(row);
@@ -64,20 +61,20 @@ void Settings::cellDoubleClicked(int row, int col) {
 void Settings::accept() {
   //save colors
   if (changed_) {
-    QVariantList ids, colors;
+    QVariantList ids, colors;	//we save this before otherwise the widget could vanish while save runs
     for(int row=0; row<ui_.categoryTable->rowCount(); row++) {
       const QColor color = ui_.categoryTable->item(row, 2)->backgroundColor();
-      const QString colorstring = QString("%1,%2,%3").arg(color.red()).arg(color.blue()).arg(color.green());
+      const QString colorstring = TDBHelper::colorToString(color);
       const int cid = ui_.categoryTable->item(row,0)->text().toInt();
       ids << cid;
       colors << colorstring;
     }
-    QtConcurrent::run(this, &Settings::save, ids, colors);
+    QtConcurrent::run(this, &Settings::saveColors, ids, colors);
   }
   QDialog::accept();
 }
 
-void Settings::save(const QVariantList& ids, const QVariantList& colors) {
+void Settings::saveColors(const QVariantList& ids, const QVariantList& colors) {
   QSqlQuery q;
   q.prepare("UPDATE category SET color = ? WHERE id= ?");
   q.addBindValue(colors);

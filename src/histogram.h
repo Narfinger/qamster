@@ -37,7 +37,6 @@ private:
   QSqlDatabase db_;
   QVector<QCPBars*> bars_;	//the widget is responsible for destruction
   QVector<double> ticks_;
-  const static QVector<QColor> COLORS;
 
   void setupHistogram();	//this can only be called if we set a db and not in the constructor
 };

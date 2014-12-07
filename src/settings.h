@@ -34,7 +34,7 @@ public:
 private slots:
   void cellDoubleClicked(int row, int col);
   void accept();
-  void save(const QVariantList& ids, const QVariantList& colors);
+  void saveColors(const QVariantList& ids, const QVariantList& colors);
     
 private:
     Ui::Settings ui_;

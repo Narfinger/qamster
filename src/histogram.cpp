@@ -23,8 +23,6 @@
 #include "timedatabase.h"
 #include "helperfunctions.h"
 
-const QVector<QColor> Histogram::COLORS = { Qt::red, Qt::green, Qt::blue, Qt::cyan, Qt::magenta, Qt::yellow };
-
 Histogram::Histogram(QWidget* parent): QCustomPlot(parent) { 
 }
 
@@ -38,20 +36,16 @@ void Histogram::setupHistogram() {
   axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
   legend->setBrush(QColor(255, 255, 255, 200));
 
-  QSqlQuery q("SELECT name FROM category", db_);
+  QSqlQuery q("SELECT name,color FROM category", db_);
   q.exec();
   while (q.next()) {
     QCPBars* bar = new QCPBars(xAxis, yAxis);
     bar->setWidth(0.25);
-    qDebug() << bars_.count() << COLORS.size();
-    if (bars_.count() < COLORS.size()) {
-      QPen p(COLORS[bars_.count()]);
-      p.setStyle(Qt::NoPen);
-      bar->setPen(p);
-      bar->setBrush(COLORS[bars_.count()]);
-    } else {
-      qDebug() << "not enough colors hardcoded, skipping some";
-    }
+    const QColor c = TDBHelper::stringToColor(q.value(1).toString());
+    QPen p(c);
+    p.setStyle(Qt::NoPen);
+    bar->setPen(p);
+    bar->setBrush(c);
     bar->rescaleAxes();
     bar->setName(q.value(0).toString());
     addPlottable(bar);

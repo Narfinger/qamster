@@ -37,6 +37,17 @@ const QString TDBHelper::secsToQString(const int seconds) {
   return QString("%1:%2").arg(h).arg(m, 2, 10, QChar('0'));
 }
 
+const QString TDBHelper::colorToString(const QColor& col) {
+  return QString("%1,%2,%3").arg(col.red()).arg(col.green()).arg(col.blue());
+}
+
+const QColor TDBHelper::stringToColor(const QString& col) {
+  QStringList l = col.split(",");
+  if (l.size()!=3) return Qt::white;
+  QColor c(l[0].toInt(),l[1].toInt(),l[2].toInt());
+  return c;
+}
+
 QSqlQuery TDBHelper::queryTimeSubstitution(const QString& query, const QSqlDatabase& db, const QDate& date) { 
   return queryTimeSubstitution(query, db, date, date);
 }
