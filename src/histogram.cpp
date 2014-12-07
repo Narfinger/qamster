@@ -43,10 +43,15 @@ void Histogram::setupHistogram() {
   while (q.next()) {
     QCPBars* bar = new QCPBars(xAxis, yAxis);
     bar->setWidth(0.25);
-    QPen p(COLORS[bars_.count()]);
-    p.setStyle(Qt::NoPen);
-    bar->setPen(p);
-    bar->setBrush(COLORS[bars_.count()]);
+    qDebug() << bars_.count() << COLORS.size();
+    if (bars_.count() < COLORS.size()) {
+      QPen p(COLORS[bars_.count()]);
+      p.setStyle(Qt::NoPen);
+      bar->setPen(p);
+      bar->setBrush(COLORS[bars_.count()]);
+    } else {
+      qDebug() << "not enough colors hardcoded, skipping some";
+    }
     bar->rescaleAxes();
     bar->setName(q.value(0).toString());
     addPlottable(bar);

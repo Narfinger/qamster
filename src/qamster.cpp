@@ -3,6 +3,7 @@
 #include "activityitemdelegate.h"
 #include "editdialog.h"
 #include "history.h"
+#include "settings.h"
 #include "timedatabase.h"
 #include "timetablemodel.h"
 #include "timetableview.h"
@@ -46,6 +47,7 @@ Qamster::Qamster() {
 
   //actions
   connect(ui_.actionHistory, &QAction::triggered, this, &Qamster::showHistory);
+  connect(ui_.actionSettings, &QAction::triggered, this, &Qamster::showSettings);
   connect(ui_.actionQuit, &QAction::triggered, qApp, &QApplication::quit);
 
   QSettings s("qamster");
@@ -125,4 +127,9 @@ void Qamster::startActivityStrings(const QStringList& slist) {
 void Qamster::showHistory() {
   History h(tdb_.connect());
   h.exec();
+}
+
+void Qamster::showSettings() {
+  Settings s(tdb_.connect());
+  s.exec();
 }

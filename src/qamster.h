@@ -33,6 +33,7 @@ private:
 
 private slots:
   void showHistory();
+  void showSettings();
 };
 
 #endif // qamster_H
