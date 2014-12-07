@@ -104,8 +104,6 @@ void TimeTableModel::stopActivity() {
   if (activity_running_) {
     current_activity_.setValue(TimeDatabase::T_END, d.toString(TimeDatabase::DATEFORMAT));
     insertRowIntoTable(current_activity_);
-    QSqlError e = lastError();
-    //qDebug() << e << e.type() << e.databaseText() << e.driverText();
     current_activity_.clearValues();
     activity_running_ = false;
     timer_.stop();
@@ -114,9 +112,6 @@ void TimeTableModel::stopActivity() {
 }
 
 void TimeTableModel::startActivity(const QString& name, const QString& category) {
-  if (activity_running_) {
-    stopActivity();
-  }
   //check if we need to insert category and insert it
   QSqlQuery q(database());
   q.prepare("SELECT count(*) FROM category WHERE name = :name");
@@ -141,6 +136,15 @@ void TimeTableModel::startActivity(const QString& name, const QString& category)
   idq.exec();
   idq.next();
   const int cid = idq.value(0).toInt();
+
+  //check if we need to stop or this just appends
+  if (activity_running_) {
+    const bool sameactivity = current_activity_.value(TimeDatabase::T_ACTIVITY).toString() == name 
+    && (current_activity_.value(TimeDatabase::T_CATEGORY) == cid);
+    if (sameactivity)
+      return;
+    stopActivity();
+  }
 
   //prepare QSqlRecord
   const QDateTime d(QDateTime::currentDateTime());
@@ -237,16 +241,4 @@ QVariant TimeTableModel::runningActivityData(const QModelIndex& item, int role) 
   }
 
   return current_activity_.value(item.column());
-}
-
-void TimeTableModel::cleanup() {
-  qDebug() << "starting cleanup";
-  for (int i = 0; i<rowCount(); i++) {
-    const QString diff = data(index(i, 5)).toString();
-    if (diff == "0min") {
-      qDebug() << "remove";
-      removeRow(i);
-    }
-  }
-  update();
 }

@@ -48,8 +48,6 @@ Qamster::Qamster() {
   connect(ui_.actionHistory, &QAction::triggered, this, &Qamster::showHistory);
   connect(ui_.actionQuit, &QAction::triggered, qApp, &QApplication::quit);
 
-  connect(ui_.tmpbutton, &QPushButton::pressed, rtm_.data(), &TimeTableModel::cleanup);
-
   QSettings s("qamster");
   restoreGeometry(s.value("main_window").toByteArray());
 
@@ -102,8 +100,6 @@ void Qamster::stopActivity() {
 }
 
 void Qamster::startActivityFromLineEdit() {
-  stopActivity();
-  
   const QStringList slist = ui_.activityEdit->text().split("@");
   startActivityStrings(slist);
 
@@ -114,7 +110,6 @@ void Qamster::startActivityFromLineEdit() {
 }
 
 void Qamster::startActivityStrings(const QStringList& slist) {
-  stopActivity();
   if (slist.size()==1) {
     rtm_->startActivity(slist[0], "uncategorized");
   } else {
