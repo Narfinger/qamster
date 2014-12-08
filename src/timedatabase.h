@@ -39,6 +39,7 @@ public:
   static const int T_CATEGORY;
   static const int C_ID;
   static const int C_NAME;
+  static const int C_COLOR;
 
   static const QString DATEFORMAT;
 

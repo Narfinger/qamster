@@ -28,6 +28,7 @@ const int TimeDatabase::T_ACTIVITY = 3;
 const int TimeDatabase::T_CATEGORY = 4;
 const int TimeDatabase::C_ID = 0;
 const int TimeDatabase::C_NAME = 1;
+const int TimeDatabase::C_COLOR = 2;
 
 const QString TimeDatabase::DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
@@ -55,7 +56,7 @@ bool TimeDatabase::createConnection() {
   
   bool res = false;
   QSqlQuery q(db_);
-  res = q.exec("CREATE TABLE if not exists category (id INTEGER PRIMARY KEY, name TEXT);");
+  res = q.exec("CREATE TABLE if not exists category (id INTEGER PRIMARY KEY, name TEXT, color TEXT);");
   q.exec("CREATE TABLE if not exists time (id INTEGER PRIMARY KEY,"
 				 "start TEXT,"
 				 "end   TEXT,"
