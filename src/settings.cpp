@@ -50,11 +50,11 @@ Settings::Settings(QSqlDatabase db, QWidget* parent): QDialog(parent), db_(db) {
 void Settings::cellDoubleClicked(int row, int col) {
   if (col==2) {
     const QColor oc = ui_.categoryTable->item(row, col)->backgroundColor();
-    QColorDialog d;
-    const QColor c = d.getColor();
-    ui_.categoryTable->item(row, col)->setBackground(c);
-    
-    changed_ = true;
+    const QColor c = QColorDialog::getColor(oc);
+    if (c.isValid()) {
+      ui_.categoryTable->item(row, col)->setBackground(c);
+      changed_ = true;
+    }
   }
 }
 
