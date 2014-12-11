@@ -59,7 +59,7 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
    if (nextStart.isValid()) {
      ui_.endTimeEdit->setMaximumDateTime(nextStart);
    } else {
-     const QDateTime d = QDateTime(QDate::currentDate()).addSecs(-1);
+     const QDateTime d = QDateTime(QDateTime::currentDateTime());
      ui_.endTimeEdit->setMaximumDateTime(d);
    }
 
