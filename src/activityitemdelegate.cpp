@@ -26,12 +26,16 @@
 void ActivityItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
   QStyleOptionViewItem o = option;
   initStyleOption(&o, index);
-
   if (index.column()== TimeDatabase::T_START || index.column() == TimeDatabase::T_END) {
     painter->save();
+    painter->setRenderHints(QPainter::Antialiasing);
     QStyle* style = QApplication::style();
     QRect textRect = style->subElementRect(QStyle::SE_ItemViewItemText, &option);
     const QDateTime d = QDateTime::fromString(o.text, Qt::ISODate);
+    painter->fillRect(textRect, o.backgroundBrush);
+    QPen p;
+    p.setColor(o.palette.color(QPalette::Text));
+    painter->setPen(p);
     painter->drawText(textRect, o.displayAlignment, d.toString("h:mm"));
     painter->restore();
   } else

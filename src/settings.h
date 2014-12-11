@@ -25,6 +25,9 @@
 
 #include "ui_settings.h"
 
+static const char* COLOR_CAT_IN_MAIN = "colorcatinmain";
+static const char* TEXT_COLOR = "textcolor";
+
 class Settings : public QDialog
 {
     Q_OBJECT
@@ -33,13 +36,17 @@ public:
 
 private slots:
   void cellDoubleClicked(int row, int col);
+  void textColorButtonClicked();
   void accept();
   void saveColors(const QVariantList& ids, const QVariantList& colors);
     
 private:
-    Ui::Settings ui_;
-    QSqlDatabase db_;
-    bool changed_ = false;
+  Ui::Settings ui_;
+  QSqlDatabase db_;
+  bool changed_ = false;
+  QColor textcolor_;
+
+  void setLabelTextColor(const QColor& col);
 };
 
 #endif // SETTINGS_H

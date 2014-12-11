@@ -25,6 +25,7 @@
 #include "helperfunctions.h"
 #include "timedatabase.h"
 #include "timetablemodel.h"
+#include "settings.h"
 
 TimeTableModel::TimeTableModel(QObject* parent, QSqlDatabase db) :
     QSqlRelationalTableModel(parent, db), currentdate_(QDate::currentDate()) {
@@ -60,6 +61,9 @@ int TimeTableModel::rowCount(const QModelIndex& parent) const {
 
 QVariant TimeTableModel::data(const QModelIndex& item, int role) const
 {
+  if (role == Qt::BackgroundColorRole) return backgroundColorRoleData(item, role);
+  if (role == Qt::TextColorRole) return textColorRoleData(item, role);
+
   if (activity_running_ && QSqlRelationalTableModel::rowCount() == item.row()) return runningActivityData(item,role);
 
   if (item.column() == 5) {
@@ -241,4 +245,28 @@ QVariant TimeTableModel::runningActivityData(const QModelIndex& item, int role) 
   }
 
   return current_activity_.value(item.column());
+}
+
+QVariant TimeTableModel::backgroundColorRoleData(const QModelIndex& index, int role) const {
+  QSettings s("qamster");
+  if (s.value(COLOR_CAT_IN_MAIN).toBool()) {
+    const int id = categoryIdForIndex(index);
+    QSqlQuery q(database());
+    q.prepare("SELECT color FROM category WHERE id = :id");
+    q.bindValue(":id", id+1);
+    q.exec();
+    q.next();
+    return TDBHelper::stringToColor(q.value(0));
+  } else {
+    return QSqlRelationalTableModel::data(index, role);
+  }
+}
+
+QVariant TimeTableModel::textColorRoleData(const QModelIndex& index, int role) const {
+  QSettings s("qamster");
+  if (s.value(COLOR_CAT_IN_MAIN).toBool()) {
+    return s.value(TEXT_COLOR);
+  } else {
+    return QSqlRelationalTableModel::data(index, role);
+  }
 }

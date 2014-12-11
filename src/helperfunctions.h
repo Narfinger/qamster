@@ -22,12 +22,14 @@
 
 #include <QSqlQuery>
 #include <QTime>
+#include <QVariant>
 
 namespace TDBHelper {
   const QTime secsToQTime(const int seconds);
   const QString secsToQString(const int seconds);
 
   const QColor stringToColor(const QString& col);
+  const QColor stringToColor(const QVariant& col);
   const QString colorToString(const QColor& col);
 
   //functions that replace %1 and %2 with the start and end time

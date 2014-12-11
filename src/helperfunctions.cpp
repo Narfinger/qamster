@@ -48,6 +48,12 @@ const QColor TDBHelper::stringToColor(const QString& col) {
   return c;
 }
 
+const QColor TDBHelper::stringToColor(const QVariant& col) {
+  if (!col.isValid()) return QColor();	//invalid color returned
+  return stringToColor(col.toString());
+}
+
+
 QSqlQuery TDBHelper::queryTimeSubstitution(const QString& query, const QSqlDatabase& db, const QDate& date) { 
   return queryTimeSubstitution(query, db, date, date);
 }

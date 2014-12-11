@@ -22,13 +22,21 @@
 
 #include <QColorDialog>
 #include <QDebug>
+#include <QSettings>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QtConcurrent/QtConcurrent>
 
 Settings::Settings(QSqlDatabase db, QWidget* parent): QDialog(parent), db_(db) {  
   ui_.setupUi(this);
-  
+
+  QSettings s("qamster");
+  if (s.value(COLOR_CAT_IN_MAIN).toBool()) {
+    ui_.categoryCBox->setCheckState(Qt::Checked);
+  } else {
+    ui_.categoryCBox->setCheckState(Qt::Unchecked);
+  }
+
   QSqlQuery q("SELECT id,name,color FROM category", db);
   q.exec();
   while (q.next()) {
@@ -37,14 +45,22 @@ Settings::Settings(QSqlDatabase db, QWidget* parent): QDialog(parent), db_(db) {
    const QColor c = TDBHelper::stringToColor(q.value(2).toString());
    QTableWidgetItem* ci = new QTableWidgetItem();
    ci->setBackground(c);
-   
+
    const int row = ui_.categoryTable->rowCount();
    ui_.categoryTable->insertRow(row);
    ui_.categoryTable->setItem(row, 0, cid);
    ui_.categoryTable->setItem(row, 1, name);
    ui_.categoryTable->setItem(row, 2, ci);
   }
+
+  QColor oc = s.value(TEXT_COLOR).value<QColor>();
+  if (!oc.isValid())
+    oc = QApplication::palette().text().color();
+  textcolor_ = oc;
+  setLabelTextColor(oc);
+
   connect(ui_.categoryTable, &QTableWidget::cellDoubleClicked, this, &Settings::cellDoubleClicked);
+  connect(ui_.textColorButton, &QPushButton::pressed, this, &Settings::textColorButtonClicked);
 }
 
 void Settings::cellDoubleClicked(int row, int col) {
@@ -55,6 +71,16 @@ void Settings::cellDoubleClicked(int row, int col) {
       ui_.categoryTable->item(row, col)->setBackground(c);
       changed_ = true;
     }
+  }
+}
+
+void Settings::textColorButtonClicked() {
+  QSettings s("qamster");
+  const QColor col = QColorDialog::getColor(textcolor_);
+  if (col.isValid()) {
+    setLabelTextColor(col);
+    textcolor_ = col;
+    changed_ = true;
   }
 }
 
@@ -71,6 +97,10 @@ void Settings::accept() {
     }
     QtConcurrent::run(this, &Settings::saveColors, ids, colors);
   }
+
+  QSettings s("qamster");
+  s.setValue(COLOR_CAT_IN_MAIN, ui_.categoryCBox->checkState() == Qt::Checked);
+  s.setValue(TEXT_COLOR, textcolor_);
   QDialog::accept();
 }
 
@@ -80,4 +110,9 @@ void Settings::saveColors(const QVariantList& ids, const QVariantList& colors) {
   q.addBindValue(colors);
   q.addBindValue(ids);
   q.execBatch();
+}
+
+void Settings::setLabelTextColor(const QColor& col) {
+  const QString style = QString("QLabel { color : %1; }").arg(col.name());
+  ui_.textColorLabel->setStyleSheet(style);
 }

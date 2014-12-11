@@ -132,4 +132,5 @@ void Qamster::showHistory() {
 void Qamster::showSettings() {
   Settings s(tdb_.connect());
   s.exec();
+  ui_.tableView->repaint();
 }
