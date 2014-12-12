@@ -122,6 +122,7 @@ void Qamster::startActivityStrings(const QStringList& slist) {
   ui_.activityLabel->setText(slist[0]);
   ui_.checkBox->setCheckState(Qt::Checked);
   ui_.tableView->scrollToBottom();
+  ui_.timeLabel->setText("0 min");
 }
 
 void Qamster::showHistory() {
