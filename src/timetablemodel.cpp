@@ -90,8 +90,27 @@ QVariant TimeTableModel::data(const QModelIndex& item, int role) const
       return QSqlRelationalTableModel::data(item, role);
 }
 
+bool TimeTableModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+  if (activity_running_ && index.row() == rowCount() -1) {
+    switch (index.column()) {
+      case 3: current_activity_.setValue(TimeDatabase::T_ACTIVITY, value); return true;
+      case 4: return false; //! TODO yet to implement
+    }
+    return false;
+  }
+
+  return QSqlRelationalTableModel::setData(index, value, role);
+}
+
 bool TimeTableModel::setData(const QModelIndex& index, const QDateTime& d, int role) {
   if (index.column() != 1 && index.column() != 2) return false;
+  if (activity_running_ && index.row() == rowCount() -1) {
+    if (index.column() == 1) {
+      current_activity_.setValue(TimeDatabase::T_START, d.toString(TimeDatabase::DATEFORMAT));
+      return true;
+    } else
+      return false;
+  }
   const QString date = d.toString(TimeDatabase::DATEFORMAT);
   return setData(index, date, role);
 }

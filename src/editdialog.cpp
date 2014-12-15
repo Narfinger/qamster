@@ -44,6 +44,8 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
    const QDateTime end = ttm_->data(index.sibling(index.row(), TimeDatabase::T_END)).toDateTime();
    const QDateTime nextStart = ttm_->data(index.sibling(index.row() +1, TimeDatabase::T_START)).toDateTime();
 
+   running_ = nextStart.isValid();
+
    ui_.startTimeEdit->setDateTime(start);
    ui_.endTimeEdit->setDateTime(end);
    ui_.endTimeEdit->setMinimumDateTime(start);
@@ -59,14 +61,19 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
    if (nextStart.isValid()) {
      ui_.endTimeEdit->setMaximumDateTime(nextStart);
    } else {
-     const QDateTime d = QDateTime(QDateTime::currentDateTime());
+     const QDateTime d = QDateTime::currentDateTime();
      ui_.endTimeEdit->setMaximumDateTime(d);
    }
 
    ui_.categoryCBox->addItems(ptr->categories());
-
    ui_.categoryCBox->setCurrentIndex(ttm_->categoryIdForIndex(index));   
-   
+
+   if (running_) {
+     ui_.endTimeEdit->setEnabled(false);
+     const QDateTime d = QDateTime(QDateTime::currentDateTime().addDays(1));
+     ui_.startTimeEdit->setMaximumDateTime(d);
+   }
+
    connect(ui_.activityEdit, &QLineEdit::textEdited, [=]() { changed_ = true; });
    connect(ui_.startTimeEdit, &QAbstractSpinBox::editingFinished, [=]() { changed_ = true; });
    connect(ui_.endTimeEdit, &QAbstractSpinBox::editingFinished, [=]() { changed_ = true; });
@@ -81,9 +88,11 @@ void EditDialog::accept() {
     start.setTime(ui_.startTimeEdit->time());
     ttm_->setData(index_.sibling(index_.row(), TimeDatabase::T_START), start);
 
-    QDateTime end = ttm_->data(index_.sibling(index_.row(), TimeDatabase::T_END)).toDateTime();
-    end.setTime(ui_.endTimeEdit->time());
-    ttm_->setData(index_.sibling(index_.row(), TimeDatabase::T_END), end);
+    if (!running_) {
+      QDateTime end = ttm_->data(index_.sibling(index_.row(), TimeDatabase::T_END)).toDateTime();
+      end.setTime(ui_.endTimeEdit->time());
+      ttm_->setData(index_.sibling(index_.row(), TimeDatabase::T_END), end);
+    }
 
     ttm_->setCategory(index_.sibling(index_.row(), TimeDatabase::T_CATEGORY), ui_.categoryCBox->currentIndex());
 

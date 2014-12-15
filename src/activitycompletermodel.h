@@ -29,7 +29,7 @@ class ActivityCompleterModel : public QSqlQueryModel
   Q_OBJECT
 public:
   ActivityCompleterModel(QSqlDatabase db, QObject* parent = 0);
-  virtual QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const { qDebug() << "bla"; return  QSqlQueryModel::data(item, role); }
+  virtual QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const { return  QSqlQueryModel::data(item, role); }
 };
 
 class ActivityCategoryCompleterModel : public QSqlQueryModel

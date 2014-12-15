@@ -34,7 +34,7 @@ public:
   int columnCount(const QModelIndex& parent = QModelIndex()) const { Q_UNUSED(parent); return 7; };
   int rowCount(const QModelIndex& parent = QModelIndex()) const;
   QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const;
-  bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) { return QSqlRelationalTableModel::setData(index, value, role); };
+  bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
   bool setData(const QModelIndex& index, const QDateTime& d, int role = Qt::EditRole);	//overload setData for datetime because we have custom datestring format
   Qt::ItemFlags flags(const QModelIndex& index) const;
 
