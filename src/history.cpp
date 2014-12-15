@@ -37,11 +37,11 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   connect(ui_.tabWidget, &QTabWidget::currentChanged, [=]() { activated(ui_.calendarWidget->selectedDate()); });
   connect(ui_.calendarWidget, &QCalendarWidget::clicked, this, &History::activated);
 
-  QSqlQuery q("SELECT start FROM time ORDER BY id LIMIT 1", db_);
+  QSqlQuery q("SELECT start FROM time ORDER BY start LIMIT 1", db_);
   q.exec();
   q.next();
   const QDate min = q.value(0).toDateTime().date();
-  q.exec("SELECT end FROM time ORDER BY id DESC LIMIT 1");
+  q.exec("SELECT end FROM time ORDER BY start DESC LIMIT 1");
   q.next();
   const QDate max = q.value(0).toDateTime().date();
   
