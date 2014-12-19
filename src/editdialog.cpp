@@ -44,7 +44,7 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
    const QDateTime end = ttm_->data(index.sibling(index.row(), TimeDatabase::T_END)).toDateTime();
    const QDateTime nextStart = ttm_->data(index.sibling(index.row() +1, TimeDatabase::T_START)).toDateTime();
 
-   running_ = nextStart.isValid();
+   running_ = !nextStart.isValid();
 
    ui_.startTimeEdit->setDateTime(start);
    ui_.endTimeEdit->setDateTime(end);
