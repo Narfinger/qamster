@@ -1,6 +1,6 @@
 /*
  * <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) 2014  Narfinger
+ * Copyright (C) 2014 
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,29 +17,25 @@
  *
  */
 
-#ifndef HISTOGRAM_H
-#define HISTOGRAM_H
+#ifndef ACTIVITYHISTOGRAM_H
+#define ACTIVITYHISTOGRAM_H
 
-#include <QSqlDatabase>
+#include <QHash>
 
-#include "../lib/qcustomplot.h"
+#include "histogram.h"
 
-class Histogram : public QCustomPlot
+class ActivityHistogram : public Histogram
 {
-    Q_OBJECT
+   Q_OBJECT
 public:
-  Histogram(QWidget* parent = 0) : QCustomPlot(parent) {};
+   ActivityHistogram(QWidget* parent = 0) {};
+   virtual void drawWeek(const QDate& start, const QDate& end);
 
-  void setDb(QSqlDatabase db) { db_ = db; this->setupCategoryHistogram(); };
-  virtual void drawWeek(const QDate& start, const QDate& end) = 0;
+protected:
+  virtual void setupCategoryHistogram();      //this can only be called if we set a db and not in the constructor
   
-protected :
-  virtual void setupCategoryHistogram() = 0;        //this can only be called if we set a db and not in the constructor
-  void initialSetupHistogram();
-
-  QSqlDatabase db_;
-  QVector<QCPBars*> bars_;      //the widget is responsible for destruction
-  QVector<double> ticks_;
+private:
+  QHash<QString, QCPBars*> bars__;
 };
 
-#endif // HISTOGRAM_H
+#endif // ACTIVITYHISTOGRAM_H

@@ -10,6 +10,7 @@ set(CMAKE_AUTOMOC ON)
 
 set(qamster_SRCS
   src/activitycompletermodel.cpp
+  src/activity-histogram.cpp
   src/activityitemdelegate.cpp
   src/editdialog.cpp
   src/helperfunctions.cpp

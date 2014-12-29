@@ -35,7 +35,7 @@ class EditDialog : public QDialog
     Q_OBJECT
 public:
   EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, const QModelIndex& index);
-  const bool isRunning() const { return running_; };
+  bool isRunning() const { return running_; };
 
 private:
     Ui::EditDialog ui_;

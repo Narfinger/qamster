@@ -48,7 +48,8 @@ History::History(QSqlDatabase db, QWidget* parent) : QDialog(parent), db_(db) {
   ui_.calendarWidget->setMinimumDate(min);
   ui_.calendarWidget->setMaximumDate(max);
   
-  ui_.w_history->setDb(db_);
+  ui_.w_acthistory->setDb(db_);
+  ui_.w_cathistory->setDb(db_);
 
   //setup detailed day
   dd_ttm_ = QSharedPointer<TimeTableModel>(new TimeTableModel(this, db_));
@@ -201,7 +202,8 @@ void History::w_activated(const QDate& date) {
   const QPair<QDate,QDate> pdate = getWeek(date);
   const QDate start = pdate.first;
   const QDate end = pdate.second;
-  ui_.w_history->drawWeek(start, end);
+  ui_.w_acthistory->drawWeek(start, end);
+  ui_.w_cathistory->drawWeek(start, end);
   
   const QString total = getTotal(start, end, std::function<QString(int)>(TDBHelper::secsToQString));
   ui_.w_total->setText(total);
