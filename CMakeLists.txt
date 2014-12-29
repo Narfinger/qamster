@@ -14,6 +14,7 @@ set(qamster_SRCS
   src/editdialog.cpp
   src/helperfunctions.cpp
   src/histogram.cpp
+  src/category-histogram.cpp
   src/history.cpp
   src/qamster.cpp
   src/settings.cpp
