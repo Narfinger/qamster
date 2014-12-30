@@ -204,7 +204,6 @@ void History::w_activated(const QDate& date) {
   const QDate end = pdate.second;
   ui_.w_acthistory->drawWeek(start, end);
   ui_.w_cathistory->drawWeek(start, end);
-  
   const QString total = getTotal(start, end, std::function<QString(int)>(TDBHelper::secsToQString));
   ui_.w_total->setText(total);
 }

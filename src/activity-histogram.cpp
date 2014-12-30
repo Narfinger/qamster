@@ -27,7 +27,7 @@
 void ActivityHistogram::setupCategoryHistogram() {
   initialSetupHistogram();
 
-  QSqlQuery q("SELECT DISTINCT activity FROM time ORDER BY", db_);
+  QSqlQuery q("SELECT DISTINCT activity FROM time ORDER BY activity", db_);
   q.exec();
   while(q.next()) {
     const QString activity = q.value(0).toString();
@@ -49,26 +49,43 @@ void ActivityHistogram::setupCategoryHistogram() {
 }
 
 void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
-  QHash<QString, QVector<double> > b;     //activities, days
+  QHash<QPair<QString, int>, double> b;     //activities, days
   
   for (int i = 0; i < 7; i++) {
     const QDateTime t_start = QDateTime(start).addDays(i);
     const QDateTime t_end = QDateTime(start).addDays(i+1).addSecs(-1);
 
-    QHash<QString, QCPBars*>::const_iterator j = bars__.constBegin();
-    while (j != bars__.constEnd()) {
+    //i have the feeling this constant iterator is in a loop
+    QHashIterator<QString, QCPBars*> j(bars__);
+    while (j.hasNext()) {
+      j.next();
       QString qstring("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum FROM \
-                      time WHERE start>='%1' AND end<='%2' AND activity=%3");
+                      time WHERE start>='%1' AND end<='%2' AND activity='%3'");
       qstring = qstring.arg(t_start.toString(TimeDatabase::DATEFORMAT)).arg(t_end.toString(TimeDatabase::DATEFORMAT)).arg(j.key());
       QSqlQuery cquery(qstring, db_);
       cquery.exec();
       cquery.next();
-      
+
       const QTime t = TDBHelper::secsToQTime(cquery.value(0).toInt());
       const double hours = t.hour();
       const double minutes = ((double)t.minute() / 60l);
-      //values.insert(i.key(), hours + minutes);
-      ++j;
+      const QPair<QString, int> p(j.key(), i);
+      b.insert(p, hours + minutes);
     }
   }
+
+  QHashIterator<QString, QCPBars*>j(bars__);
+  while (j.hasNext()) {
+    j.next();
+    QCPBars* bar = j.value();
+    bar->clearData();
+
+    QVector<double> v;
+    for(int i=0; i<7; i++) {
+      QPair<QString, int> p(j.key(), i);
+      v << b.value(p);
+    }
+    bar->addData(ticks_, v);
+  }
+  this->replot();
 }

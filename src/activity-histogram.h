@@ -28,7 +28,7 @@ class ActivityHistogram : public Histogram
 {
    Q_OBJECT
 public:
-   ActivityHistogram(QWidget* parent = 0) {};
+   ActivityHistogram(QWidget* parent = 0) : Histogram(parent) {};
    virtual void drawWeek(const QDate& start, const QDate& end);
 
 protected:
