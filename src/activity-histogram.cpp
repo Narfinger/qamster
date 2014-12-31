@@ -55,6 +55,16 @@ void ActivityHistogram::setupCategoryHistogram() {
   yAxis->setRange(0,10);
   
   //bars have to be above each other which is not yet the case
+  QHashIterator<QString, QCPBars*> i(bars__);
+  while (i.hasNext()) {
+    i.next();
+    QCPBars* b = i.value();
+    if (i.hasPrevious()) {
+      QCPBars* p = i.peekPrevious().value();
+      qDebug() << i.peekPrevious().key();
+      b->moveAbove(p);
+    }
+  }
 }
 
 void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
@@ -98,13 +108,11 @@ void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
         nonzero = true;
     }
     bar->addData(ticks_, v);
-
     //redo legend
     if (!nonzero)
       bar->removeFromLegend();
     else
       bar->addToLegend();
   }
-
   this->replot();
 }
