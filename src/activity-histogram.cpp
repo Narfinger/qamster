@@ -26,6 +26,9 @@
 
 void ActivityHistogram::setupCategoryHistogram() {
   initialSetupHistogram();
+  //this is an ugly hack for the moment
+  QStringList colors = { "red", "green", "blue", "darkRed", "darkGreen", "darkBlue", "cyan", "magenta", "yellow", "darkCyan", "darkMagenta", "darkYellow" , "black"};
+  QStringListIterator cit(colors);
 
   QSqlQuery q("SELECT DISTINCT activity FROM time ORDER BY activity", db_);
   q.exec();
@@ -33,6 +36,11 @@ void ActivityHistogram::setupCategoryHistogram() {
     const QString activity = q.value(0).toString();
     QCPBars* bar = new QCPBars(xAxis, yAxis);
     bar->setWidth(0.25);
+    const QColor c = QColor(cit.next());
+    QPen p(c);
+    p.setStyle(Qt::NoPen);
+    bar->setPen(p);
+    bar->setBrush(c);
     bar->rescaleAxes();
     bar->setName(activity);
     addPlottable(bar);
@@ -45,17 +53,18 @@ void ActivityHistogram::setupCategoryHistogram() {
   labels << "Mon" << "Tue" << "Wed" << "Thu" << "Fri" << "Sat" << "Sun";
   xAxis->setTickVectorLabels(labels);
   yAxis->setRange(0,10);
-  legend->setVisible(false);
+  
+  //bars have to be above each other which is not yet the case
 }
 
 void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
+
   QHash<QPair<QString, int>, double> b;     //activities, days
-  
+
   for (int i = 0; i < 7; i++) {
     const QDateTime t_start = QDateTime(start).addDays(i);
     const QDateTime t_end = QDateTime(start).addDays(i+1).addSecs(-1);
 
-    //i have the feeling this constant iterator is in a loop
     QHashIterator<QString, QCPBars*> j(bars__);
     while (j.hasNext()) {
       j.next();
@@ -80,12 +89,22 @@ void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
     QCPBars* bar = j.value();
     bar->clearData();
 
+    bool nonzero = false;
     QVector<double> v;
     for(int i=0; i<7; i++) {
       QPair<QString, int> p(j.key(), i);
       v << b.value(p);
+      if (b.value(p) != 0.0)
+        nonzero = true;
     }
     bar->addData(ticks_, v);
+
+    //redo legend
+    if (!nonzero)
+      bar->removeFromLegend();
+    else
+      bar->addToLegend();
   }
+
   this->replot();
 }
