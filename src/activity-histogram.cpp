@@ -36,7 +36,12 @@ void ActivityHistogram::setupCategoryHistogram() {
     const QString activity = q.value(0).toString();
     QCPBars* bar = new QCPBars(xAxis, yAxis);
     bar->setWidth(0.25);
-    const QColor c = QColor(cit.next());
+    QColor c;
+    if (cit.hasNext()) {
+      c = QColor(cit.next());
+    } else {
+     c = Qt::white; 
+    }
     QPen p(c);
     p.setStyle(Qt::NoPen);
     bar->setPen(p);
@@ -59,9 +64,9 @@ void ActivityHistogram::setupCategoryHistogram() {
   while (i.hasNext()) {
     i.next();
     QCPBars* b = i.value();
-    if (i.hasPrevious()) {
-      QCPBars* p = i.peekPrevious().value();
-      qDebug() << i.peekPrevious().key();
+    if (i.hasNext()) {
+      QCPBars* p = i.peekNext().value();
+      qDebug() << i.peekNext().key() << "above" << i.key();
       b->moveAbove(p);
     }
   }
