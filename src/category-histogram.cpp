@@ -26,7 +26,7 @@
 CategoryHistogram::CategoryHistogram(QWidget* parent): Histogram(parent) { 
 }
 
-void CategoryHistogram::setupCategoryHistogram() {
+void CategoryHistogram::setupHistogram() {
   initialSetupHistogram();
 
   QSqlQuery q("SELECT name,color FROM category", db_);

@@ -30,11 +30,11 @@ class Histogram : public QCustomPlot
 public:
   Histogram(QWidget* parent = 0) : QCustomPlot(parent) {};
 
-  void setDb(QSqlDatabase db) { db_ = db; this->setupCategoryHistogram(); };
+  void setDb(QSqlDatabase db) { db_ = db; this->setupHistogram(); };
   virtual void drawWeek(const QDate& start, const QDate& end) = 0;
   
 protected :
-  virtual void setupCategoryHistogram() = 0;        //this can only be called if we set a db and not in the constructor
+  virtual void setupHistogram() = 0;        //this can only be called if we set a db and not in the constructor
   void initialSetupHistogram();
 
   QSqlDatabase db_;

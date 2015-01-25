@@ -24,7 +24,7 @@
 #include <QDebug>
 #include <QSqlQuery>
 
-void ActivityHistogram::setupCategoryHistogram() {
+void ActivityHistogram::setupHistogram() {
   initialSetupHistogram();
   //this is an ugly hack for the moment
   QStringList colors = { "red", "green", "blue", "darkRed", "darkGreen", "darkBlue", "cyan", "magenta", "yellow", "darkCyan", "darkMagenta", "darkYellow" , "black"};

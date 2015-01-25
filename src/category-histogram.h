@@ -31,7 +31,7 @@ public:
   virtual void drawWeek(const QDate& start, const QDate& end);
 
 protected:
-  virtual void setupCategoryHistogram();      //this can only be called if we set a db and not in the constructor
+  virtual void setupHistogram();      //this can only be called if we set a db and not in the constructor
   
 private:
   QSqlDatabase db_;
