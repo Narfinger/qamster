@@ -78,9 +78,7 @@ void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
     const QDateTime t_start = QDateTime(start).addDays(i);
     const QDateTime t_end = QDateTime(start).addDays(i+1).addSecs(-1);
 
-    QMapIterator<QString, QCPBars*> j(bars__);
-    while (j.hasNext()) {
-      j.next();
+    for (QMap<QString, QCPBars*>::const_iterator j=bars__.constBegin(); j!=bars__.constEnd(); ++j) {
       QString qstring("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum FROM \
                       time WHERE start>='%1' AND end<='%2' AND activity='%3'");
       qstring = qstring.arg(t_start.toString(TimeDatabase::DATEFORMAT)).arg(t_end.toString(TimeDatabase::DATEFORMAT)).arg(j.key());
@@ -95,10 +93,9 @@ void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
       b.insert(p, hours + minutes);
     }
   }
-//qDebug() << b;
-  QMapIterator<QString, QCPBars*>j(bars__);
-  while (j.hasNext()) {
-    j.next();
+
+  
+  for (QMap<QString, QCPBars*>::iterator j=bars__.begin(); j!=bars__.end(); ++j) {
     QCPBars* bar = j.value();
     bar->clearData();
 
