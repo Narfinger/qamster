@@ -20,7 +20,7 @@
 #ifndef ACTIVITYHISTOGRAM_H
 #define ACTIVITYHISTOGRAM_H
 
-#include <QHash>
+#include <QMap>
 
 #include "histogram.h"
 
@@ -35,7 +35,7 @@ protected:
   virtual void setupHistogram();      //this can only be called if we set a db and not in the constructor
   
 private:
-  QHash<QString, QCPBars*> bars__;
+  QMap<QString, QCPBars*> bars__;
 };
 
 #endif // ACTIVITYHISTOGRAM_H

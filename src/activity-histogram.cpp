@@ -58,17 +58,15 @@ void ActivityHistogram::setupHistogram() {
   labels << "Mon" << "Tue" << "Wed" << "Thu" << "Fri" << "Sat" << "Sun";
   xAxis->setTickVectorLabels(labels);
   yAxis->setRange(0,10);
-  
-  //bars have to be above each other which is not yet the case
-  QHashIterator<QString, QCPBars*> i(bars__);
-  while (i.hasNext()) {
-    i.next();
-    QCPBars* b = i.value();
-    if (i.hasNext()) {
-      QCPBars* p = i.peekNext().value();
-      qDebug() << i.peekNext().key() << "above" << i.key();
-      b->moveAbove(p);
-    }
+
+  QMap<QString, QCPBars*>::iterator current, previous;
+  current = ++(bars__.begin());
+  previous = bars__.begin();
+  for (; current != bars__.end(); ++current, ++previous) {
+    QCPBars* c = current.value();
+    QCPBars* p = previous.value();
+    qDebug() << "moving:" << current.key() << "above" << previous.key();
+    c->moveAbove(p);
   }
 }
 
@@ -80,7 +78,7 @@ void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
     const QDateTime t_start = QDateTime(start).addDays(i);
     const QDateTime t_end = QDateTime(start).addDays(i+1).addSecs(-1);
 
-    QHashIterator<QString, QCPBars*> j(bars__);
+    QMapIterator<QString, QCPBars*> j(bars__);
     while (j.hasNext()) {
       j.next();
       QString qstring("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum FROM \
@@ -97,8 +95,8 @@ void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
       b.insert(p, hours + minutes);
     }
   }
-
-  QHashIterator<QString, QCPBars*>j(bars__);
+//qDebug() << b;
+  QMapIterator<QString, QCPBars*>j(bars__);
   while (j.hasNext()) {
     j.next();
     QCPBars* bar = j.value();
@@ -112,7 +110,7 @@ void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
       if (b.value(p) != 0.0)
         nonzero = true;
     }
-    bar->addData(ticks_, v);
+    bar->setData(ticks_, v);
     //redo legend
     if (!nonzero)
       bar->removeFromLegend();
