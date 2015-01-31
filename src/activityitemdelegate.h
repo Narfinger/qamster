@@ -27,8 +27,8 @@ class ActivityItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-  ActivityItemDelegate(QObject* parent = 0): QStyledItemDelegate(parent) {};  
-  virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+  ActivityItemDelegate(QObject* parent = nullptr): QStyledItemDelegate(parent) {};  
+  virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 
 private:
 };

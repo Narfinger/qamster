@@ -28,7 +28,7 @@ class Histogram : public QCustomPlot
 {
     Q_OBJECT
 public:
-  Histogram(QWidget* parent = 0) : QCustomPlot(parent) {};
+  Histogram(QWidget* parent = nullptr) : QCustomPlot(parent) {};
 
   void setDb(QSqlDatabase db) { db_ = db; this->setupHistogram(); };
   virtual void drawWeek(const QDate& start, const QDate& end) = 0;

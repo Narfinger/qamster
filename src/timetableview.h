@@ -25,7 +25,7 @@
 class TimeTableView : public QTableView {
     Q_OBJECT
 public:
-  TimeTableView(QWidget* parent = 0);
+  TimeTableView(QWidget* parent = nullptr);
   ~TimeTableView() {};
 
 signals:

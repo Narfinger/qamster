@@ -28,16 +28,16 @@ class ActivityCompleterModel : public QSqlQueryModel
 {
   Q_OBJECT
 public:
-  ActivityCompleterModel(QSqlDatabase db, QObject* parent = 0);
-  virtual QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const { return  QSqlQueryModel::data(item, role); }
+  ActivityCompleterModel(QSqlDatabase db, QObject* parent = nullptr);
+  virtual QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const override { return  QSqlQueryModel::data(item, role); }
 };
 
 class ActivityCategoryCompleterModel : public QSqlQueryModel
 {
     Q_OBJECT
 public:
-  ActivityCategoryCompleterModel(QSqlDatabase db, QObject* parent = 0);
-  virtual QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const;
+  ActivityCategoryCompleterModel(QSqlDatabase db, QObject* parent = nullptr);
+  virtual QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const override;
   
   void select();	//refreshes the query
 

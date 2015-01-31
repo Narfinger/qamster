@@ -48,7 +48,7 @@ private:
     bool changed_ = false;
     
 private slots:
-    void accept();
+    void accept() override;
 };
 
 #endif // EDITDIALOG_H

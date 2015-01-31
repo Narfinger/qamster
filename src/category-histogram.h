@@ -26,12 +26,12 @@ class CategoryHistogram : public Histogram
 {
     Q_OBJECT
 public:
-  CategoryHistogram(QWidget* parent = 0);
+  CategoryHistogram(QWidget* parent = nullptr);
 
-  virtual void drawWeek(const QDate& start, const QDate& end);
+  virtual void drawWeek(const QDate& start, const QDate& end) override;
 
 protected:
-  virtual void setupHistogram();      //this can only be called if we set a db and not in the constructor
+  virtual void setupHistogram() override;      //this can only be called if we set a db and not in the constructor
   
 private:
   QSqlDatabase db_;

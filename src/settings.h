@@ -32,12 +32,12 @@ class Settings : public QDialog
 {
     Q_OBJECT
 public:
-    Settings(QSqlDatabase db, QWidget* parent = 0);
+    Settings(QSqlDatabase db, QWidget* parent = nullptr);
 
 private slots:
   void cellDoubleClicked(int row, int col);
   void textColorButtonClicked();
-  void accept();
+  void accept() override;
   void saveColors(const QVariantList& ids, const QVariantList& colors);
     
 private:

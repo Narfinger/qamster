@@ -31,12 +31,12 @@ class TimeTableModel : public QSqlRelationalTableModel
 public:
   TimeTableModel(QObject* parent, QSqlDatabase db);
   ~TimeTableModel();
-  int columnCount(const QModelIndex& parent = QModelIndex()) const { Q_UNUSED(parent); return 7; };
-  int rowCount(const QModelIndex& parent = QModelIndex()) const;
-  QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const;
-  bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+  int columnCount(const QModelIndex& parent = QModelIndex()) const override { Q_UNUSED(parent); return 7; };
+  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  QVariant data(const QModelIndex& item, int role = Qt::DisplayRole) const override;
+  bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
   bool setData(const QModelIndex& index, const QDateTime& d, int role = Qt::EditRole);	//overload setData for datetime because we have custom datestring format
-  Qt::ItemFlags flags(const QModelIndex& index) const;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
   void stopActivity();
   void startActivity(const QString& name, const QString& category);

@@ -33,7 +33,7 @@ class History : public QDialog
 {
   Q_OBJECT
 public:
-  History(QSqlDatabase db, QWidget* parent = 0);
+  History(QSqlDatabase db, QWidget* parent = nullptr);
   ~History();
 
 private:

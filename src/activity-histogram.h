@@ -28,11 +28,11 @@ class ActivityHistogram : public Histogram
 {
    Q_OBJECT
 public:
-   ActivityHistogram(QWidget* parent = 0) : Histogram(parent) {};
-   virtual void drawWeek(const QDate& start, const QDate& end);
+   ActivityHistogram(QWidget* parent = nullptr) : Histogram(parent) {};
+   virtual void drawWeek(const QDate& start, const QDate& end) override;
 
 protected:
-  virtual void setupHistogram();      //this can only be called if we set a db and not in the constructor
+  virtual void setupHistogram() override;      //this can only be called if we set a db and not in the constructor
   
 private:
   QMap<QString, QCPBars*> bars__;
