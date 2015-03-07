@@ -83,7 +83,6 @@ void Qamster::doubleClicked(const QModelIndex& index) {
     d.exec();
     rtm_->update();
     sbarText->setText(rtm_->getTodaysStatusbarText());
-    minutesPassed();
   } else {
     QStringList slist;
     const QModelIndex nameindex = rtm_->index(index.row(), TimeDatabase::T_ACTIVITY);
