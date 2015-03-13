@@ -46,6 +46,12 @@ private:
     const QModelIndex index_;
     bool running_ = false;	//are we editing the currently running one?
     bool changed_ = false;
+    QDateTime start_min_;
+    QDateTime start_max_;
+    QDateTime end_min_;
+    QDateTime end_max_;
+
+    bool checkBounds() const;
     
 private slots:
     void accept() override;

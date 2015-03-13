@@ -20,6 +20,7 @@
 #include "editdialog.h"
 #include <QCompleter>
 #include <QTime>
+#include <QMessageBox>
 
 #include "timedatabase.h"
 #include "timetablemodel.h"
@@ -48,21 +49,27 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
 
    ui_.startTimeEdit->setDateTime(start);
    ui_.endTimeEdit->setDateTime(end);
-   ui_.endTimeEdit->setMinimumDateTime(start);
-   ui_.startTimeEdit->setMaximumDateTime(nextStart);
+   end_min_ = start;
+   //ui_.endTimeEdit->setMinimumDateTime(start);
+   start_max_ = nextStart;
+   //ui_.startTimeEdit->setMaximumDateTime(nextStart);
 
    if (lastEnd.isValid()) {	//if this is not the first element and on the same day
-     ui_.startTimeEdit->setMinimumDateTime(lastEnd);
+     start_min_ = lastEnd;
+     //ui_.startTimeEdit->setMinimumDateTime(lastEnd);
    } else {
      QDateTime d(start);
      d.setTime(QTime(0,0,0));
-     ui_.startTimeEdit->setMinimumDateTime(d);
+     start_min_ = d;
+     //ui_.startTimeEdit->setMinimumDateTime(d);
    }
    if (nextStart.isValid()) {
-     ui_.endTimeEdit->setMaximumDateTime(nextStart);
+     end_min_ = nextStart;
+     //ui_.endTimeEdit->setMaximumDateTime(nextStart);
    } else {
      const QDateTime d = QDateTime::currentDateTime();
-     ui_.endTimeEdit->setMaximumDateTime(d);
+     end_max_ = d;
+     //ui_.endTimeEdit->setMaximumDateTime(d);
    }
 
    ui_.categoryCBox->addItems(ptr->categories());
@@ -80,7 +87,20 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
    connect(ui_.categoryCBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=]() { changed_ = true; });
 }
 
+bool EditDialog::checkBounds() const {
+  const bool start = ui_.startTimeEdit->time() >= start_min_.time() && ui_.startTimeEdit->time() <= start_max_.time();
+  const bool end   = ui_.endTimeEdit->time() >= end_min_.time() && ui_.endTimeEdit->time() <= end_max_.time();
+  return start && end;
+}
+
+
 void EditDialog::accept() {
+  if (!checkBounds()) {
+    QMessageBox::critical(this, "Not saved", "The bounds where not valid, we did not change the data!");
+    reject();
+    return;
+  }
+
   if (changed_) {
     ttm_->setData(index_.sibling(index_.row(), TimeDatabase::T_ACTIVITY), ui_.activityEdit->text());
 
