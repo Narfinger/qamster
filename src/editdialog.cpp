@@ -64,7 +64,7 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
      //ui_.startTimeEdit->setMinimumDateTime(d);
    }
    if (nextStart.isValid()) {
-     end_min_ = nextStart;
+     end_max_ = nextStart;
      //ui_.endTimeEdit->setMaximumDateTime(nextStart);
    } else {
      const QDateTime d = QDateTime::currentDateTime();
@@ -88,8 +88,10 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
 }
 
 bool EditDialog::checkBounds() const {
-  const bool start = ui_.startTimeEdit->time() >= start_min_.time() && ui_.startTimeEdit->time() <= start_max_.time();
-  const bool end   = ui_.endTimeEdit->time() >= end_min_.time() && ui_.endTimeEdit->time() <= end_max_.time();
+  const bool start = (ui_.startTimeEdit->time() >= start_min_.time() || !start_min_.time().isValid())
+		  && (ui_.startTimeEdit->time() <= start_max_.time() || !start_max_.time().isValid());
+  const bool end   = (ui_.endTimeEdit->time() >= end_min_.time() || !end_min_.time().isValid())
+		  && (ui_.endTimeEdit->time() <= end_max_.time() || !end_max_.time().isValid());
   return start && end;
 }
 
