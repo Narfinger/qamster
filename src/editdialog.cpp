@@ -88,11 +88,12 @@ EditDialog::EditDialog(QSharedPointer<TimeTableModel> ptr, QSqlDatabase db, cons
 }
 
 bool EditDialog::checkBounds() const {
-  const bool start = (ui_.startTimeEdit->time() >= start_min_.time() || !start_min_.time().isValid())
-		  && (ui_.startTimeEdit->time() <= start_max_.time() || !start_max_.time().isValid());
-  const bool end   = (ui_.endTimeEdit->time() >= end_min_.time() || !end_min_.time().isValid())
-		  && (ui_.endTimeEdit->time() <= end_max_.time() || !end_max_.time().isValid());
-  return start && end;
+  const bool start = (ui_.startTimeEdit->time().addSecs(60) >= start_min_.time() || !start_min_.time().isValid())
+		  && (ui_.startTimeEdit->time() <= start_max_.time().addSecs(60) || !start_max_.time().isValid());
+  const bool end   = (ui_.endTimeEdit->time().addSecs(60) >= end_min_.time() || !end_min_.time().isValid())
+		  && (ui_.endTimeEdit->time() <= end_max_.time().addSecs(60) || !end_max_.time().isValid());
+  return    (ui_.startTimeEdit->time().isValid() || start)
+	 && (ui_.endTimeEdit->time().isValid()   || end);
 }
 
 
