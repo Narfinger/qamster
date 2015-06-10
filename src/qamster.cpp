@@ -48,6 +48,7 @@ Qamster::Qamster() {
   //actions
   connect(ui_.actionHistory, &QAction::triggered, this, &Qamster::showHistory);
   connect(ui_.actionSettings, &QAction::triggered, this, &Qamster::showSettings);
+  connect(ui_.actionDelete, &QAction::triggered, this, &Qamster::deleteActivity);
   connect(ui_.actionQuit, &QAction::triggered, qApp, &QApplication::quit);
 
   QSettings s("qamster");
@@ -125,6 +126,12 @@ void Qamster::startActivityStrings(const QStringList& slist) {
   ui_.tableView->scrollToBottom();
   ui_.timeLabel->setText("0 min");
 }
+
+void Qamster::deleteActivity() {
+  const QModelIndex i = ui_.tableView->selectionModel()->currentIndex();
+  rtm_->deleteCurrentActivity(i);
+}
+
 
 void Qamster::showHistory() {
   History h(tdb_.connect());

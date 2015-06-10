@@ -82,15 +82,16 @@
      <x>0</x>
      <y>0</y>
      <width>694</width>
-     <height>20</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQamster">
     <property name="title">
-     <string>Qamster</string>
+     <string>&amp;Qamster</string>
     </property>
     <addaction name="actionHistory"/>
     <addaction name="actionSettings"/>
+    <addaction name="actionDelete"/>
     <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuQamster"/>
@@ -103,7 +104,7 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Show History</string>
+    <string>&amp;Show History</string>
    </property>
   </action>
   <action name="actionQuit">
@@ -113,15 +114,25 @@
     </iconset>
    </property>
    <property name="text">
-    <string>Quit</string>
+    <string>&amp;Quit</string>
    </property>
   </action>
   <action name="actionSettings">
    <property name="icon">
-    <iconset theme="preferences-system"/>
+    <iconset theme="preferences-system">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
-    <string>Settings</string>
+    <string>S&amp;ettings</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset theme="edit-delete"/>
+   </property>
+   <property name="text">
+    <string>Delete</string>
    </property>
   </action>
  </widget>

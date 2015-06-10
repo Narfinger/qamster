@@ -30,6 +30,7 @@ private:
   void stopActivity();
   void startActivityFromLineEdit();
   void startActivityStrings(const QStringList& slist);
+  void deleteActivity();
 
 private slots:
   void showHistory();

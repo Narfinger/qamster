@@ -45,6 +45,7 @@ public:
   const QStringList categories() const;
   int categoryIdForIndex(const QModelIndex& index) const;
   void setCategory(const QModelIndex& index, const int c);
+  void deleteCurrentActivity(const QModelIndex& index);
 
 signals:
   void minutesPassed(const int minutes);

@@ -251,6 +251,10 @@ void TimeTableModel::setCategory(const QModelIndex& index, const int c) {
   q.exec();
 }
 
+void TimeTableModel::deleteCurrentActivity(const QModelIndex& index) {
+  this->removeRow(index.row());
+}
+
 QVariant TimeTableModel::runningActivityData(const QModelIndex& item, int role) const {
   if (role == Qt::DecorationRole && item.column() == 6) return QIcon::fromTheme("document-properties");
   if (role != Qt::DisplayRole) return QSqlRelationalTableModel::data(item, role);
