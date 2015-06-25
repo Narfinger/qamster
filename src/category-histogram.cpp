@@ -47,9 +47,12 @@ void CategoryHistogram::setupHistogram() {
   for(int i = 1; i<bars_.size(); i++) {
     bars_[i]->moveAbove(bars_[i-1]);
   }
+  
   ticks_ << 0.5 << 1.0 << 1.5 << 2.0 << 2.5 << 3.0 << 3.5;
   xAxis->setTickVector(ticks_);
   QVector<QString> labels;
+  labels << "Mon" << "Tue" << "Wed" << "Thu" << "Fri" << "Sat" << "Sun";
+  xAxis->setTickVectorLabels(labels);
   yAxis->setRange(0,10);
 }
 
