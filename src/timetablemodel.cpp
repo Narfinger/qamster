@@ -252,7 +252,8 @@ void TimeTableModel::setCategory(const QModelIndex& index, const int c) {
 }
 
 void TimeTableModel::deleteCurrentActivity(const QModelIndex& index) {
-  this->removeRow(index.row());
+  removeRow(index.row());
+  submitAll();
 }
 
 QVariant TimeTableModel::runningActivityData(const QModelIndex& item, int role) const {
