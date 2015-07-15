@@ -74,22 +74,22 @@ void ActivityHistogram::drawWeek(const QDate& start, const QDate& end) {
 
   QHash<QPair<QString, int>, double> b;     //activities, days
 
+  QString qstring("SELECT t.activity,sum(strftime('%s', end) - strftime('%s', start)) AS sum FROM (SELECT DISTINCT activity FROM time) AS a \
+		    LEFT JOIN time AS t ON t.activity = a.activity WHERE start>='%1' AND end<='%2' GROUP BY a.activity");
+  
   for (int i = 0; i < 7; i++) {
     const QDateTime t_start = QDateTime(start).addDays(i);
     const QDateTime t_end = QDateTime(start).addDays(i+1).addSecs(-1);
-
-    for (QMap<QString, QCPBars*>::const_iterator j=bars__.constBegin(); j!=bars__.constEnd(); ++j) {
-      QString qstring("SELECT sum(strftime('%s', end) - strftime('%s', start)) AS sum FROM \
-                      time WHERE start>='%1' AND end<='%2' AND activity='%3'");
-      qstring = qstring.arg(t_start.toString(TimeDatabase::DATEFORMAT)).arg(t_end.toString(TimeDatabase::DATEFORMAT)).arg(j.key());
-      QSqlQuery cquery(qstring, db_);
-      cquery.exec();
-      cquery.next();
-
-      const QTime t = TDBHelper::secsToQTime(cquery.value(0).toInt());
+    
+    QSqlQuery cquery(qstring.arg(t_start.toString(TimeDatabase::DATEFORMAT)).arg(t_end.toString(TimeDatabase::DATEFORMAT)), db_);
+    cquery.exec();
+    
+    while (cquery.next()) {
+      const QString activity = cquery.value(0).toString();
+      const QTime t = TDBHelper::secsToQTime(cquery.value(1).toInt()); 
       const double hours = t.hour();
       const double minutes = ((double)t.minute() / 60l);
-      const QPair<QString, int> p(j.key(), i);
+      const QPair<QString, int> p(activity, i);
       b.insert(p, hours + minutes);
     }
   }
