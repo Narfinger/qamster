@@ -15,15 +15,26 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="0" colspan="6">
-     <widget class="TimeTableView" name="tableView">
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
+    <item row="0" column="6">
+     <widget class="QPushButton" name="refilterButton">
+      <property name="text">
+       <string>Refilter</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="5">
-     <widget class="QLineEdit" name="activityEdit"/>
+    <item row="1" column="6">
+     <widget class="QPushButton" name="stopActivityButton">
+      <property name="text">
+       <string>Stop Tracking</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QLabel" name="activityLabel">
+      <property name="text">
+       <string>Nothing</string>
+      </property>
+     </widget>
     </item>
     <item row="0" column="0">
      <widget class="QCheckBox" name="checkBox">
@@ -32,45 +43,41 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="5">
-     <widget class="QPushButton" name="stopActivityButton">
+    <item row="0" column="2">
+     <widget class="QLabel" name="label">
       <property name="text">
-       <string>Stop Tracking</string>
+       <string>Currently Tracking:</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="3" alignment="Qt::AlignHCenter">
+    <item row="1" column="0" colspan="6">
+     <widget class="QLineEdit" name="activityEdit"/>
+    </item>
+    <item row="0" column="4" alignment="Qt::AlignHCenter">
      <widget class="QLabel" name="label_2">
       <property name="text">
        <string>Tracking Time:</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="4">
+    <item row="2" column="0" colspan="7">
+     <widget class="TimeTableView" name="tableView">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="5">
      <widget class="QLabel" name="timeLabel">
       <property name="text">
        <string>0 min</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
-     <widget class="QLabel" name="activityLabel">
-      <property name="text">
-       <string>Nothing</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="5">
-     <widget class="QPushButton" name="refilterButton">
-      <property name="text">
-       <string>Refilter</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="1">
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="iconLabel">
       <property name="text">
-       <string>Currently Tracking:</string>
+       <string/>
       </property>
      </widget>
     </item>
@@ -129,10 +136,12 @@
   </action>
   <action name="actionDelete">
    <property name="icon">
-    <iconset theme="edit-delete"/>
+    <iconset theme="edit-delete">
+     <normaloff/>
+    </iconset>
    </property>
    <property name="text">
-    <string>Delete</string>
+    <string>&amp;Delete</string>
    </property>
   </action>
  </widget>
@@ -143,6 +152,8 @@
    <header>src/timetableview.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
