@@ -162,13 +162,13 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
-         <widget class="QTableWidget" name="g_categoryTable">
+         <widget class="QTableWidget" name="g_activityTable">
           <property name="columnCount">
            <number>2</number>
           </property>
           <column>
            <property name="text">
-            <string>Category</string>
+            <string>Activity</string>
            </property>
           </column>
           <column>
@@ -190,6 +190,25 @@
           <property name="text">
            <string/>
           </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QTableWidget" name="g_categoryTable">
+          <column>
+           <property name="text">
+            <string>Category</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Hours</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Percentage</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>

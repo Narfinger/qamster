@@ -211,7 +211,12 @@ void History::w_activated(const QDate& date) {
 void History::g_activated() {
   const QString total = getTotal(QDate(1,0,0), QDate::currentDate(), std::function<QString(int)>(TDBHelper::secsToQString));
   ui_.g_totalTrack->setText(total);
+  
+  g_fillActivity();
+  g_fillCateogory();
+}
 
+void History::g_fillActivity() {
   const QDate start(1,0,0);
   const QDate end = QDate::currentDate();
 
@@ -221,7 +226,26 @@ void History::g_activated() {
   q.exec();
   while (q.next()) {
     const QString t = TDBHelper::secsToQString(q.value(1).toInt());
-    insertItemIntoTable(ui_.g_categoryTable, q.value(0).toString(), t);
+    insertItemIntoTable(ui_.g_activityTable, q.value(0).toString(), t);
+  }
+}
+
+void History::g_fillCateogory() {
+  const QDate start(1,0,0);
+  const QDate end = QDate::currentDate();
+  
+  const QTime totaltime = getTotal(start, end);
+  const long long totalsecs = totaltime.hour()*60*60 + totaltime.minute()*60 + totaltime.second();
+  qDebug() << totaltime.hour() << totaltime.minute() << totaltime.second();
+  
+  QSqlQuery q = TDBHelper::queryTimeSubstitution("SELECT category.id AS cid, category.name,sum(strftime('%s', end) - strftime('%s', start)) AS diff FROM \
+						 time INNER JOIN category ON category.id = time.category WHERE start>='%1' and start<='%2' GROUP BY category \
+						 ORDER BY diff DESC", db_, start, end);
+  q.exec();
+  while (q.next()) {
+    const QTime t = TDBHelper::secsToQTime(q.value(2).toInt());
+    qDebug() << t;
+    insertProgressBarIntoTable(ui_.g_categoryTable, q.value(1).toString(), t, totalsecs);
   }
 }
 

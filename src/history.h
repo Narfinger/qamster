@@ -62,6 +62,8 @@ private:
   void w_activated(const QDate& date);
 
   void g_activated();
+  void g_fillCateogory();
+  void g_fillActivity();
 };
 
 #endif // HISTORY_H
