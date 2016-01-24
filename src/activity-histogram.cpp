@@ -65,7 +65,7 @@ void ActivityHistogram::setupHistogram() {
   for (; current != bars__.end(); ++current, ++previous) {
     QCPBars* c = current.value();
     QCPBars* p = previous.value();
-    qDebug() << "moving:" << current.key() << "above" << previous.key();
+    //qDebug() << "moving:" << current.key() << "above" << previous.key();
     c->moveAbove(p);
   }
 }
