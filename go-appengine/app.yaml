@@ -6,5 +6,11 @@ handlers:
   static_files: templates/index.html
   upload: templates/index.html
 
+- url: /css
+  static_dir: css/
+
+- url: /js
+  static_dir: js/
+
 - url: /go
   script: _go_app
