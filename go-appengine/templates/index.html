@@ -1,0 +1,20 @@
+<!doctype html>
+<html ng-app>
+<head>
+  <title>TODO</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <link href='http://fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+<div class='container' ng-controller='TaskCtrl'>
+  <h1 class='charcoal rounded-box'>ToDo</h1>
+
+  <form>
+    <input type='text' class='rounded-box' placeholder='add new todo here' ng-model='todoText'>
+    <button class='grey rounded-box' ng-click='addTodo()' ng-disabled='working'>New Task</button>
+  </form>
+</div>
+</body>
+</html>

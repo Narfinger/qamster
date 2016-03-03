@@ -2,5 +2,9 @@ runtime: go
 api_version: go1
 
 handlers:
-- url: /.*
+- url: /
+  static_files: templates/index.html
+  upload: templates/index.html
+
+- url: /go
   script: _go_app
