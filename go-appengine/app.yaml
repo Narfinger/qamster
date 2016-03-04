@@ -12,5 +12,5 @@ handlers:
 - url: /js
   static_dir: js/
 
-- url: /go
+- url: /go/.*
   script: _go_app

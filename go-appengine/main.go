@@ -4,26 +4,33 @@ import (
         "net/http"
 //        "time"
         //"appengine"
-	"html/template"
-        // "appengine/datastore"
+	"encoding/json"
+	// "appengine/datastore"
         // "appengine/user"
 )
 
-func init() {	
+type Task struct {
+	Start string    `json:"start"`
+	End string      `json:"end"`
+	Title string    `json:"title"`
+	Category string `json:"category"`
+	Runtime string  `json:"runtime"`
+}
+type Tasks []Task
+
+func timetable(w http.ResponseWriter, r *http.Request) {
+	testdata := Tasks{
+		Task{Start: "12:00", End: "12:15", Title: "test1", Category: "work",  Runtime: "15min"},
+	 	Task{Start: "12:15", End: "12:30", Title: "test2", Category: "break", Runtime: "15min"},
+	 	Task{Start: "12:30", End: "13:00", Title: "test3", Category: "work",  Runtime: "30min"},
+		Task{Start: "13:00", End: "13:45", Title: "this is something", Category: "work", Runtime: "30min"},
+	}
+	json.NewEncoder(w).Encode(testdata)
+}
+
+
+func init() {
+	http.HandleFunc("/go/timetable", timetable)
         //http.HandleFunc("/", root)
 }
 
-// [START func_root]
-func root(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/main.html")
-	if err != nil {
-		http.Error(w,err.Error(), http.StatusInternalServerError)
-		return
-	}
-	// c := appengine.NewContext(r)
-	if err := t.Execute(w, "root"); err != nil {
-                http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}	
-}
-// [END func_root]
