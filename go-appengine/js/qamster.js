@@ -13,6 +13,11 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', function($scope,
   };
     
     $scope.tasks = [];
+
+    $scope.running = 'Not Running'
+    $scope.tracking = 'Tracking Task'
+    $scope.time = 'The time thing'
+    
     updateTime($scope, $http);
 }]);
 
