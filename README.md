@@ -1,7 +1,7 @@
 qamster
 =======
 
-A hamster replacement in Qt.
+A hamster replacement in Qt or google app engine!
 
 # Why?
 Well, I tried to add a feature to hamster but this needed to be installed to test it. So I thought I could just write it new.
@@ -14,3 +14,6 @@ Hamster thanks to autocompletion.
 # What is up with the name?
 We clearly needed to reference hamster and needed a Q somewhere in there. I also like names that are prone to be misspronounced. Do you
 pronounce it like Quamster? QHamster?
+
+# Why google app engine/go/angularjs
+I wanted to learn all these new technologies and I started to use more than one system but still wanted to keep track of time spent.
