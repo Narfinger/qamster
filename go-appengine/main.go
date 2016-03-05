@@ -3,9 +3,11 @@ package qamster
 import (
         "net/http"
 	"encoding/json"
-	//        "time"
-	"appengine"
-	"appengine/log"
+	"bytes"
+
+	
+	// "appengine"
+	// "appengine/log"
         	// "appengine/datastore"
         // "appengine/user"
 )
@@ -31,18 +33,14 @@ func timetable(w http.ResponseWriter, r *http.Request) {
 }
 
 func addTask(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
-        
-	r.ParseForm()
-	forms := r.Form
-	valuearray := forms["taskfield"]
-	log.Errorf(ctx, "%s", forms)
-	value := valuearray[0]
-	
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(r.Body)
+	s := buf.String()
+	defer r.Body.Close()
 
-	
-	var t = Task{Start: "12:00", End: " 12:15", Title: value, Category: "work", Runtime: "15min"}
+	var t = Task{Start: "12:00", End: " 12:15", Title: s, Category: "work", Runtime: "15min"}
 	testdata = append(testdata, t)
+	//http.Response
 }
 
 func init() {

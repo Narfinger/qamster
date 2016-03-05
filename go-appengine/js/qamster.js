@@ -26,6 +26,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', function($scope,
         t = document.getElementById("taskfield").value;
         console.log("added" + t);
         $http.post('/go/addTask', t);
+        updateTime($scope, $http);
     }
     
 }]);
