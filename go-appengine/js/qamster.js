@@ -8,17 +8,26 @@ app.config(function($mdThemingProvider) {
 
 
 app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', function($scope, $mdSidenav, $http){
-  $scope.toggleSidenav = function(menuId) {
-    $mdSidenav(menuId).toggle();
-  };
+    $scope.toggleSidenav = function(menuId) {
+        $mdSidenav(menuId).toggle();
+   };
     
     $scope.tasks = [];
-
-    $scope.running = 'Not Running'
-    $scope.tracking = 'Tracking Task'
-    $scope.time = 'The time thing'
+    
+    $scope.running = 'Not Running';
+    $scope.tracking = 'Tracking Task';
+    $scope.time = 'The time thing';
     
     updateTime($scope, $http);
+
+
+    
+    $scope.addTask = function () {
+        t = document.getElementById("taskfield").value;
+        console.log("added" + t);
+        $http.post('/go/addTask', t);
+    }
+    
 }]);
 
 function updateTime($scope, $http) {
@@ -27,4 +36,3 @@ function updateTime($scope, $http) {
             $scope.tasks = data;
         });
 }
-

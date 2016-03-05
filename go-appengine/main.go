@@ -2,10 +2,11 @@ package qamster
 
 import (
         "net/http"
-//        "time"
-        //"appengine"
 	"encoding/json"
-	// "appengine/datastore"
+	//        "time"
+	"appengine"
+	"appengine/log"
+        	// "appengine/datastore"
         // "appengine/user"
 )
 
@@ -18,19 +19,35 @@ type Task struct {
 }
 type Tasks []Task
 
-func timetable(w http.ResponseWriter, r *http.Request) {
-	testdata := Tasks{
+var testdata = Tasks{
 		Task{Start: "12:00", End: "12:15", Title: "test1", Category: "work",  Runtime: "15min"},
 	 	Task{Start: "12:15", End: "12:30", Title: "test2", Category: "break", Runtime: "15min"},
 	 	Task{Start: "12:30", End: "13:00", Title: "test3", Category: "work",  Runtime: "30min"},
 		Task{Start: "13:00", End: "13:45", Title: "this is something", Category: "work", Runtime: "30min"},
 	}
+
+func timetable(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(testdata)
 }
 
+func addTask(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+        
+	r.ParseForm()
+	forms := r.Form
+	valuearray := forms["taskfield"]
+	log.Errorf(ctx, "%s", forms)
+	value := valuearray[0]
+	
+
+	
+	var t = Task{Start: "12:00", End: " 12:15", Title: value, Category: "work", Runtime: "15min"}
+	testdata = append(testdata, t)
+}
 
 func init() {
 	http.HandleFunc("/go/timetable", timetable)
+	http.HandleFunc("/go/addTask", addTask)
         //http.HandleFunc("/", root)
 }
 
