@@ -4,48 +4,83 @@ import (
         "net/http"
 	"encoding/json"
 	"bytes"
-
+	"time"
 	
-	// "appengine"
+	"appengine"
 	// "appengine/log"
-        	// "appengine/datastore"
+	"appengine/datastore"
         // "appengine/user"
+	"strconv"
 )
 
 type Task struct {
-	Start string    `json:"start"`
-	End string      `json:"end"`
-	Title string    `json:"title"`
-	Category string `json:"category"`
-	Runtime string  `json:"runtime"`
+	Start time.Time       `json:"start"`
+	End time.Time         `json:"end"`
+	Title string          `json:"title"`
+	Category string       `json:"category"`
+	Runtime time.Duration `json:"runtime"`
 }
 type Tasks []Task
 
-var testdata = Tasks{
-		Task{Start: "12:00", End: "12:15", Title: "test1", Category: "work",  Runtime: "15min"},
-	 	Task{Start: "12:15", End: "12:30", Title: "test2", Category: "break", Runtime: "15min"},
-	 	Task{Start: "12:30", End: "13:00", Title: "test3", Category: "work",  Runtime: "30min"},
-		Task{Start: "13:00", End: "13:45", Title: "this is something", Category: "work", Runtime: "30min"},
-	}
+var runningTask = Task{}
+var isRunning bool = false
 
-func timetable(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(testdata)
+func tasksKey(c appengine.Context) *datastore.Key {
+        return datastore.NewKey(c, "Task", "default_task", 0, nil)
 }
 
-func addTask(w http.ResponseWriter, r *http.Request) {
+//json function
+func js_timetable(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	q := datastore.NewQuery("Tasks")
+        var tasks []Task
+
+	//this is debug
+	c.Infof(strconv.Itoa(len(tasks)))
+
+
+
+	if _, err := q.GetAll(c, &tasks); err != nil {
+                http.Error(w, err.Error(), http.StatusInternalServerError)
+                return
+        }
+	
+	json.NewEncoder(w).Encode(tasks)
+}
+
+func js_isRunning(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode(isRunning)
+}
+
+//json function
+func js_addTask(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	s := buf.String()
 	defer r.Body.Close()
 
-	var t = Task{Start: "12:00", End: " 12:15", Title: s, Category: "work", Runtime: "15min"}
-	testdata = append(testdata, t)
-	//http.Response
+	c.Infof(strconv.FormatBool(isRunning))
+	if (isRunning) {
+		finishedTask := runningTask
+		finishedTask.End = time.Now();
+		key := datastore.NewIncompleteKey(c, "Tasks", tasksKey(c))
+		_, err := datastore.Put(c, key, &finishedTask)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}	
+	} else {
+		isRunning = true
+	}
+	runningTask = Task{Start: time.Now(), Title: s, Category: "test"}
 }
 
 func init() {
-	http.HandleFunc("/go/timetable", timetable)
-	http.HandleFunc("/go/addTask", addTask)
+	http.HandleFunc("/go/isRunning", js_isRunning)
+	http.HandleFunc("/go/timetable", js_timetable)
+	http.HandleFunc("/go/addTask", js_addTask)
         //http.HandleFunc("/", root)
 }
 
