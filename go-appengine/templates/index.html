@@ -35,8 +35,9 @@
             <md-content layout="column" flex class="md-padding">
                 <table>
                     <tr ng-repeat="x in tasks">
-                        <td>{{ x.start }}</td>
-                        <td>{{ x.end }}</td>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ x.start | date:'HH:mm' }}</td>
+                        <td>{{ x.end   | date:'HH:mm'}}</td>
                         <td>{{ x.title }}</td>
                         <td>{{ x.category }}</td>
                         <td>{{ x.runtime }}</td>
