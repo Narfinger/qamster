@@ -29,6 +29,11 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', function($scope,
         updateTime($scope, $http);
         updateRunning($scope, $http);
     }
+
+    $scope.stop = function () {
+        $http.post('/go/stop');
+        $scope.$apply();
+    }
     
 }]);
 

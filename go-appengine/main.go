@@ -33,14 +33,14 @@ func js_timetable(w http.ResponseWriter, r *http.Request) {
 }
 
 func js_isRunning(w http.ResponseWriter, r *http.Request) {
-	var isRunning = ds_getRunning(r)
+	var isRunning = ds_getRunning(w,r)
 	json.NewEncoder(w).Encode(isRunning)
 }
 
 //json function
 func js_addTask(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	var isRunning = ds_getRunning(r)
+	var isRunning = ds_getRunning(w,r)
 	
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
@@ -60,16 +60,36 @@ func js_addTask(w http.ResponseWriter, r *http.Request) {
 			return
 		}	
 	} else {
-		ds_setRunning(true,r)
+		ds_setRunning(true,w,r)
 	}
 	runningTask = Task{Start: time.Now(), Title: s, Category: "test"}
 	ds_setRunningTask(runningTask, r)
+}
+
+func js_stop(w http.ResponseWriter, r *http.Request) {
+	var finishedTask = ds_getRunningTask(r)
+	finishedTask.End = time.Now()
+	ds_appendTask(finishedTask, r)
+	
+	
+	ds_setRunning(false, w,r)
+	var runningTask = Task{}
+	ds_setRunningTask(runningTask, r)
+}
+
+func js_test_settrue(w http.ResponseWriter, r *http.Request) {
+	ds_setRunning(true, w, r)
+	return
 }
 
 func init() {
 	http.HandleFunc("/go/isRunning", js_isRunning)
 	http.HandleFunc("/go/timetable", js_timetable)
 	http.HandleFunc("/go/addTask", js_addTask)
-        //http.HandleFunc("/", root)
+	http.HandleFunc("/go/stop", js_stop)
+
+
+	http.HandleFunc("/go/settrue", js_test_settrue)
+	//http.HandleFunc("/", root)
 }
 
