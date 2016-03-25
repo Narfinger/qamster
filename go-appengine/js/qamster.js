@@ -17,26 +17,31 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', function($scope,
     $scope.running = "not Running";
     $scope.tracking = 'Tracking Task';
     $scope.time = 'The time thing';
-    
-    updateTime($scope, $http);
 
-
+    updateTimeRunning($scope, $http);
+    updateRunning($scope, $http);
     
     $scope.addTask = function () {
         t = document.getElementById("taskfield").value;
         console.log("added" + t);
         $http.post('/go/addTask', t);
-        updateTime($scope, $http);
-        updateRunning($scope, $http);
+        updateTimeRunning($scope, $http);
     }
 
     $scope.stop = function () {
         $http.post('/go/stop');
-        $scope.$apply();
+        updateTimeRunning($scope, $http);
+        updateRunning($scope, $http);
     }
     
 }]);
 
+function updateTimeRunning($scope, $http) {
+    updateTime($scope, $http);
+    updateRunning($scope, $http);
+}
+
+    
 function updateTime($scope, $http) {
     $http.get('/go/timetable').
         success(function(data) {
@@ -45,12 +50,16 @@ function updateTime($scope, $http) {
 }
 
 function updateRunning($scope, $http) {
-    $http.get('/go/isRunning').
+    $http.get('/go/running').
         success(function(data) {
-            if (data) {
+            if (data.IsRunningField) {
                 $scope.running = "Running";
             } else {
                 $scope.running = "Not Running";
+                $scope.tracking = "";
+                return;
             }
+            var task = data.RunningTask;
+            $scope.tracking = task.title;
         });
 }

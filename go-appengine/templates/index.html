@@ -17,9 +17,9 @@
     </md-toolbar>
 
     <div layout="row">
-        <div layout="column" flex>Running: {{ running }}</div>
-        <div layout="column" flex>Currently Tracking: {{ tracking }}</div>
-        <div layout="column" flex>Time: {{ time }}</div>
+        <div layout="column" flex ng-model="running">Running: {{ running }}</div>
+        <div layout="column" flex ng-model="tracking">Currently Tracking: {{ tracking }}</div>
+        <div layout="column" flex ng-model="time">Time: {{ time }}</div>
     </div>
     <form novalidate class="simple-form">
         <div layout="row" flex>
@@ -34,6 +34,15 @@
         <div layout="column" flex>
             <md-content layout="column" flex class="md-padding">
                 <table>
+                    <tr>
+                        <th>Index</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Runtime</th>
+                    </tr>
+                    
                     <tr ng-repeat="x in tasks">
                         <td>{{ $index + 1 }}</td>
                         <td>{{ x.start | date:'HH:mm' }}</td>

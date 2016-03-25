@@ -32,23 +32,28 @@ func js_timetable(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tasks)
 }
 
-func js_isRunning(w http.ResponseWriter, r *http.Request) {
-	var isRunning = ds_getRunning(w,r)
-	json.NewEncoder(w).Encode(isRunning)
-}
+// func js_isRunning(w http.ResponseWriter, r *http.Request) {
+// 	var isRunning, _ = ds_getRunning(r)
+// 	json.NewEncoder(w).Encode(isRunning)
+// }
 
 //json function
+func js_running(w http.ResponseWriter, r *http.Request) {
+	var ir, rt = ds_getRunning(r)
+	var s = IsRunningStruct{IsRunningField: ir, RunningTask: rt}
+	json.NewEncoder(w).Encode(s)
+}
+
+
 func js_addTask(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	var isRunning = ds_getRunning(w,r)
+	var isRunning, runningTask = ds_getRunning(r)
 	
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	s := buf.String()
 	defer r.Body.Close()
-	
-	var runningTask = ds_getRunningTask(r)
-	
+		
 	c.Infof(strconv.FormatBool(isRunning))
 	if isRunning {
 		finishedTask := runningTask
@@ -59,37 +64,27 @@ func js_addTask(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}	
-	} else {
-		ds_setRunning(true,w,r)
-	}
+	} 
 	runningTask = Task{Start: time.Now(), Title: s, Category: "test"}
-	ds_setRunningTask(runningTask, r)
+	ds_setRunning(true, runningTask, r)
 }
 
 func js_stop(w http.ResponseWriter, r *http.Request) {
-	var finishedTask = ds_getRunningTask(r)
+	var _, finishedTask = ds_getRunning(r)
 	finishedTask.End = time.Now()
 	ds_appendTask(finishedTask, r)
-	
-	
-	ds_setRunning(false, w,r)
 	var runningTask = Task{}
-	ds_setRunningTask(runningTask, r)
-}
-
-func js_test_settrue(w http.ResponseWriter, r *http.Request) {
-	ds_setRunning(true, w, r)
-	return
+	ds_setRunning(false,runningTask,r)
 }
 
 func init() {
-	http.HandleFunc("/go/isRunning", js_isRunning)
+	http.HandleFunc("/go/running", js_running)
 	http.HandleFunc("/go/timetable", js_timetable)
 	http.HandleFunc("/go/addTask", js_addTask)
 	http.HandleFunc("/go/stop", js_stop)
 
 
-	http.HandleFunc("/go/settrue", js_test_settrue)
+	//http.HandleFunc("/go/settrue", js_test_settrue)
 	//http.HandleFunc("/", root)
 }
 
