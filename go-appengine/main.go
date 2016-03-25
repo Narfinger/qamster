@@ -6,11 +6,11 @@ import (
 	"bytes"
 	"time"
 	
-	"appengine"
+//	"appengine"
 	// "appengine/log"
-	"appengine/datastore"
+//	"appengine/datastore"
         // "appengine/user"
-	"strconv"
+//	"strconv"
 )
 
 type Task struct {
@@ -46,35 +46,37 @@ func js_running(w http.ResponseWriter, r *http.Request) {
 
 
 func js_addTask(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
+//	c := appengine.NewContext(r)
 	var isRunning, runningTask = ds_getRunning(r)
 	
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	s := buf.String()
 	defer r.Body.Close()
-		
-	c.Infof(strconv.FormatBool(isRunning))
+
 	if isRunning {
-		finishedTask := runningTask
-		finishedTask.End = time.Now();
-		key := datastore.NewIncompleteKey(c, "Tasks", tasksKey(c))
-		_, err := datastore.Put(c, key, &finishedTask)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}	
-	} 
+		js_stop(w, r)
+		// finishedTask := runningTask
+		// finishedTask.End = time.Now();
+		// key := datastore.NewIncompleteKey(c, "Tasks", tasksKey(c))
+		// _, err := datastore.Put(c, key, &finishedTask)
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }	
+	}
 	runningTask = Task{Start: time.Now(), Title: s, Category: "test"}
 	ds_setRunning(true, runningTask, r)
 }
 
 func js_stop(w http.ResponseWriter, r *http.Request) {
-	var _, finishedTask = ds_getRunning(r)
-	finishedTask.End = time.Now()
-	ds_appendTask(finishedTask, r)
-	var runningTask = Task{}
-	ds_setRunning(false,runningTask,r)
+	var ir, finishedTask = ds_getRunning(r)
+	if (ir) {
+		finishedTask.End = time.Now()
+		ds_appendTask(finishedTask, r)
+		var runningTask = Task{}
+		ds_setRunning(false,runningTask,r)
+	}
 }
 
 func init() {
