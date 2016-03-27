@@ -18,7 +18,6 @@ type Task struct {
 	End time.Time         `json:"end"`
 	Title string          `json:"title"`
 	Category string       `json:"category"`
-	Runtime time.Duration `json:"runtime"`
 }
 type Tasks []Task
 
@@ -56,15 +55,7 @@ func js_addTask(w http.ResponseWriter, r *http.Request) {
 
 	if isRunning {
 		js_stop(w, r)
-		// finishedTask := runningTask
-		// finishedTask.End = time.Now();
-		// key := datastore.NewIncompleteKey(c, "Tasks", tasksKey(c))
-		// _, err := datastore.Put(c, key, &finishedTask)
-		// if err != nil {
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }	
-	}
+ 	}
 	runningTask = Task{Start: time.Now(), Title: s, Category: "test"}
 	ds_setRunning(true, runningTask, r)
 }
