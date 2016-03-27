@@ -21,6 +21,10 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', func
     $scope.refresh = function () {
         $http.get('/go/timetable').
             success(function(data) {
+                for(x in data) {
+                    var elem = data[x];
+                    data[x]['duration']=computeDuration(elem['start'], elem['end']);
+                }
                 $scope.tasks = data;
             })
     };
@@ -62,4 +66,20 @@ function updateRunning($scope, $http) {
             var task = data.RunningTask;
             $scope.tracking = task.title;
         });
+}
+
+function computeDuration(start, end) {
+    var st = new Date(start).valueOf();
+    var en = new Date(end).valueOf();
+
+    var sec = (en-st) % 60;
+    var min =  Math.round(  (sec/60) % 60);
+    var hour = Math.round( (min/60) % 24);
+
+    if (hour==0) {
+        return min.toString().concat(" min");
+    } else {
+        return hour.toString().concat(
+            ":".concat(min.toString().concat(" h")));
+    }
 }

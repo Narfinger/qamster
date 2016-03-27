@@ -49,9 +49,7 @@
                         <td>{{ x.end   | date:'HH:mm' }}</td>
                         <td>{{ x.title }}</td>
                         <td>{{ x.category }}</td>
-                        <td>{{(x.end - x.start) % (60 * 60) / 60 | number: 0}}:
-                            {{(x.end - x.start) % 60 | number: 0}}
-                        </td>
+                        <td>{{ x.duration }}</td>
                     </tr>
                 </table>                
             </md-content>
