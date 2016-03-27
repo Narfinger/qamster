@@ -7,7 +7,7 @@ app.config(function($mdThemingProvider) {
 });
 
 
-app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', function($scope, $mdSidenav, $http){
+app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', function($scope, $mdSidenav, $http, $timeout){
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
    };
@@ -18,35 +18,36 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', function($scope,
     $scope.tracking = 'Tracking Task';
     $scope.time = 'The time thing';
 
-    updateTimeTable($scope, $http);
-    updateRunning($scope, $http);
+    $scope.refresh = function () {
+        $http.get('/go/timetable').
+            success(function(data) {
+                $scope.tasks = data;
+            })
+    };
     
     $scope.addTask = function () {
         t = document.getElementById("taskfield").value;
         console.log("added " + t);
+        $scope.tracking = t;
+        $scope.task= null;
+        $scope.tracking = "";
         $http.post('/go/addTask', t);
-        updateTimeTable($scope, $http);
-        updateRunning($scope, $http);
-        
-        $scope.running = "";
+        $timeout(function(n) {
+            $scope.refresh();
+            updateRunning($scope, $http);
+        }, 1000);
     }
 
     $scope.stop = function () {
         $http.post('/go/stop');
-        updateTimeTable($scope, $http);
-        updateRunning($scope, $http);
-    }   
+        $timeout(function(n) { $scope.refresh();
+                               updateRunning($scope, $http);}, 1000);
+        
+    }
+
+    updateRunning($scope, $http);
+    $scope.refresh();
 }]);
-    
-function updateTimeTable($scope, $http) {
-    console.log("time table update called");
-    $http.get('/go/timetable').
-        success(function(data) {
-            //console.log(data)
-            //console.log(typeof(data))
-            $scope.tasks = data;
-        });
-}
 
 function updateRunning($scope, $http) {
     $http.get('/go/running').
