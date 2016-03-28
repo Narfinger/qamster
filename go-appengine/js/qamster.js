@@ -21,9 +21,9 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', func
     $scope.refresh = function () {
         $http.get('/go/timetable').
             success(function(data) {
-                for(x in data) {
-                    var elem = data[x];
-                    data[x]['duration']=computeDuration(elem['start'], elem['end']);
+                for(var i=0; i<data.length; i++) {
+                    var elem = data[i];
+                    data[i]['duration']=computeDuration(elem['start'], elem['end']);
                 }
                 $scope.tasks = data;
             })
