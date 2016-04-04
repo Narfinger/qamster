@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"bytes"
 	"time"
-	
+	"strings"
 //	"appengine"
 	// "appengine/log"
 //	"appengine/datastore"
@@ -56,7 +56,13 @@ func js_addTask(w http.ResponseWriter, r *http.Request) {
 	if isRunning {
 		js_stop(w, r)
  	}
-	runningTask = Task{Start: time.Now(), Title: s, Category: "test"}
+
+	var splitstring = strings.Split(s, "@")
+	if (len(splitstring) <= 1) {	
+		runningTask = Task{Start: time.Now(), Title: splitstring[0], Category: ""}
+	} else {
+		runningTask = Task{Start: time.Now(), Title: splitstring[0], Category: splitstring[1]}
+	}
 	ds_setRunning(true, runningTask, r)
 }
 
