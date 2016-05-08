@@ -43,7 +43,7 @@
                         <th>Runtime</th>
                     </tr>
                     
-                    <tr ng-repeat="x in tasks">
+                    <tr ng-show="tasks.length" ng-repeat="x in tasks">
                         <td>{{ $index + 1 }}</td>
                         <td>{{ x.start | date:'HH:mm' }}</td>
                         <td>{{ x.end   | date:'HH:mm' }}</td>
