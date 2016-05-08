@@ -56,3 +56,17 @@ func ds_getTasks(t *[]Task, r *http.Request) {
 	q := datastore.NewQuery("Tasks").Order("End").Filter("End >=", today)
 	q.GetAll(c, t);
 }
+
+//get the statusbar in a nice dictionary
+func ds_getStatusBar(r *http.Request) (map[string](time.Duration)) {
+	//c := appengine.NewContext(r)
+	var tasks []Task
+	ds_getTasks(&tasks, r)
+	var m = make(map[string](time.Duration))
+	for i := 0; i< len(tasks); i++ {
+		var t = tasks[i]
+		var dur = t.End.Sub(t.Start)
+		m[t.Category] = m[t.Category] + dur
+	}
+	return m
+}

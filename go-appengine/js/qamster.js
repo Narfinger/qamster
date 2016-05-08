@@ -13,6 +13,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
    };
     
     $scope.tasks = [];
+    $scope.summary = [];
     
     $scope.running = 'not Running';
     $scope.tracking = 'Tracking Task';
@@ -29,6 +30,11 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
                 }
                 $scope.tasks = data;
             })
+        $http.get('/go/statusbar').
+            success(function(data) {
+                $scope.summary = data;
+                console.log(data)
+            });
     };
     
     $scope.addTask = function () {

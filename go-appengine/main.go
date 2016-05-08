@@ -76,12 +76,17 @@ func js_stop(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func js_statusbar(w http.ResponseWriter, r *http.Request) {
+	var status = ds_getStatusBar(r)
+	json.NewEncoder(w).Encode(status)
+}
+	
 func init() {
 	http.HandleFunc("/go/running", js_running)
 	http.HandleFunc("/go/timetable", js_timetable)
 	http.HandleFunc("/go/addTask", js_addTask)
 	http.HandleFunc("/go/stop", js_stop)
-
+	http.HandleFunc("/go/statusbar", js_statusbar)
 
 	//http.HandleFunc("/go/settrue", js_test_settrue)
 	//http.HandleFunc("/", root)
