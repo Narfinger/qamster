@@ -7,17 +7,18 @@ app.config(function($mdThemingProvider) {
 });
 
 
-app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', function($scope, $mdSidenav, $http, $timeout){
+app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$interval', function($scope, $mdSidenav, $http, $timeout, $interval){
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
    };
     
     $scope.tasks = [];
     
-    $scope.running = "not Running";
+    $scope.running = 'not Running';
     $scope.tracking = 'Tracking Task';
-    $scope.time = 'The time thing';
-    
+    $scope.time = '0';
+    $scope.runningtimemin = 0;
+    $scope.min_update_promise = null;
     
     $scope.refresh = function () {
         $http.get('/go/timetable').
@@ -31,8 +32,8 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', func
     };
     
     $scope.addTask = function () {
-        t = document.getElementById("taskfield").value;
-        console.log("added " + t);
+        t = document.getElementById('taskfield').value;
+        console.log('added ' + t);
         $scope.tracking = t;
         $scope.task= null;
         $scope.tracking = "";
@@ -42,11 +43,15 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', func
             updateRunning($scope, $http);
         }, 1000);
 
-//        $scope.min_update =  $interval(function() { $scope.60*1000,
+        $scope.runningtimemin = 0;
+        $scope.min_update_promise =  $interval(function() {
+            $scope.runningtimemin = $scope.runningtimemin + 1;
+            $scope.time = secondsToTime($scope.runningtimemin * 60);}, 60*1000);
     }
 
     $scope.stop = function () {
         $http.post('/go/stop');
+        $interval.cancel($scope.min_update_promise);
         $timeout(function(n) { $scope.refresh();
                                updateRunning($scope, $http);}, 1000);
         
