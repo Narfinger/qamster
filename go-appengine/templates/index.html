@@ -58,7 +58,7 @@
 
     <div layout="row">
         <div layout="column" flex ng-show="summary.length" ng-repeat="x in summary">
-            {{ x.title }}: {{x.time}} ({{x.percentage}})
+            {{ x.title }}: {{ secondsToTime(x.seconds) }} ({{ x.percentage }})
         </div>
     </div>
     <!-- Angular Material Dependencies -->

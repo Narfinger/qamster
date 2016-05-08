@@ -53,7 +53,7 @@ func ds_getTasks(t *[]Task, r *http.Request) {
 }
 
 //get the statusbar in a nice dictionary
-func ds_getStatusBar(r *http.Request) (map[string](time.Duration)) {
+func ds_getStatusBar(r *http.Request) ([]Status) {
 	//c := appengine.NewContext(r)
 	var tasks []Task
 	ds_getTasks(&tasks, r)
@@ -63,5 +63,19 @@ func ds_getStatusBar(r *http.Request) (map[string](time.Duration)) {
 		var dur = t.End.Sub(t.Start)
 		m[t.Category] = m[t.Category] + dur
 	}
-	return m
+
+	var status []Status
+	var totalsecs int64 = 0
+	for k, dur := range m {
+		var seconds = int64(dur.Seconds()) 
+		var s = Status{ Title: k, Seconds: seconds, Percentage: 0 }
+		status = append(status, s)
+		totalsecs += seconds
+	}
+
+	//add total
+	var totalstatus = Status{ Title: "total", Seconds: totalsecs, Percentage: 1}
+	status = append(status, totalstatus)
+	
+	return status
 }

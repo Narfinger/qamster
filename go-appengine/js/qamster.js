@@ -26,7 +26,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
             success(function(data) {
                 for(var i=0; i<data.length; i++) {
                     var elem = data[i];
-                    data[i]['duration']=computeDuration(elem['start'], elem['end']);
+                    data[i]['duration']=$scope.computeDuration(elem['start'], elem['end']);
                 }
                 $scope.tasks = data;
             })
@@ -52,7 +52,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         $scope.runningtimemin = 0;
         $scope.min_update_promise =  $interval(function() {
             $scope.runningtimemin = $scope.runningtimemin + 1;
-            $scope.time = secondsToTime($scope.runningtimemin * 60);}, 60*1000);
+            $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
     }
 
     $scope.stop = function () {
@@ -63,6 +63,28 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         
     }
 
+    $scope.secondsToTime = function(sec) {
+        //var sec = (en-st) % 60;
+        var min =  Math.round(  (sec/60) % 60);
+        var hour = Math.round( (min/60) % 24);
+        
+        if (hour==0) {
+            return min.toString().concat(" min");
+        } else {
+            return hour.toString().concat(
+                ":".concat(min.toString().concat(" h")));
+        }
+    }
+
+
+    $scope.computeDuration = function(start, end) {
+        var st = new Date(start).valueOf();
+        var en = new Date(end).valueOf();
+        
+        return $scope.secondsToTime( (en-st) % 60);
+    }
+    
+    
     updateRunning($scope, $http);
     $scope.refresh();
 }]);
@@ -82,22 +104,3 @@ function updateRunning($scope, $http) {
         });
 }
 
-function secondsToTime(sec) {
-    //var sec = (en-st) % 60;
-    var min =  Math.round(  (sec/60) % 60);
-    var hour = Math.round( (min/60) % 24);
-
-    if (hour==0) {
-        return min.toString().concat(" min");
-    } else {
-        return hour.toString().concat(
-            ":".concat(min.toString().concat(" h")));
-    }
-}
-
-function computeDuration(start, end) {
-    var st = new Date(start).valueOf();
-    var en = new Date(end).valueOf();
-
-    return secondsToTime( (en-st) % 60);
-}
