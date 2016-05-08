@@ -49,7 +49,7 @@
                         <td>{{ x.end   | date:'HH:mm' }}</td>
                         <td>{{ x.title }}</td>
                         <td>{{ x.category }}</td>
-                        <td>{{ x.duration }}</td>
+                        <td>{{ computeDuration(x.start, x.end) }}</td>
                     </tr>
                 </table>                
             </md-content>

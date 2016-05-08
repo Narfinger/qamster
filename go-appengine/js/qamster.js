@@ -24,10 +24,10 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     $scope.refresh = function () {
         $http.get('/go/timetable').
             success(function(data) {
-                for(var i=0; i<data.length; i++) {
-                    var elem = data[i];
-                    data[i]['duration']=$scope.computeDuration(elem['start'], elem['end']);
-                }
+                // for(var i=0; i<data.length; i++) {
+                //     var elem = data[i];
+                //     data[i]['duration']=$scope.computeDuration(elem['start'], elem['end']);
+                // }
                 $scope.tasks = data;
             })
         $http.get('/go/statusbar').
