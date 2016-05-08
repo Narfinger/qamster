@@ -13,14 +13,6 @@ import (
 //	"strconv"
 )
 
-type Task struct {
-	Start time.Time       `json:"start"`
-	End time.Time         `json:"end"`
-	Title string          `json:"title"`
-	Category string       `json:"category"`
-}
-type Tasks []Task
-
 //json function
 func js_timetable(w http.ResponseWriter, r *http.Request) {
         var tasks []Task

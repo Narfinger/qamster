@@ -7,11 +7,6 @@ import (
 	"appengine/datastore"
 )
 
-type IsRunningStruct struct {
-	IsRunningField bool
-	RunningTask Task
-}
-
 func tasksKey(c appengine.Context) *datastore.Key {
         return datastore.NewKey(c, "Task", "default_task", 0, nil)
 }
