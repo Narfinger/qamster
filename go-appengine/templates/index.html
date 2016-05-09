@@ -24,7 +24,21 @@
     <form novalidate class="simple-form">
         <div layout="row" flex>
             <div layout="column" flex>Task:</div>
-            <div layout="column" flex><input type="text" ng-model="task" id="taskfield"/></div>
+            <div layout="column" flex>
+                <md-autocomplete
+                    id="taskfield2"
+                    md-selected-item="selectedItem"
+                    md-search-text="searchText"
+                    md-items="item in getMatchingTasks(searchText)"
+                    md-item-text="item.display"
+                    placeholder="Start a Task">
+                    <span md-highlight-text="searchText">{{item.title}}</span>
+                    <md-not-found>
+                        No states matching "{{ctrl.searchText}}" were found.
+                        <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
+                    </md-not-found>
+                </md-autocomplete>
+            </div>
             <div layout="column" flex><md-button ng-click="addTask()">Add Task</md-button></div>
             <div layout="column" flex><md-button ng-click="stop()">Stop</md-button></div>
         </div>

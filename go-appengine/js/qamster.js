@@ -84,6 +84,18 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         return $scope.secondsToTime( (en-st) % 60);
     }
     
+
+    $scope.getMatchingTasks = function(input) {
+        var results = [
+            {'title': 'Broccoli'},
+            {'title': 'test1'},
+        ];
+        return results;
+
+
+        // return $http.get("../inc/users/search_interest.php?query=" + $scope.searchText)
+        // .then(function(results) { return results.data; });
+    };
     
     updateRunning($scope, $http);
     $scope.refresh();
@@ -103,4 +115,3 @@ function updateRunning($scope, $http) {
             $scope.tracking = task.title;
         });
 }
-
