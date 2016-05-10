@@ -11,10 +11,10 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
    };
-    
+    var self = this;
     $scope.tasks = [];
     $scope.summary = [];
-    
+
     $scope.running = 'not Running';
     $scope.tracking = 'Tracking Task';
     $scope.time = '0';
@@ -38,6 +38,10 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     };
     
     $scope.addTask = function () {
+//        t = $scope.selectedItem;
+        console.log($scope.test);
+        console.log($scope.selectedItem);
+        console.log($scope.searchText);
         t = document.getElementById('taskfield').value;
         console.log('added ' + t);
         $scope.tracking = t;
@@ -83,13 +87,13 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         
         return $scope.secondsToTime( (en-st) % 60);
     }
-    
 
     $scope.getMatchingTasks = function(input) {
         var results = [
             {'title': 'Broccoli'},
             {'title': 'test1'},
         ];
+        return [];
         return results;
 
 

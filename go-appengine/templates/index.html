@@ -6,7 +6,7 @@
       
       <meta name="viewport" content="initial-scale=1" />
   </head>
-  <body layout="column" ng-controller="QamsterCtrl">
+  <body layout="column" ng-controller="QamsterCtrl as ctrl">
     <md-toolbar layout="row">
       <div class="md-toolbar-tools">
         <md-button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button">
@@ -26,17 +26,20 @@
             <div layout="column" flex>Task:</div>
             <div layout="column" flex>
                 <md-autocomplete
-                    id="taskfield2"
-                    md-selected-item="selectedItem"
-                    md-search-text="searchText"
+                    md-model="test"
+                    md-input-name="taskfield"
+                    md-selected-item="ctrl.selectedItem"
+                    md-search-text="ctrl.searchText"
+                                        
                     md-items="item in getMatchingTasks(searchText)"
+                    md-match-case-insensitive="true"
                     md-item-text="item.display"
                     placeholder="Start a Task">
                     <span md-highlight-text="searchText">{{item.title}}</span>
-                    <md-not-found>
-                        No states matching "{{ctrl.searchText}}" were found.
-                        <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
-                    </md-not-found>
+                    <!-- <md-not-found>
+                         No states matching "{{ctrl.searchText}}" were found.
+                         <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
+                         </md-not-found> -->
                 </md-autocomplete>
             </div>
             <div layout="column" flex><md-button ng-click="addTask()">Add Task</md-button></div>
