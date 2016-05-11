@@ -26,16 +26,15 @@
             <div layout="column" flex>Task:</div>
             <div layout="column" flex>
                 <md-autocomplete
-                    md-model="test"
                     md-input-name="taskfield"
-                    md-selected-item="ctrl.selectedItem"
-                    md-search-text="ctrl.searchText"
+                    md-selected-item="selectedItem"
+                    md-search-text="searchText"
                                         
                     md-items="item in getMatchingTasks(searchText)"
                     md-match-case-insensitive="true"
                     md-item-text="item.display"
                     placeholder="Start a Task">
-                    <span md-highlight-text="searchText">{{item.title}}</span>
+                    <span md-highlight-text="searchText">{{item}}</span>
                     <!-- <md-not-found>
                          No states matching "{{ctrl.searchText}}" were found.
                          <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
@@ -60,7 +59,7 @@
                         <th>Runtime</th>
                     </tr>
                     
-                    <tr ng-show="tasks.length" ng-repeat="x in tasks">
+                    <tr ng-show="tasks.length" ng-repeat="x in tasks track by $index">
                         <td>{{ $index + 1 }}</td>
                         <td>{{ x.start | date:'HH:mm' }}</td>
                         <td>{{ x.end   | date:'HH:mm' }}</td>

@@ -24,4 +24,3 @@ type Status struct {
 	Seconds int64         `json:"seconds"`
 	Percentage float64    `json:"percentage"`
 }
-	

@@ -10,8 +10,7 @@ app.config(function($mdThemingProvider) {
 app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$interval', function($scope, $mdSidenav, $http, $timeout, $interval){
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
-   };
-    var self = this;
+    };
     $scope.tasks = [];
     $scope.summary = [];
 
@@ -20,6 +19,9 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     $scope.time = '0';
     $scope.runningtimemin = 0;
     $scope.min_update_promise = null;
+
+    $scope.selectedItem;
+    $scope.searchText;
     
     $scope.refresh = function () {
         $http.get('/go/timetable').
@@ -38,11 +40,13 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     };
     
     $scope.addTask = function () {
-//        t = $scope.selectedItem;
-        console.log($scope.test);
         console.log($scope.selectedItem);
         console.log($scope.searchText);
-        t = document.getElementById('taskfield').value;
+        if($scope.selectedItem!=null)
+            t = $scope.selectedItem.title;
+        else
+            t - $scope.searchText;
+
         console.log('added ' + t);
         $scope.tracking = t;
         $scope.task= null;
@@ -89,16 +93,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     }
 
     $scope.getMatchingTasks = function(input) {
-        var results = [
-            {'title': 'Broccoli'},
-            {'title': 'test1'},
-        ];
-        return [];
-        return results;
-
-
-        // return $http.get("../inc/users/search_interest.php?query=" + $scope.searchText)
-        // .then(function(results) { return results.data; });
+        return $http.get('/go/searchTask?q=' + input).then(function(result) {return result.data;});
     };
     
     updateRunning($scope, $http);

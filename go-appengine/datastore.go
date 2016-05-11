@@ -79,3 +79,19 @@ func ds_getStatusBar(r *http.Request) ([]Status) {
 	
 	return status
 }
+
+func ds_queryTask(r *http.Request, query string) ([]string) {
+	c := appengine.NewContext(r)
+	q := datastore.NewQuery("Tasks").Project("title", "category").Distinct()
+	var t []Task
+	q.GetAll(c, &t)
+	
+	var res []string
+	
+	for i:=0; i< len(t); i++ {
+		var s = t[i].Title + t[i].Category
+		res = append(res, s)
+	}
+	res = append(res, "test")
+	return res
+}
