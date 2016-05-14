@@ -43,13 +43,13 @@
                         <th>Runtime</th>
                     </tr>
                     
-                    <tr ng-show="tasks.length" ng-repeat="x in tasks">
+                    <tr ng-show="tasks.length" ng-repeat="task in tasks" ng-dblclick="addTaskByTask(task)">
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ x.start | date:'HH:mm' }}</td>
-                        <td>{{ x.end   | date:'HH:mm' }}</td>
-                        <td>{{ x.title }}</td>
-                        <td>{{ x.category }}</td>
-                        <td>{{ computeDuration(x.start, x.end) }}</td>
+                        <td>{{ task.start | date:'HH:mm' }}</td>
+                        <td>{{ task.end   | date:'HH:mm' }}</td>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.category }}</td>
+                        <td>{{ computeDuration(task.start, task.end) }}</td>
                     </tr>
                 </table>                
             </md-content>

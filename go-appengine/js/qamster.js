@@ -36,14 +36,14 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
                 console.log(data)
             });
     };
-    
-    $scope.addTask = function () {
-        t = document.getElementById('taskfield').value;
-        console.log('added ' + t);
-        $scope.tracking = t;
+
+
+    $scope.addTaskByString = function(string) {
+        console.log('added ' + string);
+        $scope.tracking = string;
         $scope.task= null;
         $scope.tracking = "";
-        $http.post('/go/addTask', t);
+        $http.post('/go/addTask', string);
         $timeout(function(n) {
             $scope.refresh();
             updateRunning($scope, $http);
@@ -54,6 +54,19 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
             $scope.runningtimemin = $scope.runningtimemin + 1;
             $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
     }
+
+    $scope.addTaskByTask = function(task) {
+        var nstring = task.title;
+        if (task.category!='')
+            nstring = nstring + '@' + task.category;
+        $scope.addTaskByString(nstring);
+    }
+    
+    $scope.addTask = function () {
+        t = document.getElementById('taskfield').value;
+        $scope.addTaskByString(t);
+    }
+        
 
     $scope.stop = function () {
         $http.post('/go/stop');
