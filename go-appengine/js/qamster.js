@@ -66,8 +66,8 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     }
 
     $scope.addTask = function () {
-        console.log($scope.selectedItem);
-        console.log($scope.searchText);
+        console.log('selected ' + $scope.selectedItem);
+        console.log('search ' + $scope.searchText);
         if($scope.selectedItem!=null)
             t = $scope.selectedItem.title;
         else
