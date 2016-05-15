@@ -1,7 +1,6 @@
 <html lang="en" ng-app="qamsterApp">
   <head>
-      <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.css">
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic">
+      <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.css">
       <link href='/css/qamster.css' rel='stylesheet' type='text/css'>
       
       <meta name="viewport" content="initial-scale=1" />
@@ -9,41 +8,33 @@
   <body layout="column" ng-controller="QamsterCtrl as ctrl">
     <md-toolbar layout="row">
       <div class="md-toolbar-tools">
-        <md-button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button">
-          <md-icon aria-label="Menu" md-svg-icon="https://s3-us-west-2.amazonaws.com/s.cdpn.io/68133/menu.svg"></md-icon>
-        </md-button>
         <h1>Qamster</h1>
       </div>
     </md-toolbar>
 
-    <div layout="row">
+    <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
         <div layout="column" flex ng-model="running">Running: {{ running }}</div>
         <div layout="column" flex ng-model="tracking">Currently Tracking: {{ tracking }}</div>
         <div layout="column" flex ng-model="time">Time: {{ time }}</div>
-    </div>
+    </section>
     <form novalidate class="simple-form">
-        <div layout="row" flex>
-            <div layout="column" flex>Task:</div>
-            <div layout="column" flex>
-                <md-autocomplete
-                    md-input-name="taskfield"
-                    md-selected-item="selectedItem"
-                    md-search-text="searchText"
-                                        
-                    md-items="item in getMatchingTasks(searchText)"
-                    md-match-case-insensitive="true"
-                    md-item-text="item.display"
-                    placeholder="Start a Task">
-                    <span md-highlight-text="searchText">{{item}}</span>
-                    <!-- <md-not-found>
-                         No states matching "{{ctrl.searchText}}" were found.
-                         <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
-                         </md-not-found> -->
-                </md-autocomplete>
-            </div>
-            <div layout="column" flex><md-button ng-click="addTask()">Add Task</md-button></div>
-            <div layout="column" flex><md-button ng-click="stop()">Stop</md-button></div>
-        </div>
+        <md-input-container>
+            <label>Task:</label>
+            <md-autocomplete
+                ng-model="searchText"   
+                md-items="item in getMatchingTasks(searchText)"
+                md-match-case-insensitive="true"
+                md-item-text="item.display"
+                placeholder="Start a Task">
+                <span md-highlight-text="searchText">{{item}}</span>
+                <!-- <md-not-found>
+                     No states matching "{{ctrl.searchText}}" were found.
+                     <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
+                     </md-not-found> -->
+            </md-autocomplete>
+        </md-input-container>
+        <md-button ng-click="addTask()">Add Task</md-button>
+        <md-button ng-click="stop()">Stop</md-button>
     </form>
     
     <div layout="row" flex>
@@ -78,10 +69,10 @@
         </div>
     </div>
     <!-- Angular Material Dependencies -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
     
     
     <script src="/js/qamster.js"></script>

@@ -7,7 +7,7 @@ app.config(function($mdThemingProvider) {
 });
 
 
-app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$interval', function($scope, $mdSidenav, $http, $timeout, $interval){
+app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$interval', '$mdToast', function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
     };
@@ -39,9 +39,9 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
             });
     };
     $scope.addTaskByString = function(string) {
-        console.log('added ' + string);
         $scope.tracking = string;
-
+        console.log('started: ' + string);
+        
         $scope.task= null;
         $scope.tracking = "";
         $http.post('/go/addTask', string);
@@ -54,6 +54,8 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         $scope.min_update_promise =  $interval(function() {
             $scope.runningtimemin = $scope.runningtimemin + 1;
             $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
+
+        $scope.showSimpleToast(string);
     }
 
     $scope.addTaskByTask = function(task) {
@@ -71,11 +73,6 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         else
             t = $scope.searchText;
 
-        $scope.addTaskByString(t);
-    }
-    
-    $scope.addTask = function () {
-        t = document.getElementById('taskfield').value;
         $scope.addTaskByString(t);
     }
 
@@ -112,8 +109,16 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         return $http.get('/go/searchTask?q=' + input).then(function(result) {return result.data;});
     };
     
-    updateRunning($scope, $http);
-    $scope.refresh();
+        
+    $scope.showSimpleToast = function(string) {
+        var s = 'Started: ' + string;
+        $mdToast.show(
+            $mdToast.simple().textContent(s).hideDelay(3000)
+    );
+  };
+
+        updateRunning($scope, $http);
+        $scope.refresh();
 }]);
 
 function updateRunning($scope, $http) {
