@@ -5,6 +5,9 @@ import (
 	"time"
 	"appengine"
 	"appengine/datastore"
+	"strings"
+	
+	"strconv"
 )
 
 func tasksKey(c appengine.Context) *datastore.Key {
@@ -82,16 +85,21 @@ func ds_getStatusBar(r *http.Request) ([]Status) {
 
 func ds_queryTask(r *http.Request, query string) ([]string) {
 	c := appengine.NewContext(r)
-	q := datastore.NewQuery("Tasks").Project("title", "category").Distinct()
+	q := datastore.NewQuery("Tasks").Project("Title", "Category").Distinct()
 	var t []Task
-	q.GetAll(c, &t)
+	var _, err = q.GetAll(c, &t)
 	
 	var res []string
 	
 	for i:=0; i< len(t); i++ {
-		var s = t[i].Title + t[i].Category
-		res = append(res, s)
+		if strings.Contains(t[i].Title, query) {
+			var s = t[i].Title + t[i].Category
+			res = append(res, s)
+		}
 	}
-	res = append(res, "test")
+	if err!=nil {
+		res = append(res, err.Error())
+	}
+	res = append(res, strconv.Itoa((len(t))))
 	return res
 }
