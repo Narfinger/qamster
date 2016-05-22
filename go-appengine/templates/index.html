@@ -21,17 +21,17 @@
         <md-input-container>
             <label>Task:</label>
             <md-autocomplete
+                md-no-cache="true"
                 md-search-text="searchedText"
                 md-selected-item="itemedText"
-                md-items="item in getMatchingTasks(searchText)"
+                md-items="item in getMatchingTasks(searchedText)"
                 md-match-case-insensitive="true"
                 md-item-text="item.display"
+                md-input-minlength="1"
                 placeholder="Start a Task">
-                <span md-highlight-text="searchText">{{item}}</span>
-                                <!-- <md-not-found>
-                                   -                     No states matching "{{ctrl.searchText}}" were found.
-                                -                     <a ng-click="ctrl.newState(ctrl.searchText)">Create a new one!</a>
-                                -                     </md-not-found> -->
+                <md-item-template>
+                    <span md-highlight-text="searchedText" md-highlight-flags="^i">{{item.display}}</span>
+                </md-item-template>
             </md-autocomplete>
         </md-input-container>
         <md-button ng-click="addTask()" type="submit">Add Task</md-button>
