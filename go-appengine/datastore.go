@@ -6,8 +6,6 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"strings"
-	
-	"strconv"
 )
 
 func tasksKey(c appengine.Context) *datastore.Key {
@@ -100,6 +98,5 @@ func ds_queryTask(r *http.Request, query string) ([]string) {
 	if err!=nil {
 		res = append(res, err.Error())
 	}
-	res = append(res, strconv.Itoa((len(t))))
 	return res
 }

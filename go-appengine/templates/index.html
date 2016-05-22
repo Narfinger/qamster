@@ -25,13 +25,15 @@
                 md-search-text="searchedText"
                 md-selected-item="itemedText"
                 md-items="item in getMatchingTasks(searchedText)"
-                md-match-case-insensitive="true"
-                md-item-text="item.display"
+                md-item-text="item"
                 md-input-minlength="1"
                 placeholder="Start a Task">
-                <md-item-template>
-                    <span md-highlight-text="searchedText" md-highlight-flags="^i">{{item.display}}</span>
-                </md-item-template>
+                 <md-item-template>
+                     <span md-highlight-text="searchText">{{item}}</span>
+                 </md-item-template>
+                 <md-not-found>
+                     No matches found.
+                 </md-not-found>
             </md-autocomplete>
         </md-input-container>
         <md-button ng-click="addTask()" type="submit">Add Task</md-button>
