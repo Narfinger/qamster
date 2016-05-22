@@ -98,11 +98,11 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         var st = new Date(start).valueOf();
         var en = new Date(end).valueOf();
         
-        return $scope.secondsToTime( (en-st) % 60);
+        return $scope.secondsToTime( (en-st) /1000);
     }
 
     $scope.getMatchingTasks = function(input) {
-        return $http.get('/go/searchTask?q=' + input).then(function(result) {return result.data;});
+        return $http.get('/go/searchTask?q=' + input);
     };
     
         
