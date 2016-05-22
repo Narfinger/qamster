@@ -11,6 +11,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
     };
+    
     $scope.tasks = [];
     $scope.summary = [];
 
@@ -20,9 +21,10 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     $scope.runningtimemin = 0;
     $scope.min_update_promise = null;
 
+    $scope.searchedText = '';
+    $scope.itemedText = '';
+    
     var self = this;
-    self.selectedValue='';
-    self.searchValue='';
     
     $scope.refresh = function () {
         $http.get('/go/timetable').
@@ -67,13 +69,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     }
 
     $scope.addTask = function () {
-        console.log('selected ' + self.selectedValue);
-        console.log('selected ' + $scope.selectedValue);
-        console.log('searched ' + self.searchValue);
-        console.log('searched ' + $scope.searchValue);
-
-        
-        $scope.addTaskByString(self.selectedValue);
+        $scope.addTaskByString($scope.searchedText);
     }
 
     $scope.stop = function () {

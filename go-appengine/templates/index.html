@@ -21,10 +21,9 @@
         <md-input-container>
             <label>Task:</label>
             <md-autocomplete
-                ng-model="searchText"   
+                md-search-text="searchedText"
+                md-selected-item="itemedText"
                 md-items="item in getMatchingTasks(searchText)"
-                md-selected-item="ctrl.selectedItem"
-                md-search-text="ctrl.searchText"
                 md-match-case-insensitive="true"
                 md-item-text="item.display"
                 placeholder="Start a Task">
@@ -35,7 +34,7 @@
                                 -                     </md-not-found> -->
             </md-autocomplete>
         </md-input-container>
-        <md-button ng-click="addTask()">Add Task</md-button>
+        <md-button ng-click="addTask()" type="submit">Add Task</md-button>
         <md-button ng-click="stop()">Stop</md-button>
     </form>
     
