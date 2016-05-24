@@ -7,11 +7,6 @@ import (
 	"bytes"
 	"time"
 	"strings"
-	//	"appengine"
-	// "appengine/log"
-//	"appengine/datastore"
-        // "appengine/user"
-//	"strconv"
 )
 
 //json function
@@ -23,11 +18,6 @@ func js_timetable(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(tasks)
 }
-
-// func js_isRunning(w http.ResponseWriter, r *http.Request) {
-// 	var isRunning, _ = ds_getRunning(r)
-// 	json.NewEncoder(w).Encode(isRunning)
-// }
 
 //json function
 func js_running(w http.ResponseWriter, r *http.Request) {

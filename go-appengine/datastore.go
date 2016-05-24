@@ -74,6 +74,10 @@ func ds_getStatusBar(r *http.Request) ([]Status) {
 		totalsecs += seconds
 	}
 
+	for i, _ := range status {
+		status[i].Percentage = float64(status[i].Seconds)/float64(totalsecs)
+	}
+
 	//add total
 	var totalstatus = Status{ Title: "total", Seconds: totalsecs, Percentage: 1}
 	status = append(status, totalstatus)
