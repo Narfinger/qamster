@@ -7,18 +7,22 @@ handlers:
 - url: /
   static_files: templates/index.html
   upload: templates/index.html
+  login: admin
   secure: always
 
 - url: /css
   static_dir: css/
+  login: admin
   secure: always
 
 - url: /js
   static_dir: js/
+  login: admin
   secure: always
 
 - url: /go/.*
   script: _go_app
+  login: admin
   secure: always
 
 - url: /favicon\.ico
