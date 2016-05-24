@@ -7,7 +7,8 @@ app.config(function($mdThemingProvider) {
 });
 
 
-app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$interval', '$mdToast', function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
+app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$interval', '$mdToast',
+                               function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
     };
@@ -38,7 +39,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         $http.get('/go/statusbar').
             success(function(data) {
                 $scope.summary = data;
-                console.log(data)
+//                console.log(data)
             });
     };
     $scope.addTaskByString = function(string) {
@@ -111,11 +112,16 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         var s = 'Started: ' + string;
         $mdToast.show(
             $mdToast.simple().textContent(s).hideDelay(3000)
-    );
-  };
+        );
+    };
 
-        updateRunning($scope, $http);
-        $scope.refresh();
+    $scope.reloadPage = function() {
+        location.reload();
+        //$route.reload();
+    }
+
+    updateRunning($scope, $http);
+    $scope.refresh();
 }]);
 
 function updateRunning($scope, $http) {
