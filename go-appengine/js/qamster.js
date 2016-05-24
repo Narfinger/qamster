@@ -80,10 +80,10 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         
     }
 
+    //only works for h<24
     $scope.secondsToTime = function(sec) {
-        //var sec = (en-st) % 60;
         var min =  Math.round(  (sec/60) % 60);
-        var hour = Math.floor( (min/60) % 24);
+        var hour = Math.floor( (sec/360) % 24);
         
         if (hour==0) {
             return min.toString().concat(" min");
