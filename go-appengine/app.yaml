@@ -1,7 +1,11 @@
 application: esoteric-cider-119511
 runtime: go
 api_version: go1
-version:  r103
+version:  r104
+automatic_scaling:
+        max_concurrent_requests: 80
+        max_idle_instances: 1
+        max_pending_latency: 200ms
 
 handlers:
 - url: /
