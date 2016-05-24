@@ -1,4 +1,3 @@
-application: esoteric-cider-119511
 runtime: go
 api_version: go1
 version:  r104
