@@ -20,3 +20,7 @@ handlers:
 - url: /go/.*
   script: _go_app
   secure: always
+
+- url: /favicon\.ico
+  static_files: img/favicon.ico
+  upload: static/images/favicon\.ico
