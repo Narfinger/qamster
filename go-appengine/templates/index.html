@@ -12,10 +12,10 @@
       </div>
     </md-toolbar>
 
-    <section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
-        <div layout="column" flex ng-model="running">Running: {{ running }}</div>
-        <div layout="column" flex ng-model="tracking">Currently Tracking: {{ tracking }}</div>
-        <div layout="column" flex ng-model="time">Time: {{ time }}</div>
+    <section layout="row" layout-align="center center" layout-wrap>
+        <div layout="column" flex="33" ng-model="running">Running: {{ running }}</div>
+        <div layout="column" flex="33" ng-model="tracking">Currently Tracking: {{ tracking }}</div>
+        <div layout="column" flex="33" ng-model="time">Time: {{ time }}</div>
     </section>
     <form novalidate class="simple-form">
         <md-input-container>
