@@ -95,7 +95,7 @@ func ds_queryTask(r *http.Request, query string) ([]string) {
 	
 	for i:=0; i< len(t); i++ {
 		if strings.Contains(t[i].Title, query) {
-			var s = t[i].Title + t[i].Category
+			var s = t[i].Title +"@" + t[i].Category
 			res = append(res, s)
 		}
 	}
