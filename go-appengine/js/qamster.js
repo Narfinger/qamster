@@ -108,7 +108,10 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
 
     $scope.getMatchingTasks = function(input) {
         return $http.get('/go/searchTask?q=' + input).then(function(response) {
-            return response.data;});
+            if (response.data=='null\n') //this is kind of a hack but I don't know why I need it
+                return [];
+            else
+                return response.data;});
     };
     
         
