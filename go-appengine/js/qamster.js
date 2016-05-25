@@ -89,8 +89,12 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         if (hour==0) {
             return min.toString().concat(" min");
         } else {
+            var mstring = min.toString();
+            if (min<10 && min >0) {
+                mstring = "0" + mstring;
+            }
             return hour.toString().concat(
-                ":".concat(min.toString().concat(" h")));
+                ":".concat(mstring.concat(" h")));
         }
     }
 
