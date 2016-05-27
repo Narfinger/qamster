@@ -6,6 +6,9 @@ automatic_scaling:
         max_idle_instances: 1
         max_pending_latency: 200ms
 
+inbound_services:
+- channel_presence
+
 handlers:
 - url: /
   static_files: templates/index.html
