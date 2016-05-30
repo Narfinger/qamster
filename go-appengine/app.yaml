@@ -5,6 +5,7 @@ automatic_scaling:
         max_concurrent_requests: 80
         max_idle_instances: 1
         max_pending_latency: 200ms
+        min_idle_instances: 0
 
 handlers:
 - url: /
