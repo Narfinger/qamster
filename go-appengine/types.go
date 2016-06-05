@@ -24,4 +24,6 @@ type Status struct {
 	Percentage float64 `json:"percentage"`
 }
 
-type ChannelID string
+type ChannelID struct {
+	Id string `json:"id"`
+}

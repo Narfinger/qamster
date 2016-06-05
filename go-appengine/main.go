@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+//	"html/template"
 )
 
 //json function
@@ -83,11 +84,7 @@ func init() {
 	http.HandleFunc("/go/statusbar", js_statusbar)
 	http.HandleFunc("/go/searchTask", js_searchtask)
 
-	http.HandleFunc("/", index)
-
+	http.HandleFunc("/go/createchannel", ch_createchannel)
 	http.HandleFunc("/_ah/channel/connected", ch_clientConnected)
 	http.HandleFunc("/_ah/channel/disconnected", ch_clientDisconnected)
-
-	//http.HandleFunc("/go/settrue", js_test_settrue)
-	//http.HandleFunc("/", root)
 }

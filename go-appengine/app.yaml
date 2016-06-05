@@ -6,7 +6,6 @@ automatic_scaling:
         max_idle_instances: 1
         max_pending_latency: 200ms
         min_idle_instances: 0
-
 inbound_services:
 - channel_presence
 
@@ -35,3 +34,9 @@ handlers:
 - url: /favicon\.ico
   static_files: img/favicon.ico
   upload: static/images/favicon\.ico
+
+- url: /_ah/channel/connected
+  script: _go_app
+
+- url: /_ah/channel/disconnected
+  script: _go_app

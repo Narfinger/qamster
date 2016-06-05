@@ -115,6 +115,7 @@ func ds_removeChannelID(r *http.Request, id string) {
 
 func ds_addChannelID(r *http.Request, id string) {
 	c := appengine.NewContext(r)
+	var cid = ChannelID{Id: id}
 	key := datastore.NewIncompleteKey(c, "ChannelID", nil)
-	datastore.Put(c, key, id)
+	datastore.Put(c, key, &cid)
 }

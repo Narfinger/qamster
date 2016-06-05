@@ -6,9 +6,7 @@ app.config(function($mdThemingProvider) {
         .primaryPalette('green');
 });
 
-
-app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$interval', '$mdToast',
-                               function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
+app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
     };
@@ -26,6 +24,17 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     $scope.itemedText = '';
     
     var self = this;
+
+    //connect to channel
+    $http.get('/go/createchannel').success(function(data) {
+        channel = new goog.appengine.Channel(data);
+        socket = channel.open();
+        socket.onopen = function() {console.log("opened channel");};
+        socket.onclose = function() {console.log("channel closed");};
+        socket.onerror = function(err) {console.log("some error");};
+        socket.onmessage = function(msg) {console.log("msg: " + msg);};
+    });
+
     
     $scope.refresh = function () {
         $http.get('/go/timetable').
@@ -133,7 +142,7 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
 
     updateRunning($scope, $http);
     $scope.refresh();
-}]);
+});
 
 function updateRunning($scope, $http) {
     $http.get('/go/running').
