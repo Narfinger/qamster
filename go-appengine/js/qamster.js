@@ -59,6 +59,10 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
             $scope.runningtimemin = $scope.runningtimemin + 1;
             $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
 
+        //reset field
+        $scope.searchedText = null;
+        $scope.itemedText = null;
+        
         $scope.showSimpleToast(string);
     }
 
