@@ -58,20 +58,6 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         $scope.task= null;
         $scope.tracking = "";
         $http.post('/go/addTask', string);
-        $timeout(function(n) {
-            $scope.refresh();
-            updateRunning($scope, $http);
-        }, 1000);
-
-        $scope.runningtimemin = 0;
-        $scope.min_update_promise =  $interval(function() {
-            $scope.runningtimemin = $scope.runningtimemin + 1;
-            $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
-
-        //reset field
-        $scope.searchedText = null;
-        $scope.itemedText = null;
-        
         $scope.showSimpleToast(string);
     }
 
@@ -86,6 +72,20 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         $scope.addTaskByString($scope.searchedText);
     }
 
+    $scope.addTaskFromChannel = function(task) {
+        $scope.tracking = task.title;
+        $scope.runningtimemin = 0;
+        $scope.min_update_promise =  $interval(function() {
+            $scope.runningtimemin = $scope.runningtimemin + 1;
+            $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
+
+        updateRunning($scope, $http);
+        
+        //reset field
+        $scope.searchedText = null;
+        $scope.itemedText = null;
+    }
+    
     $scope.stop = function () {
         $http.post('/go/stop');
         $interval.cancel($scope.min_update_promise);
@@ -140,8 +140,15 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         //$route.reload();
     }
 
-    $scope.channelMsg = function(msg) {
-        console.log("msg: " + JSON.stringify(msg));
+    $scope.channelMsg = function(d) {
+        //console.log("msg: " + JSON.stringify(d.data));
+        var msg = JSON.parse(d.data);
+        console.log("message recieved");
+        console.log(msg);
+        if (msg.message=="start") {
+            console.log("started task from channel");
+            $scope.addTaskFromChannel(msg.task);
+        }
     }
 
     

@@ -3,7 +3,6 @@ package qamster
 import (
 	"io"
 	"net/http"
-	"encoding/json"
 	"appengine"
 	"appengine/datastore"
 	"appengine/channel"
@@ -35,18 +34,18 @@ func ch_clientDisconnected(w http.ResponseWriter, r *http.Request) {
 	ds_removeChannelID(r, r.FormValue("from"))
 }
 
-func ch_sendToAll(msg string, r *http.Request) {
+func ch_sendToAll(msg interface{}, r *http.Request) {
 	c := appengine.NewContext(r)
 	q := datastore.NewQuery("ChannelID").Distinct()
 	var cids []ChannelID
 	var _, _ = q.GetAll(c, &cids)
 	for i:=0; i< len(cids); i++ {
-		channel.Send(c, cids[i].Id, msg)
+		channel.SendJSON(c, cids[i].Id, msg)
 	}
 }
 
 func ch_addTask(t Task, r *http.Request) {
 	var m = ChannelMessage{Message: "start", Task: t}
-	str, _ := json.Marshal(m)
-	ch_sendToAll(string(str), r)
+	// str, _ := json.Marshal(m)
+	ch_sendToAll(m, r)
 }
