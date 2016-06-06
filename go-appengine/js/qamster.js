@@ -32,7 +32,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         socket.onopen = function() {console.log("opened channel");};
         socket.onclose = function() {console.log("channel closed");};
         socket.onerror = function(err) {console.log("some error");};
-        socket.onmessage = function(msg) {console.log("msg: " + msg);};
+        socket.onmessage = $scope.channelMsg;
     });
 
     
@@ -140,6 +140,11 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         //$route.reload();
     }
 
+    $scope.channelMsg = function(msg) {
+        console.log("msg: " + JSON.stringify(msg));
+    }
+
+    
     updateRunning($scope, $http);
     $scope.refresh();
 });

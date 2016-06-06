@@ -47,6 +47,8 @@ func js_addTask(w http.ResponseWriter, r *http.Request) {
 		runningTask = Task{Start: time.Now(), Title: splitstring[0], Category: splitstring[1]}
 	}
 	ds_setRunning(true, runningTask, r)
+
+	ch_addTask(runningTask, r)
 }
 
 func js_stop(w http.ResponseWriter, r *http.Request) {
