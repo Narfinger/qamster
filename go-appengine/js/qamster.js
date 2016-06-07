@@ -88,10 +88,6 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     
     $scope.stop = function () {
         $http.post('/go/stop');
-        $interval.cancel($scope.min_update_promise);
-        $timeout(function(n) { $scope.refresh();
-                               updateRunning($scope, $http);}, 1000);
-        
     }
 
     //only works for h<24
@@ -145,9 +141,14 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         var msg = JSON.parse(d.data);
         console.log("message recieved");
         console.log(msg);
-        if (msg.message=="start") {
+        if (msg.message=="addtask") {
             console.log("started task from channel");
             $scope.addTaskFromChannel(msg.task);
+        } else if (msg.message=="stoptask") {
+            console.log("stopped task from channel");
+            $interval.cancel($scope.min_update_promise);
+            $timeout(function(n) { $scope.refresh();
+                                   updateRunning($scope, $http);}, 1000);
         }
     }
 

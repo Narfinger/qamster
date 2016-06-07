@@ -45,7 +45,12 @@ func ch_sendToAll(msg interface{}, r *http.Request) {
 }
 
 func ch_addTask(t Task, r *http.Request) {
-	var m = ChannelMessage{Message: "start", Task: t}
+	var m = ChannelMessage{Message: msgAddTask, Task: t}
 	// str, _ := json.Marshal(m)
 	ch_sendToAll(m, r)
+}
+
+func ch_stopTask(r *http.Request) {
+	var m = ChannelMessage{Message: msgStopTask}
+	ch_sendToAll(m,r)
 }

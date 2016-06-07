@@ -58,6 +58,8 @@ func js_stop(w http.ResponseWriter, r *http.Request) {
 		ds_appendTask(finishedTask, r)
 		var runningTask = Task{}
 		ds_setRunning(false, runningTask, r)
+
+		ch_stopTask(r)
 	}
 }
 
