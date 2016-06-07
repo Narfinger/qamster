@@ -4,23 +4,26 @@ import (
 	"time"
 )
 
-
 type IsRunningStruct struct {
 	IsRunningField bool
-	RunningTask Task
+	RunningTask    Task
 }
 
 type Task struct {
-	Start time.Time       `json:"start"`
-	End time.Time         `json:"end"`
-	Title string          `json:"title"`
-	Category string       `json:"category"`
+	Start    time.Time `json:"start"`
+	End      time.Time `json:"end"`
+	Title    string    `json:"title"`
+	Category string    `json:"category"`
 }
 
 type Tasks []Task
 
 type Status struct {
-	Title string          `json:"title"`
-	Seconds int64         `json:"seconds"`
-	Percentage float64    `json:"percentage"`
+	Title      string  `json:"title"`
+	Seconds    int64   `json:"seconds"`
+	Percentage float64 `json:"percentage"`
+}
+
+type ChannelID struct {
+	Id string `json:"id"`
 }

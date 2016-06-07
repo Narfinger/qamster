@@ -6,9 +6,7 @@ app.config(function($mdThemingProvider) {
         .primaryPalette('green');
 });
 
-
-app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$interval', '$mdToast',
-                               function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
+app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
     };
@@ -26,6 +24,17 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
     $scope.itemedText = '';
     
     var self = this;
+
+    //connect to channel
+    $http.get('/go/createchannel').success(function(data) {
+        channel = new goog.appengine.Channel(data);
+        socket = channel.open();
+        socket.onopen = function() {console.log("opened channel");};
+        socket.onclose = function() {console.log("channel closed");};
+        socket.onerror = function(err) {console.log("some error");};
+        socket.onmessage = $scope.channelMsg;
+    });
+
     
     $scope.refresh = function () {
         $http.get('/go/timetable').
@@ -49,16 +58,6 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         $scope.task= null;
         $scope.tracking = "";
         $http.post('/go/addTask', string);
-        $timeout(function(n) {
-            $scope.refresh();
-            updateRunning($scope, $http);
-        }, 1000);
-
-        $scope.runningtimemin = 0;
-        $scope.min_update_promise =  $interval(function() {
-            $scope.runningtimemin = $scope.runningtimemin + 1;
-            $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
-
         $scope.showSimpleToast(string);
     }
 
@@ -73,12 +72,22 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         $scope.addTaskByString($scope.searchedText);
     }
 
+    $scope.addTaskFromChannel = function(task) {
+        $scope.tracking = task.title;
+        $scope.runningtimemin = 0;
+        $scope.min_update_promise =  $interval(function() {
+            $scope.runningtimemin = $scope.runningtimemin + 1;
+            $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
+
+        updateRunning($scope, $http);
+        
+        //reset field
+        $scope.searchedText = null;
+        $scope.itemedText = null;
+    }
+    
     $scope.stop = function () {
         $http.post('/go/stop');
-        $interval.cancel($scope.min_update_promise);
-        $timeout(function(n) { $scope.refresh();
-                               updateRunning($scope, $http);}, 1000);
-        
     }
 
     //only works for h<24
@@ -127,9 +136,26 @@ app.controller('QamsterCtrl', ['$scope', '$mdSidenav', '$http', '$timeout', '$in
         //$route.reload();
     }
 
+    $scope.channelMsg = function(d) {
+        //console.log("msg: " + JSON.stringify(d.data));
+        var msg = JSON.parse(d.data);
+        console.log("message recieved");
+        console.log(msg);
+        if (msg.message=="addtask") {
+            console.log("started task from channel");
+            $scope.addTaskFromChannel(msg.task);
+        } else if (msg.message=="stoptask") {
+            console.log("stopped task from channel");
+            $interval.cancel($scope.min_update_promise);
+            $timeout(function(n) { $scope.refresh();
+                                   updateRunning($scope, $http);}, 1000);
+        }
+    }
+
+    
     updateRunning($scope, $http);
     $scope.refresh();
-}]);
+});
 
 function updateRunning($scope, $http) {
     $http.get('/go/running').
