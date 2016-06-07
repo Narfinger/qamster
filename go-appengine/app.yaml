@@ -1,11 +1,11 @@
 runtime: go
 api_version: go1
-version:  r106
+version:  r107
 automatic_scaling:
         max_concurrent_requests: 80
         max_idle_instances: 1
-        max_pending_latency: 200ms
-        min_idle_instances: 0
+        min_pending_latency: 500ms
+
 inbound_services:
 - channel_presence
 
@@ -36,7 +36,11 @@ handlers:
   upload: static/images/favicon\.ico
 
 - url: /_ah/channel/connected
+  login: admin
+  secure: always
   script: _go_app
 
 - url: /_ah/channel/disconnected
   script: _go_app
+  login: admin
+  secure: always
