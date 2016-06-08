@@ -12,9 +12,8 @@ import (
 
 //json function
 func js_timetable(w http.ResponseWriter, r *http.Request) {
-	var tasks []Task
+	tasks := make([]Task,0)
 
-	//this is debug
 	ds_getTasks(&tasks, r)
 
 	json.NewEncoder(w).Encode(tasks)
