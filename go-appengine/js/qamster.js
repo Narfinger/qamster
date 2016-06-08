@@ -24,17 +24,6 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     $scope.itemedText = '';
     
     var self = this;
-
-    //connect to channel
-    $http.get('/go/createchannel').success(function(data) {
-        channel = new goog.appengine.Channel(data);
-        socket = channel.open();
-        socket.onopen = function() {console.log("opened channel");};
-        socket.onclose = function() {console.log("channel closed");};
-        socket.onerror = function(err) {console.log("some error");};
-        socket.onmessage = $scope.channelMsg;
-    });
-
     
     $scope.refresh = function () {
         $http.get('/go/timetable').
@@ -53,9 +42,11 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     };
     $scope.addTaskByString = function(string) {
         $scope.tracking = string;
+        $scope.time = '0';
+        $scope.runningtimemin = 0;
         console.log('started: ' + string);
         
-        $scope.task= null;
+        $scope.task = null;
         $scope.tracking = "";
         $http.post('/go/addTask', string);
         $scope.showSimpleToast(string);
@@ -75,6 +66,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     $scope.addTaskFromChannel = function(task) {
         $scope.tracking = task.title;
         $scope.runningtimemin = 0;
+        $scope.time = '0';
         $scope.min_update_promise =  $interval(function() {
             $scope.runningtimemin = $scope.runningtimemin + 1;
             $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
@@ -136,6 +128,18 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         //$route.reload();
     }
 
+
+    $scope.createChannel = function() {
+        $http.get('/go/createchannel').success(function(data) {
+            channel = new goog.appengine.Channel(data);
+            socket = channel.open();
+            socket.onopen = function() {console.log("opened channel");};
+            socket.onclose = $scope.onCloseChannel;
+            socket.onerror = function(err) {console.log("some error");};
+            socket.onmessage = $scope.channelMsg;
+        });
+    }
+
     $scope.channelMsg = function(d) {
         //console.log("msg: " + JSON.stringify(d.data));
         var msg = JSON.parse(d.data);
@@ -152,7 +156,13 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         }
     }
 
-    
+    $scope.onCloseChannel = function() {
+        console.log("channel closed");
+    }
+
+
+    //connect to channel
+    $scope.createChannel();
     updateRunning($scope, $http);
     $scope.refresh();
 });

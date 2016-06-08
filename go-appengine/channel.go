@@ -3,6 +3,8 @@ package qamster
 import (
 	"io"
 	"net/http"
+	"math/rand"
+	"strconv"
 	"appengine"
 	"appengine/datastore"
 	"appengine/channel"
@@ -18,11 +20,13 @@ type ChannelMessage struct {
 
 func ch_createchannel(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	token, _ := channel.Create(c, "p")
+	var sid = strconv.Itoa(rand.Int())
+	token, _ := channel.Create(c, sid)
 	io.WriteString(w, token)
 
+	
 	//this is needed for some reason
-	ds_addChannelID(r, token)
+	ds_addChannelID(r, sid)
 	
 }
 

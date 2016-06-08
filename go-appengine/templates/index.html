@@ -54,6 +54,7 @@
                         <th>Category</th>
                         <th>Runtime</th>
                     </tr>
+                    
                     <tr ng-show="tasks.length" ng-repeat="task in tasks track by $index" ng-dblclick="addTaskByTask(task)">
                         <td>{{ $index + 1 }}</td>
                         <td>{{ task.start | date:'HH:mm' }}</td>
@@ -62,6 +63,7 @@
                         <td>{{ task.category }}</td>
                         <td>{{ computeDuration(task.start, task.end) }}</td>
                     </tr>
+                    </div>
                 </table>                
             </md-content>
         </div>
