@@ -44,7 +44,7 @@ func ch_sendToAll(msg interface{}, r *http.Request) {
 	var cids []ChannelID
 	var _, _ = q.GetAll(c, &cids)
 	for i:=0; i< len(cids); i++ {
-		channel.SendJSON(c, cids[i].Id, msg)
+		channel.SendJSON(c, cids[i].CId, msg)
 	}
 }
 

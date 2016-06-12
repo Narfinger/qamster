@@ -25,5 +25,5 @@ type Status struct {
 }
 
 type ChannelID struct {
-	Id string `json:"id"`
+	CId string `json:"cid"`
 }
