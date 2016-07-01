@@ -31,7 +31,7 @@ func ch_createchannel(w http.ResponseWriter, r *http.Request) {
 }
 
 func ch_clientConnected(w http.ResponseWriter, r *http.Request) {
-	ds_addChannelID(r, r.FormValue("from"))
+//	ds_addChannelID(r, r.FormValue("from"))
 }
 
 func ch_clientDisconnected(w http.ResponseWriter, r *http.Request) {
