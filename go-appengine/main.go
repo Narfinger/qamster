@@ -88,6 +88,6 @@ func init() {
 	http.HandleFunc("/go/searchTask", js_searchtask)
 
 	http.HandleFunc("/go/createchannel", ch_createchannel)
-	http.HandleFunc("/_ah/channel/connected", ch_clientConnected)
-	http.HandleFunc("/_ah/channel/disconnected", ch_clientDisconnected)
+	http.HandleFunc("/_ah/channel/connected/", ch_clientConnected)
+	http.HandleFunc("/_ah/channel/disconnected/", ch_clientDisconnected)
 }

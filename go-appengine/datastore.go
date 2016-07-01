@@ -109,12 +109,24 @@ func ds_queryTask(r *http.Request, query string) []string {
 //channel methods
 func ds_removeChannelID(r *http.Request, id string) {
 	c := appengine.NewContext(r)
-	key := datastore.NewKey(c, "ChannelID", id, 0, nil)
-	datastore.Delete(c, key)
+//	c.Debugf("disconnected with: \"%s\"", id)
+		
+	q:= datastore.NewQuery("ChannelID").Filter("CId =", id)
+	var cids []ChannelID
+	keys, _ := q.GetAll(c, &cids)
+//	c.Debugf("queries: (%s, %s)", len(cids), len(keys)) 
+//	c.Debugf("error: %s", err)
+	
+	for i:=0; i < len(keys); i++ {
+		var key = keys[i]
+		c.Debugf("deleting with ds-id: %s", key)
+		datastore.Delete(c, key)
+	}
 }
 
 func ds_addChannelID(r *http.Request, id string) {
 	c := appengine.NewContext(r)
+//        c.Debugf("new connection with: %s", id)
 	var cid = ChannelID{CId: id}
 	key := datastore.NewIncompleteKey(c, "ChannelID", nil)
 	datastore.Put(c, key, &cid)

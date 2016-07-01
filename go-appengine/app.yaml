@@ -35,12 +35,12 @@ handlers:
   static_files: img/favicon.ico
   upload: static/images/favicon\.ico
 
-- url: /_ah/channel/connected
+- url: /_ah/channel/connected/
   login: admin
   secure: always
   script: _go_app
 
-- url: /_ah/channel/disconnected
+- url: /_ah/channel/disconnected/
   script: _go_app
   login: admin
   secure: always
