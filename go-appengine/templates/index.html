@@ -6,19 +6,18 @@
       <meta name="viewport" content="initial-scale=1" />
       <title>Qamster</title>
   </head>
-  <body layout="column" ng-controller="QamsterCtrl as ctrl">
-    <md-toolbar layout="row">
-      <div class="md-toolbar-tools">
-        <h1>Qamster</h1>
-      </div>
-    </md-toolbar>
+  <body layout="column">
+      <md-toolbar layout="row">
+          <div class="md-toolbar-tools">
+              <h1>Qamster</h1>
+          </div>
+      </md-toolbar>
+      
+      <ul class="menu" >
+          <li><a href="#/history" >Historytest</a></li>
+      </ul>
 
-    <ul class="menu" >
-        <li><a href="#/history" >Historytest</a></li>
-    </ul>
-
-    <ng-view></ng-view>
-
+      <ng-view></ng-view>
 
     <!-- Angular Material Dependencies -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>

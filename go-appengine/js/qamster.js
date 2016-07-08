@@ -25,7 +25,6 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     $scope.searchedText = '';
     $scope.itemedText = '';
     
-    var self = this;
     
     $scope.refresh = function () {
         $http.get('/go/timetable').
@@ -73,7 +72,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
             $scope.runningtimemin = $scope.runningtimemin + 1;
             $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
 
-        updateRunning($scope, $http);
+        $scope.updateRunning($scope, $http);
         
         //reset field
         $scope.searchedText = null;
@@ -160,7 +159,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
             console.log("stopped task from channel");
             $interval.cancel($scope.min_update_promise);
             $timeout(function(n) { $scope.refresh();
-                                   updateRunning($scope, $http);}, 1000);
+                                   $scope.updateRunning($scope, $http);}, 1000);
         }
     }
 
@@ -169,26 +168,28 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     }
 
 
+    $scope.updateRunning = function($scope, $http) {
+        $http.get('/go/running').
+            success(function(data) {
+                if (data.IsRunningField) {
+                    $scope.running = "Running";
+                } else {
+                    $scope.running = "Not Running";
+                    $scope.tracking = "";
+                    return;
+                }
+                var task = data.RunningTask;
+                $scope.tracking = task.title;
+            });
+    }
+
+
     //connect to channel
     $scope.createChannel();
-    updateRunning($scope, $http);
+    $scope.updateRunning($scope, $http);
     $scope.refresh();
-});
 
-function updateRunning($scope, $http) {
-    $http.get('/go/running').
-        success(function(data) {
-            if (data.IsRunningField) {
-                $scope.running = "Running";
-            } else {
-                $scope.running = "Not Running";
-                $scope.tracking = "";
-                return;
-            }
-            var task = data.RunningTask;
-            $scope.tracking = task.title;
-        });
-}
+});
 
 
 app.controller('HistoryCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
@@ -200,7 +201,7 @@ app.controller('HistoryCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
 
 app.config(function($routeProvider) {
     $routeProvider.when('/', {
-        controller: 'QmasterCtrl',
+        controller: 'QamsterCtrl',
         templateUrl: 'mainview.html',
     }).when('/history', {
         controller: 'HistoryCtrl',
