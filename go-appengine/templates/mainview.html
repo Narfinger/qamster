@@ -1,60 +1,62 @@
-<section layout="row" layout-align="center center" layout-wrap>
-    <div layout="column" flex="33" ng-model="running">Running: {{ running }}</div>
-    <div layout="column" flex="33" ng-model="tracking">Currently Tracking: {{ tracking }}</div>
-    <div layout="column" flex="33" ng-model="time">Time: {{ time }}</div>
-</section>
-<form novalidate class="simple-form">
-    <md-input-container>
-        <label>Task:</label>
-        <md-autocomplete
-            md-no-cache="true"
-            md-search-text="searchedText"
-            md-selected-item="itemedText"
-            md-items="item in getMatchingTasks(searchedText)"
-            md-item-text="item"
-            md-input-minlength="1"
-            placeholder="Start a Task">
-            <md-item-template>
-                <span md-highlight-text="searchText">{{item}}</span>
-            </md-item-template>
-            <md-not-found>
-                No matches found.
-            </md-not-found>
-        </md-autocomplete>
-    </md-input-container>
-    <md-button ng-click="addTask()" type="submit">Add Task</md-button>
-    <md-button ng-click="stop()">Stop</md-button>
-    <md-button ng-click="reloadPage()">Refresh</md-button>
-</form>
-
-<div layout="row" flex>
-    <div layout="column" flex>
-        <md-content layout="column" flex class="md-padding">
-            <table>
-                <tr>
-                    <th>Index</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Title</th>
-                    <th>Category</th>
-                    <th>Runtime</th>
-                </tr>
-                
-                <tr ng-show="tasks.length" ng-repeat="task in tasks track by $index" ng-dblclick="addTaskByTask(task)">
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ task.start | date:'HH:mm' }}</td>
-                    <td>{{ task.end   | date:'HH:mm' }}</td>
-                    <td>{{ task.title }}</td>
-                    <td>{{ task.category }}</td>
-                    <td>{{ computeDuration(task.start, task.end) }}</td>
-                </tr>
-    </div>
-            </table>                
-        </md-content>
+<div flex class="row">
+    <section layout="row" layout-align="center center" layout-wrap>
+        <div layout="column" flex="33" ng-model="running">Running: {{ running }}</div>
+        <div layout="column" flex="33" ng-model="tracking">Currently Tracking: {{ tracking }}</div>
+        <div layout="column" flex="33" ng-model="time">Time: {{ time }}</div>
+    </section>
+    <form novalidate class="simple-form">
+        <md-input-container>
+            <label>Task:</label>
+            <md-autocomplete
+                md-no-cache="true"
+                md-search-text="searchedText"
+                md-selected-item="itemedText"
+                md-items="item in getMatchingTasks(searchedText)"
+                md-item-text="item"
+                md-input-minlength="1"
+                placeholder="Start a Task">
+                <md-item-template>
+                    <span md-highlight-text="searchText">{{item}}</span>
+                </md-item-template>
+                <md-not-found>
+                    No matches found.
+                </md-not-found>
+            </md-autocomplete>
+        </md-input-container>
+        <md-button ng-click="addTask()" type="submit">Add Task</md-button>
+        <md-button ng-click="stop()">Stop</md-button>
+        <md-button ng-click="reloadPage()">Refresh</md-button>
+    </form>
 </div>
-    </div>
-    <div layout="row">
-        <div layout="column" flex ng-show="summary.length" ng-repeat="x in summary">
-            {{ x.title }}: {{ secondsToTime(x.seconds) }} ({{ x.percentage | number:2 }})
+
+<md-content layout="column" flex class="md-padding">
+    <table>
+        <tr>
+            <th>Index</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Runtime</th>
+        </tr>
+        
+        <tr ng-show="tasks.length" ng-repeat="task in tasks track by $index" ng-dblclick="addTaskByTask(task)">
+            <td>{{ $index + 1 }}</td>
+            <td>{{ task.start | date:'HH:mm' }}</td>
+            <td>{{ task.end   | date:'HH:mm' }}</td>
+            <td>{{ task.title }}</td>
+            <td>{{ task.category }}</td>
+            <td>{{ computeDuration(task.start, task.end) }}</td>
+        </tr>
+    </table>                
+</md-content>
+
+<footer>
+    <md-toolbar class="md-scroll-shrink">
+        <div layout="row" layout-align="center center" flex>
+            <div layout="column" flex ng-show="summary.length" ng-repeat="x in summary">
+                {{ x.title }}: {{ secondsToTime(x.seconds) }} ({{ x.percentage | number:2 }})
+            </div>
         </div>
-    </div>
+    </md-toolbar>
+</footer>
