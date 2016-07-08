@@ -23,34 +23,26 @@
 
       <div id="sideNavContainer" ng-controller="SideNavController as ctrl" layout="row" ng-cloak>
           <md-sidenav md-component-id="left" class="md-sidenav-left">
-
-
-              
-              <button ng-click=""
-
-              
-              <ul>
-                  <li><a href="#/history">History</a></li>
-                  <li><a href="#/">Main</a></li>
-              </ul>
+              <md-content layout-padding="">
+                  <md-list>
+                      <a href="#/history">History</a>
+                      <a href="#/">Main</a>
+                  </md-list>
+              </md-content>
           </md-sidenav>
       </div>
-
-      <ul class="menu" >
-          <li><a href="#/history" >Historytest</a></li>
-      </ul>
-
+      
       <ng-view></ng-view>
       
-    <!-- Angular Material Dependencies -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
-
-    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
-    
-    <script src="/js/qamster.js"></script>
+      <!-- Angular Material Dependencies -->
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-route.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
+      
+      <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+      
+      <script src="/js/qamster.js"></script>
   </body>
 </html>
