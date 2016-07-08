@@ -16,6 +16,18 @@ handlers:
   login: admin
   secure: always
 
+- url: /historyview.html
+  static_files: templates/historyview.html
+  upload: templates/historyview.html
+  login: admin
+  secure: always
+
+- url: /mainview.html
+  static_files: templates/mainview.html
+  upload: templates/mainview.html
+  login: admin
+  secure: always
+
 - url: /css
   static_dir: css/
   login: admin

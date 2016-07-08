@@ -1,4 +1,6 @@
-var app = angular.module('qamsterApp', ['ngMaterial']);
+'use strict';
+
+var app = angular.module('qamsterApp', ['ngMaterial', 'ngRoute',]);
 
 // themes
 app.config(function($mdThemingProvider) {
@@ -187,3 +189,20 @@ function updateRunning($scope, $http) {
             $scope.tracking = task.title;
         });
 }
+
+
+app.controller('HistoryCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
+    $scope.toggleSidenav = function(menuId) {
+        $mdSidenav(menuId).toggle();
+    };
+});
+
+
+app.config(function($routeProvider) {
+    $routeProvider.when('/', {
+        controller: 'QmasterCtrl',
+        templateUrl: 'mainview.html',
+    }).when('/history', {
+        controller: 'HistoryCtrl',
+        templateUrl: 'historyview.html',})
+});
