@@ -8,11 +8,13 @@ app.config(function($mdThemingProvider) {
         .primaryPalette('green');
 });
 
-app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){
-    $scope.toggleSidenav = function(menuId) {
-        $mdSidenav(menuId).toggle();
+app.controller('SideNavController', function($scope, $mdSidenav) {
+    $scope.openMenu = function() {
+        $mdSidenav('left').toggle();
     };
-    
+});
+
+app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){ 
     $scope.tasks = [];
     $scope.summary = [];
 

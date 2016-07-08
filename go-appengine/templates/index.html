@@ -8,11 +8,34 @@
   </head>
   <body layout="column">
       <md-toolbar layout="row">
+          <div ng-controller="SideNavController as ctrl">
+              <button class="menu-icon" hide-sm aria-label="Toggle Menu" ng-click="openMenu()">
+                  <md-icon icon="img/icons/ic_menu_24px.svg">
+                      <object class="md-icon" data="img/icons/ic_menu_24px.svg"></object>
+                  </md-icon>
+              </button>
+          </div>
           <div class="md-toolbar-tools">
               <h1>Qamster</h1>
           </div>
       </md-toolbar>
-      
+
+
+      <div id="sideNavContainer" ng-controller="SideNavController as ctrl" layout="row" ng-cloak>
+          <md-sidenav md-component-id="left" class="md-sidenav-left">
+
+
+              
+              <button ng-click=""
+
+              
+              <ul>
+                  <li><a href="#/history">History</a></li>
+                  <li><a href="#/">Main</a></li>
+              </ul>
+          </md-sidenav>
+      </div>
+
       <ul class="menu" >
           <li><a href="#/history" >Historytest</a></li>
       </ul>
