@@ -132,7 +132,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     }
 
     $scope.createSocket = function(channel) {
-        socket = channel.open();
+        var socket = channel.open();
         socket.onopen = function() {console.log("opened channel");};
         socket.onclose = function() {
             console.log("trying to reopen channel");
@@ -144,7 +144,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     
     $scope.createChannel = function() {
         $http.get('/go/createchannel').success(function(data) {
-            channel = new goog.appengine.Channel(data);
+            var channel = new goog.appengine.Channel(data);
             $scope.createSocket(channel);
         });
     }
