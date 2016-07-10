@@ -28,6 +28,12 @@ handlers:
   login: admin
   secure: always
 
+- url: /editdialog.html
+  static_files: templates/editdialog.html
+  upload: templates/editdialog.html
+  login: admin
+  secure: always
+
 - url: /css
   static_dir: css/
   login: admin

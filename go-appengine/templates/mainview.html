@@ -38,6 +38,7 @@
             <th>Title</th>
             <th>Category</th>
             <th>Runtime</th>
+            <th>Edit</th>
         </tr>
         
         <tr ng-show="tasks.length" ng-repeat="task in tasks track by $index" ng-dblclick="addTaskByTask(task)">
@@ -47,6 +48,7 @@
             <td>{{ task.title }}</td>
             <td>{{ task.category }}</td>
             <td>{{ computeDuration(task.start, task.end) }}</td>
+            <td><md-button ng-click='editPage($event, task.title, task.start, task.end)'>Edit</md-button></td>
         </tr>
     </table>                
 </md-content>

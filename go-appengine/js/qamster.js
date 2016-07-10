@@ -14,7 +14,19 @@ app.controller('SideNavController', function($scope, $mdSidenav) {
     };
 });
 
-app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast){ 
+app.controller('EditDialogController',function($scope, $mdDialog, title, start, end) {
+    $scope.title = title;
+    $scope.start = start;
+    $scope.end   = end;
+    $scope.answer = function () {
+        $mdDialog.hide();
+    };
+    $scope.answer = function(answer) {
+        $mdDialog.hide(answer);
+  };
+});
+
+app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast, $mdDialog){ 
     $scope.tasks = [];
     $scope.summary = [];
 
@@ -184,7 +196,28 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
                 $scope.tracking = task.title;
             });
     }
-
+    
+    $scope.editPage = function($ev, $title, $start, $end) {
+        $mdDialog.show({
+            controller: 'EditDialogController',
+            templateUrl: 'editdialog.html',
+            parent: angular.element(document.body),
+            locals: { title: $title,
+                      start: $start,
+                      end: $end
+                    },
+//            targetEvent: ev,
+            clickOutsideToClose:true,
+        })
+            .then(function(answer) {
+                console.log(answer)
+                console.log("accept");
+                $scope.status = 'You said the information was "' + answer + '".';
+            }, function() {
+                console.log("reject");
+                $scope.status = 'You cancelled the dialog.';
+            });
+    };
 
     //connect to channel
     $scope.createChannel();
@@ -199,7 +232,6 @@ app.controller('HistoryCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         $mdSidenav(menuId).toggle();
     };
 });
-
 
 app.config(function($routeProvider) {
     $routeProvider.when('/', {
