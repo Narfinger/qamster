@@ -53,6 +53,10 @@ handlers:
   static_files: img/favicon.ico
   upload: static/images/favicon\.ico
 
+- url: /img/ic_menu_24px\.svg
+  static_files: img/ic_menu_24px.svg
+  upload: img/ic_menu_24px.svg
+
 - url: /_ah/channel/connected/
   login: admin
   secure: always
