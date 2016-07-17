@@ -15,7 +15,7 @@ app.controller('SideNavController', function($scope, $mdSidenav, $route) {
     };
     $scope.close = function () { $mdSidenav('left').close(); };
     $scope.main = function() { window.location = "/#";           $scope.close(); };
-    $scope.history = function() { window.location = "/#History"; $scope.close()};
+    $scope.history = function() { window.location = "/#history"; $scope.close()};
     
 });
 
