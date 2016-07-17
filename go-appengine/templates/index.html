@@ -9,11 +9,9 @@
   <body layout="column">
       <md-toolbar layout="row">
           <div ng-controller="SideNavController as ctrl">
-              <button class="menu-icon" hide-sm aria-label="Toggle Menu" ng-click="openMenu()">
-                  <md-icon icon="img/ic_menu_24px.svg">
-                      <object class="md-icon" data="img/ic_menu_24px.svg"></object>
-                  </md-icon>
-              </button>
+              <md-button ng-click="openMenu()">
+                  <md-icon md-svg-src="img/ic_menu_24px.svg"></md-icon>Menu
+              </md-button>
           </div>
           <div class="md-toolbar-tools">
               <h1>Qamster</h1>
@@ -21,16 +19,32 @@
       </md-toolbar>
 
 
-      <div id="sideNavContainer" ng-controller="SideNavController as ctrl" layout="row" ng-cloak>
-          <md-sidenav md-component-id="left" class="md-sidenav-left">
-              <md-content layout-padding="">
-                  <md-list>
-                      <a href="#/history">History</a>
-                      <a href="#/">Main</a>
-                  </md-list>
-              </md-content>
-          </md-sidenav>
-      </div>
+      <md-sidenav md-component-id="left" class="md-sidenav-left">
+          <md-toolbar class="md-theme-indigo">
+              <h1 class="md-toolbar-tools">Sidenav Left</h1>
+          </md-toolbar>
+          <md-content layout-padding ng-controller="SideNavController">
+              <ul>
+                  <li>
+                      <md-button ng-click="main()" class="md-primary">
+                          Main
+                      </md-button>
+                  </li>
+                  <li>
+                      <md-button ng-click="history()" class="md-primary">
+                          History
+                      </md-button>
+                  </li>
+              </ul>
+          </md-content>
+      </md-sidenav>
+            
+    <!-- <div id="sideNavContainer" ng-controller="SideNavController as ctrl" ng-cloak flex>
+         <md-sidenav md-component-id="left" class="md-sidenav-left" flex>
+         <a href="#/">Main</a><br>
+         <a href="#/history">History</a>              
+         </md-sidenav>
+         </div> -->
       
       <ng-view></ng-view>
       

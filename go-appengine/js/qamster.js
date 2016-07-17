@@ -8,10 +8,15 @@ app.config(function($mdThemingProvider) {
         .primaryPalette('green');
 });
 
-app.controller('SideNavController', function($scope, $mdSidenav) {
+app.controller('SideNavController', function($scope, $mdSidenav, $route) {
     $scope.openMenu = function() {
+        console.log("hit");
         $mdSidenav('left').toggle();
     };
+    $scope.close = function () { $mdSidenav('left').close(); };
+    $scope.main = function() { window.location = "/#";           $scope.close(); };
+    $scope.history = function() { window.location = "/#History"; $scope.close()};
+    
 });
 
 app.controller('EditDialogController',function($scope, $mdDialog, title, start, end) {
