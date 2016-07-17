@@ -6,6 +6,8 @@ automatic_scaling:
         max_idle_instances: 1
         min_pending_latency: 500ms
 
+default_expiration: "1d"
+
 inbound_services:
 - channel_presence
 
