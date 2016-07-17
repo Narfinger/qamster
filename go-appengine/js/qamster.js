@@ -53,7 +53,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
                 //     data[i]['duration']=$scope.computeDuration(elem['start'], elem['end']);
                 // }
                 $scope.tasks = data;
-            })
+            });
         $http.get('/go/statusbar').
             success(function(data) {
                 $scope.summary = data;
@@ -70,18 +70,18 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         $scope.tracking = "";
         $http.post('/go/addTask', string);
         $scope.showSimpleToast(string);
-    }
+    };
 
     $scope.addTaskByTask = function(task) {
         var nstring = task.title;
         if (task.category!='')
             nstring = nstring + '@' + task.category;
         $scope.addTaskByString(nstring);
-    }
+    };
 
     $scope.addTask = function () {
         $scope.addTaskByString($scope.searchedText);
-    }
+    };
 
     $scope.addTaskFromChannel = function(task) {
         $scope.tracking = task.title;
@@ -96,11 +96,11 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         //reset field
         $scope.searchedText = null;
         $scope.itemedText = null;
-    }
+    };
     
     $scope.stop = function () {
         $http.post('/go/stop');
-    }
+    };
 
     //only works for h<24
     $scope.secondsToTime = function(sec) {
@@ -117,7 +117,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
             return hour.toString().concat(
                 ":".concat(mstring.concat(" h")));
         }
-    }
+    };
 
 
     $scope.computeDuration = function(start, end) {
@@ -125,7 +125,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         var en = new Date(end).valueOf();
         
         return $scope.secondsToTime( (en-st) /1000);
-    }
+    };
 
     $scope.getMatchingTasks = function(input) {
         return $http.get('/go/searchTask?q=' + input).then(function(response) {
@@ -146,7 +146,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     $scope.reloadPage = function() {
         location.reload();
         //$route.reload();
-    }
+    };
 
     $scope.createSocket = function(channel) {
         var socket = channel.open();
@@ -154,17 +154,17 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         socket.onclose = function() {
             console.log("trying to reopen channel");
             $scope.createSocket(channel);
-        }
+        };
         socket.onerror = function(err) {console.log("some error");};
         socket.onmessage = $scope.channelMsg;
-    }
+    };
     
     $scope.createChannel = function() {
         $http.get('/go/createchannel').success(function(data) {
             var channel = new goog.appengine.Channel(data);
             $scope.createSocket(channel);
         });
-    }
+    };
 
     $scope.channelMsg = function(d) {
         //console.log("msg: " + JSON.stringify(d.data));
@@ -180,11 +180,11 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
             $timeout(function(n) { $scope.refresh();
                                    $scope.updateRunning($scope, $http);}, 1000);
         }
-    }
+    };
 
     $scope.onCloseChannel = function() {
         console.log("channel closed");
-    }
+    };
 
 
     $scope.updateRunning = function($scope, $http) {
@@ -200,7 +200,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
                 var task = data.RunningTask;
                 $scope.tracking = task.title;
             });
-    }
+    };
     
     $scope.editPage = function($ev, $title, $start, $end) {
         $mdDialog.show({
