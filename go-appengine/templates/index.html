@@ -23,7 +23,7 @@
           <md-toolbar class="md-theme-indigo">
               <h1 class="md-toolbar-tools">Sidenav Left</h1>
           </md-toolbar>
-          <md-content layout-padding ng-controller="SideNavController">
+          <md-content ng-controller="SideNavController">
               <ul>
                   <li>
                       <md-button ng-click="main()" class="md-primary">
@@ -45,9 +45,8 @@
          <a href="#/history">History</a>              
          </md-sidenav>
          </div> -->
-      
-      <ng-view flex></ng-view>
-      
+      <ng-view></ng-view>
+
       <!-- Angular Material Dependencies -->
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
