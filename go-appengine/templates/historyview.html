@@ -1,38 +1,45 @@
+<div ng-controller="HistoryController">
+    <div layout="row">
+        <div layout="column">Date:</div>
+        <div layout="column"><md-datepicker ng-model="date" md-placeholder="Enter date"></md-datepicker></div>
+    </div>
+
     <md-tabs flex md-strech-tabs="always">
         <md-tab label="Day">
             <md-tab-content>
-                <canvas ng-controller="HistoryController" id="dayChart" width="400" height="400"></canvas>
+                <canvas id="dayChart" width="400" height="400"></canvas>
             </md-tab-content>
         </md-tab>
         
         
         <md-tab label="Week">
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing
-                    elit. Nulla venenatis ante augue. Phasellus
-                    volutpat neque ac dui mattis vulputate. Etiam
-                    consequat aliquam cursus. In sodales pretium
-                    ultrices. Maecenas lectus est, sollicitudin
-                    consectetur felis nec, feugiat ultricies mi.</p>
+                elit. Nulla venenatis ante augue. Phasellus
+                volutpat neque ac dui mattis vulputate. Etiam
+                consequat aliquam cursus. In sodales pretium
+                ultrices. Maecenas lectus est, sollicitudin
+                consectetur felis nec, feugiat ultricies mi.</p>
         </md-tab>
 
 
         <md-tab label="Month">
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing
-                    elit. Nulla venenatis ante augue. Phasellus volutpat
-                    neque ac dui mattis vulputate. Etiam consequat aliquam
-                    cursus. In sodales pretium ultrices. Maecenas lectus est,
-                    sollicitudin consectetur felis nec, feugiat ultricies mi.</p>
-                   </md-tab>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing
+                elit. Nulla venenatis ante augue. Phasellus volutpat
+                neque ac dui mattis vulputate. Etiam consequat aliquam
+                cursus. In sodales pretium ultrices. Maecenas lectus est,
+                sollicitudin consectetur felis nec, feugiat ultricies mi.</p>
+        </md-tab>
 
 
         <md-tab label="Overall">
-                           <p>Lorem ipsum dolor sit amet, consectetur adipiscing
-                    elit. Nulla venenatis ante augue. Phasellus
-                    volutpat neque ac dui mattis vulputate. Etiam
-                    consequat aliquam cursus. In sodales pretium
-                    ultrices. Maecenas lectus est, sollicitudin
-                    consectetur felis nec, feugiat ultricies mi.</p>
-                   </md-tab>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing
+                elit. Nulla venenatis ante augue. Phasellus
+                volutpat neque ac dui mattis vulputate. Etiam
+                consequat aliquam cursus. In sodales pretium
+                ultrices. Maecenas lectus est, sollicitudin
+                consectetur felis nec, feugiat ultricies mi.</p>
+        </md-tab>
         
     </md-tabs>
-       
+    
+</div>
