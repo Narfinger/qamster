@@ -38,14 +38,10 @@
               </ul>
           </md-content>
       </md-sidenav>
-            
-    <!-- <div id="sideNavContainer" ng-controller="SideNavController as ctrl" ng-cloak flex>
-         <md-sidenav md-component-id="left" class="md-sidenav-left" flex>
-         <a href="#/">Main</a><br>
-         <a href="#/history">History</a>              
-         </md-sidenav>
-         </div> -->
-      <ng-view></ng-view>
+      
+      <div flex layout="column" >
+          <div ng-view flex layout="column"></div>
+      </div>
 
       <!-- Angular Material Dependencies -->
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>

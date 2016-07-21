@@ -1,9 +1,9 @@
-<div flex class="row">
-    <section layout="row" layout-align="center center" layout-wrap>
-        <div layout="column" flex="33" ng-model="running">Running: {{ running }}</div>
-        <div layout="column" flex="33" ng-model="tracking">Currently Tracking: {{ tracking }}</div>
-        <div layout="column" flex="33" ng-model="time">Time: {{ time }}</div>
-    </section>
+<section layout="row" layout-align="center center" layout-wrap>
+    <div layout="column" flex="33" ng-model="running">Running: {{ running }}</div>
+    <div layout="column" flex="33" ng-model="tracking">Currently Tracking: {{ tracking }}</div>
+    <div layout="column" flex="33" ng-model="time">Time: {{ time }}</div>
+</section>
+<section layout="row">
     <form novalidate class="simple-form">
         <md-input-container>
             <label>Task:</label>
@@ -27,9 +27,9 @@
         <md-button ng-click="stop()">Stop</md-button>
         <md-button ng-click="reloadPage()">Refresh</md-button>
     </form>
-</div>
+</section>
 
-<md-content layout="column" flex class="md-padding">
+<section layout="row" flex>
     <table>
         <tr>
             <th>Index</th>
@@ -51,7 +51,8 @@
             <td><md-button ng-click='editPage($event, task.title, task.start, task.end)'>Edit</md-button></td>
         </tr>
     </table>                
-</md-content>
+</section>
+
 
 <footer>
     <md-toolbar class="md-scroll-shrink">
