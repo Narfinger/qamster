@@ -48,10 +48,12 @@ app.controller('HistoryController', function($scope) {
             }]
         },
         options: {
+            responsive: false,
             scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero:true
+                        beginAtZero:true,
+                        stepSize: 10
                     }
                 }]
             }
