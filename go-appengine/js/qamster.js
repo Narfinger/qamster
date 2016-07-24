@@ -1,6 +1,18 @@
 'use strict';
 
-var app = angular.module('qamsterApp', ['ngMaterial', 'ngRoute',]);
+var app = angular.module('qamsterApp', ['ngMaterial', 'ngRoute', 'chart.js'])
+  // Optional configuration
+  .config(['ChartJsProvider', function (ChartJsProvider) {
+    // Configure all charts
+    ChartJsProvider.setOptions({
+      chartColors: ['#FF5252', '#FF8A80'],
+      responsive: false
+    });
+    // Configure all line charts
+    ChartJsProvider.setOptions('line', {
+      showLines: false
+    });
+  }]);
 
 // themes
 app.config(function($mdThemingProvider) {
@@ -19,48 +31,30 @@ app.controller('SideNavController', function($scope, $mdSidenav, $route) {
     
 });
 
-app.controller('HistoryController', function($scope) {
+app.controller('HistoryDateController', function($scope) {
     $scope.date = new Date();
-    
-    // var ctx = document.getElementById("dayChart");
-    // var myChart = new Chart(ctx, {
-    //     type: 'bar',
-    //     data: {
-    //         labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-    //         datasets: [{
-    //             label: '# of Votes',
-    //             data: [12, 19, 3, 5, 2, 3],
-    //             backgroundColor: [
-    //                 'rgba(255, 99, 132, 0.2)',
-    //                 'rgba(54, 162, 235, 0.2)',
-    //                 'rgba(255, 206, 86, 0.2)',
-    //                 'rgba(75, 192, 192, 0.2)',
-    //                 'rgba(153, 102, 255, 0.2)',
-    //                 'rgba(255, 159, 64, 0.2)'
-    //             ],
-    //             borderColor: [
-    //                 'rgba(255,99,132,1)',
-    //                 'rgba(54, 162, 235, 1)',
-    //                 'rgba(255, 206, 86, 1)',
-    //                 'rgba(75, 192, 192, 1)',
-    //                 'rgba(153, 102, 255, 1)',
-    //                 'rgba(255, 159, 64, 1)'
-    //             ],
-    //             borderWidth: 1
-    //         }]
-    //     },
-    //     options: {
-    //         responsive: false,
-    //         scales: {
-    //             yAxes: [{
-    //                 ticks: {
-    //                     beginAtZero:true,
-    //                     stepSize: 10
-    //                 }
-    //             }]
-    //         }
-    //     }
-    // });
+    $scope.changed = function(date) {
+        console.log(date);
+        $scope.$broadcast('date-changed', { d:date });
+    };
+});
+
+app.controller('HistoryWeekController', function($scope) {
+    $scope.date = new Date();
+    $scope.changed = function(date) {
+        $scope.$broadcast('date-changed', { d: date});
+     };
+    $scope.$on('date-changed', function(event, args) {
+        $scope.date = args.d;
+        console.log("broadcast " + args.d);
+    });
+    $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
+    $scope.series = ['Series A', 'Series B'];
+    $scope.data = [
+        [65, 59, 80, 81, 56, 55, 40],
+        [28, 48, 40, 19, 86, 27, 90]
+    ];
+
 });
 
 app.controller('EditDialogController',function($scope, $mdDialog, title, start, end) {

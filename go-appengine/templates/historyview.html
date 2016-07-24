@@ -1,45 +1,47 @@
-<div ng-controller="HistoryController">
+<div ng-controller="HistoryDateController">
     <div layout="row">
         <div layout="column">Date:</div>
-        <div layout="column"><md-datepicker ng-model="date" md-placeholder="Enter date"></md-datepicker></div>
+        <div layout="column"><md-datepicker ng-model="date" ng-change="changed(date)" md-placeholder="Enter date" md-change></md-datepicker></div>
     </div>
 
-    <md-tabs flex md-strech-tabs="always">
-        <md-tab label="Day">
-            <md-tab-content>
-                <canvas id="dayChart" width="400" height="400"></canvas>
-            </md-tab-content>
-        </md-tab>
-        
-        
-        <md-tab label="Week">
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing
-                elit. Nulla venenatis ante augue. Phasellus
-                volutpat neque ac dui mattis vulputate. Etiam
-                consequat aliquam cursus. In sodales pretium
-                ultrices. Maecenas lectus est, sollicitudin
-                consectetur felis nec, feugiat ultricies mi.</p>
-        </md-tab>
+    <!-- multiple controllers are bad and that is why this breaks -->
+        <md-tabs flex md-strech-tabs="always">
+            <md-tab label="Week">        
+                <md-tab-content ng-controller="HistoryWeekController">
+                    <canvas class="chart chart-bar" chart-data="data" chart-labels="labels" 
+                            chart-series="series" chart-click="onClick" width="400" height="400"></canvas>
+                </md-tab-content>
+            </md-tab>
+            
+            
+            <md-tab label="Month">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing
+                    elit. Nulla venenatis ante augue. Phasellus
+                    volutpat neque ac dui mattis vulputate. Etiam
+                    consequat aliquam cursus. In sodales pretium
+                    ultrices. Maecenas lectus est, sollicitudin
+                    consectetur felis nec, feugiat ultricies mi.</p>
+            </md-tab>
 
 
-        <md-tab label="Month">
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing
-                elit. Nulla venenatis ante augue. Phasellus volutpat
-                neque ac dui mattis vulputate. Etiam consequat aliquam
-                cursus. In sodales pretium ultrices. Maecenas lectus est,
-                sollicitudin consectetur felis nec, feugiat ultricies mi.</p>
-        </md-tab>
+            <md-tab label="Year">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing
+                    elit. Nulla venenatis ante augue. Phasellus volutpat
+                    neque ac dui mattis vulputate. Etiam consequat aliquam
+                    cursus. In sodales pretium ultrices. Maecenas lectus est,
+                    sollicitudin consectetur felis nec, feugiat ultricies mi.</p>
+            </md-tab>
 
 
-        <md-tab label="Overall">
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing
-                elit. Nulla venenatis ante augue. Phasellus
-                volutpat neque ac dui mattis vulputate. Etiam
-                consequat aliquam cursus. In sodales pretium
-                ultrices. Maecenas lectus est, sollicitudin
-                consectetur felis nec, feugiat ultricies mi.</p>
-        </md-tab>
-        
-    </md-tabs>
-    
+            <md-tab label="Overall">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing
+                    elit. Nulla venenatis ante augue. Phasellus
+                    volutpat neque ac dui mattis vulputate. Etiam
+                    consequat aliquam cursus. In sodales pretium
+                    ultrices. Maecenas lectus est, sollicitudin
+                    consectetur felis nec, feugiat ultricies mi.</p>
+            </md-tab>
+            
+        </md-tabs>
+
 </div>
