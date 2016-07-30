@@ -46,6 +46,11 @@ handlers:
   login: admin
   secure: always
 
+- url: /offline
+  static_dir: offline/
+  login: admin
+  secure: always
+
 - url: /go/.*
   script: _go_app
   login: admin
