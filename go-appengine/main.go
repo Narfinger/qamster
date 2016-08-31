@@ -7,12 +7,12 @@ import (
 	"net/url"
 	"strings"
 	"time"
-//	"html/template"
+	//	"html/template"
 )
 
 //json function
 func js_timetable(w http.ResponseWriter, r *http.Request) {
-	tasks := make([]Task,0)
+	tasks := make([]Task, 0)
 
 	ds_getTasks(&tasks, r)
 
