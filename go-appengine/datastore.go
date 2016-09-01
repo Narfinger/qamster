@@ -1,15 +1,19 @@
 package qamster
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
-	"appengine"
-	"appengine/datastore"
+	"golang.org/x/net/context"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 )
 
-func tasksKey(c appengine.Context) *datastore.Key {
+func tasksKey(c context.Context) *datastore.Key {
 	return datastore.NewKey(c, "Task", "default_task", 0, nil)
 }
 
@@ -109,25 +113,50 @@ func ds_queryTask(r *http.Request, query string) []string {
 //channel methods
 func ds_removeChannelID(r *http.Request, id string) {
 	c := appengine.NewContext(r)
-//	c.Debugf("disconnected with: \"%s\"", id)
-		
-	q:= datastore.NewQuery("ChannelID").Filter("CId =", id)
+	//	c.Debugf("disconnected with: \"%s\"", id)
+
+	q := datastore.NewQuery("ChannelID").Filter("CId =", id)
 	var cids []ChannelID
 	keys, _ := q.GetAll(c, &cids)
-//	c.Debugf("queries: (%s, %s)", len(cids), len(keys)) 
-//	c.Debugf("error: %s", err)
-	
-	for i:=0; i < len(keys); i++ {
+	//	c.Debugf("queries: (%s, %s)", len(cids), len(keys))
+	//	c.Debugf("error: %s", err)
+
+	for i := 0; i < len(keys); i++ {
 		var key = keys[i]
-		c.Debugf("deleting with ds-id: %s", key)
+		//c.Debugf("deleting with ds-id: %s", key)
 		datastore.Delete(c, key)
 	}
 }
 
 func ds_addChannelID(r *http.Request, id string) {
 	c := appengine.NewContext(r)
-//        c.Debugf("new connection with: %s", id)
+	//        c.Debugf("new connection with: %s", id)
 	var cid = ChannelID{CId: id}
 	key := datastore.NewIncompleteKey(c, "ChannelID", nil)
 	datastore.Put(c, key, &cid)
+}
+
+//returns true and the date if we found an entry and false otherwise
+func ds_lastSummary(r *http.Request) (time.Time, bool) {
+	c := appengine.NewContext(r)
+	q := datastore.NewQuery("DailySummary").Project("Date").Order("Date")
+	t := q.Run(c)
+	var d time.Time
+	_, err := t.Next(&d)
+	if err == datastore.Done || err != nil {
+		return d, false
+	}
+	return d, true
+}
+
+func ds_summarizeDaily(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+
+	var d time.Time
+	var err = false
+	d, err = ds_lastSummary(r)
+	log.Infof(c, strconv.FormatBool(err))
+	log.Infof(c, d.Format(time.RFC1123))
+
+	fmt.Fprintf(w, "OK")
 }

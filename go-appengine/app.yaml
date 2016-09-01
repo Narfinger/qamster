@@ -51,6 +51,11 @@ handlers:
   login: admin
   secure: always
 
+- url: /cron/summarizedaily
+  script: _go_app
+  login: admin
+  secure: always
+
 - url: /favicon\.ico
   static_files: img/favicon.ico
   upload: static/images/favicon\.ico
