@@ -1,6 +1,6 @@
 runtime: go
 api_version: go1
-version:  r112
+version:  r113
 automatic_scaling:
         max_concurrent_requests: 80
         max_idle_instances: 1

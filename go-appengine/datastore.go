@@ -149,6 +149,54 @@ func ds_lastSummary(r *http.Request) (time.Time, bool) {
 	return d, true
 }
 
+func summarizeDaysBetween(r *http.Request, start time.Time) {
+	c := appengine.NewContext(r)
+	var now = time.Now()
+
+	var curYear, curMonth, curDay = start.Date()
+	var m = make(map[string]map[string]time.Duration) //title, category, time
+
+	for curYear <= now.Year() && curMonth <= now.Month() && curDay < now.Day() {
+		var end = time.Date(curYear, curMonth, curDay, 0, 0, 0, 0, time.Local)
+		var start = time.Date(curYear, curMonth, curDay, 23, 59, 59, 0, time.Local)
+		var q = datastore.NewQuery("Tasks").Filter("End <=", end).Filter("Start <=", start)
+		var t []Task
+		var _, err = q.GetAll(c, &t)
+		if err != nil {
+			for i := 0; i < len(t); i++ {
+				var cat = t[i].Category
+				var title = t[i].Title
+				var dur = t[i].End.Sub(t[i].Start)
+				m[title][cat] = m[title][cat] + dur
+			}
+		}
+
+		//add query to summary
+		for k, v := range m {
+			for k2, v2 := range v {
+				var curDate = time.Date(curYear, curMonth, curDay, 0, 0, 0, 0, time.Local)
+				var ds = DailySummary{
+					Date:     curDate,
+					Duration: v2,
+					Title:    k,
+					Category: k2}
+
+				log.Infof(c, fmt.Sprintf("%v", ds))
+
+				key := datastore.NewIncompleteKey(c, "DailySummary", nil)
+				datastore.Put(c, key, &ds)
+			}
+		}
+
+		//iterate onto next day
+		var nextDate = time.Date(curYear, curMonth, curDay, 0, 0, 0, 0, time.Local).AddDate(0, 0, 1)
+		curYear = nextDate.Year()
+		curMonth = nextDate.Month()
+		curDay = nextDate.Day()
+	}
+
+}
+
 func ds_summarizeDaily(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
@@ -156,48 +204,17 @@ func ds_summarizeDaily(w http.ResponseWriter, r *http.Request) {
 	var err = false
 	d, err = ds_lastSummary(r)
 	if err == false {
-		var now = getCurrentDate()
-		var curYear, curMonth, curDay = d.Date()
-		var m = make(map[string]map[string]time.Duration) //title, category, time
-
-		for curYear <= now.Year() && curMonth <= now.Month() && curDay < now.Day() {
-			var end = time.Date(curYear, curMonth, curDay, 0, 0, 0, 0, time.Local)
-			var start = time.Date(curYear, curMonth, curDay, 23, 59, 59, 0, time.Local)
-			var q = datastore.NewQuery("Tasks").Filter("End <=", end).Filter("Start <=", start)
-			var t []Task
-			var _, err = q.GetAll(c, &t)
-			if err != nil {
-				for i := 0; i < len(t); i++ {
-					var cat = t[i].Category
-					var title = t[i].Title
-					var dur = t[i].End.Sub(t[i].Start)
-					m[title][cat] = m[title][cat] + dur
-				}
-			}
-
-			//add query to summary
-			for k, v := range m {
-				for k2, v2 := range v {
-					var curDate = time.Date(curYear, curMonth, curDay, 0, 0, 0, 0, time.Local)
-					var ds = DailySummary{
-						Date:     curDate,
-						Duration: v2,
-						Title:    k,
-						Category: k2}
-
-					log.Infof(c, fmt.Sprintf("%v", ds))
-
-					key := datastore.NewIncompleteKey(c, "DailySummary", nil)
-					datastore.Put(c, key, &ds)
-				}
-			}
-
-			//iterate onto next day
-			var nextDate = time.Date(curYear, curMonth, curDay, 0, 0, 0, 0, time.Local).AddDate(0, 0, 1)
-			curYear = nextDate.Year()
-			curMonth = nextDate.Month()
-			curDay = nextDate.Day()
+		summarizeDaysBetween(r, d)
+	} else {
+		q := datastore.NewQuery("Task").Project("Start").Order("Start")
+		t := q.Run(c)
+		var first time.Time
+		_, err := t.Next(&first)
+		if err == datastore.Done || err != nil {
+			log.Infof(c, "No Tasks found")
+			return
 		}
+		summarizeDaysBetween(r, first)
 	}
 	log.Infof(c, strconv.FormatBool(err))
 	log.Infof(c, d.Format(time.RFC1123))
