@@ -3,7 +3,6 @@ package qamster
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -139,11 +138,14 @@ func ds_addChannelID(r *http.Request, id string) {
 //returns true and the date if we found an entry and false otherwise
 func ds_lastSummary(r *http.Request) (time.Time, bool) {
 	c := appengine.NewContext(r)
-	q := datastore.NewQuery("DailySummary").Project("Date").Order("Date")
+	q := datastore.NewQuery("DailySummary").Project("Date").Order("Date").Limit(1)
 	t := q.Run(c)
 	var d time.Time
 	_, err := t.Next(&d)
-	if err == datastore.Done || err != nil {
+	if err == datastore.Done {
+		return d, true
+	}
+	if err != nil {
 		return d, false
 	}
 	return d, true
@@ -155,6 +157,11 @@ func summarizeDaysBetween(r *http.Request, start time.Time) {
 
 	var curYear, curMonth, curDay = start.Date()
 	var m = make(map[string]map[string]time.Duration) //title, category, time
+
+	log.Infof(c, "start")
+	log.Infof(c, start.Format(time.RFC1123))
+	log.Infof(c, "end")
+	log.Infof(c, now.Format(time.RFC1123))
 
 	for curYear <= now.Year() && curMonth <= now.Month() && curDay < now.Day() {
 		var end = time.Date(curYear, curMonth, curDay, 0, 0, 0, 0, time.Local)
@@ -204,20 +211,23 @@ func ds_summarizeDaily(w http.ResponseWriter, r *http.Request) {
 	var err = false
 	d, err = ds_lastSummary(r)
 	if err == false {
+		log.Infof(c, "false branch")
 		summarizeDaysBetween(r, d)
 	} else {
-		q := datastore.NewQuery("Task").Project("Start").Order("Start")
-		t := q.Run(c)
-		var first time.Time
-		_, err := t.Next(&first)
-		if err == datastore.Done || err != nil {
-			log.Infof(c, "No Tasks found")
+		log.Infof(c, "true branch")
+		q := datastore.NewQuery("Tasks").Order("Start").Limit(1)
+		var tasks []Task
+		_, err := q.GetAll(c, &tasks)
+		if err != nil {
+			log.Infof(c, "No Tasks found, doing nothing")
 			return
+		} else {
+			var first = tasks[0].Start
+			summarizeDaysBetween(r, first)
 		}
-		summarizeDaysBetween(r, first)
 	}
-	log.Infof(c, strconv.FormatBool(err))
-	log.Infof(c, d.Format(time.RFC1123))
+	//log.Infof(c, strconv.FormatBool(err))
+	// log.Infof(c, d.Format(time.RFC1123))
 
 	fmt.Fprintf(w, "OK")
 }
