@@ -2,7 +2,7 @@
 
 var app = angular.module('qamsterApp', ['ngMaterial', 'ngRoute', 'chart.js'])
   // Optional configuration
-  .config(['ChartJsProvider', function (ChartJsProvider) {
+  .config(['ChartJsProvider', function(ChartJsProvider) {
     // Configure all charts
     ChartJsProvider.setOptions({
       chartColors: ['#FF5252', '#FF8A80'],
@@ -22,20 +22,19 @@ app.config(function($mdThemingProvider) {
 
 app.controller('SideNavController', function($scope, $mdSidenav, $route) {
     $scope.openMenu = function() {
-        console.log("hit");
+        console.log('hit');
         $mdSidenav('left').toggle();
     };
-    $scope.close = function () { $mdSidenav('left').close(); };
-    $scope.main = function() { window.location = "/#";           $scope.close(); };
-    $scope.history = function() { window.location = "/#history"; $scope.close(); };
-    
+    $scope.close = function() { $mdSidenav('left').close(); };
+    $scope.main = function() { window.location = '/#';           $scope.close();};
+    $scope.history = function() { window.location = '/#history'; $scope.close();};
 });
 
 app.controller('HistoryDateController', function($scope) {
     $scope.date = new Date();
     $scope.changed = function(date) {
         console.log(date);
-        $scope.$broadcast('date-changed', { d:date });
+        $scope.$broadcast('date-changed', { d: date });
     };
 });
 
@@ -46,9 +45,10 @@ app.controller('HistoryWeekController', function($scope) {
      };
     $scope.$on('date-changed', function(event, args) {
         $scope.date = args.d;
-        console.log("broadcast " + args.d);
+        console.log('broadcast ' + args.d);
     });
-    $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
+    $scope.labels = ['January', 'February', 'March', 'April', 'May',
+		     'June', 'July'];
     $scope.series = ['Series A', 'Series B'];
     $scope.data = [
         [65, 59, 80, 81, 56, 55, 40],
@@ -57,11 +57,11 @@ app.controller('HistoryWeekController', function($scope) {
 
 });
 
-app.controller('EditDialogController',function($scope, $mdDialog, title, start, end) {
+app.controller('EditDialogController', function($scope, $mdDialog, title, start, end) {
     $scope.title = title;
     $scope.start = start;
     $scope.end   = end;
-    $scope.answer = function () {
+    $scope.answer = function() {
         $mdDialog.hide();
     };
     $scope.answer = function(answer) {
@@ -69,7 +69,7 @@ app.controller('EditDialogController',function($scope, $mdDialog, title, start, 
   };
 });
 
-app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast, $mdDialog){ 
+app.controller('QamsterCtrl', function($scope, $mdSidenav, $http, $timeout, $interval, $mdToast, $mdDialog){ 
     $scope.tasks = [];
     $scope.summary = [];
 
@@ -86,10 +86,6 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
     $scope.refresh = function () {
         $http.get('/go/timetable').
             success(function(data) {
-                // for(var i=0; i<data.length; i++) {
-                //     var elem = data[i];
-                //     data[i]['duration']=$scope.computeDuration(elem['start'], elem['end']);
-                // }
                 $scope.tasks = data;
             });
         $http.get('/go/statusbar').
@@ -103,21 +99,21 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         $scope.time = '0';
         $scope.runningtimemin = 0;
         console.log('started: ' + string);
-        
+	
         $scope.task = null;
-        $scope.tracking = "";
+        $scope.tracking = '';
         $http.post('/go/addTask', string);
         $scope.showSimpleToast(string);
     };
 
     $scope.addTaskByTask = function(task) {
         var nstring = task.title;
-        if (task.category!='')
+        if (task.category != '')
             nstring = nstring + '@' + task.category;
         $scope.addTaskByString(nstring);
     };
 
-    $scope.addTask = function () {
+    $scope.addTask = function() {
         $scope.addTaskByString($scope.searchedText);
     };
 
@@ -125,9 +121,9 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         $scope.tracking = task.title;
         $scope.runningtimemin = 0;
         $scope.time = '0';
-        $scope.min_update_promise =  $interval(function() {
+        $scope.min_update_promise = $interval(function() {
             $scope.runningtimemin = $scope.runningtimemin + 1;
-            $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60*1000);
+            $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60 * 1000);
 
         $scope.updateRunning($scope, $http);
         
@@ -136,7 +132,7 @@ app.controller('QamsterCtrl',function($scope, $mdSidenav, $http, $timeout, $inte
         $scope.itemedText = null;
     };
     
-    $scope.stop = function () {
+    $scope.stop = function() {
         $http.post('/go/stop');
     };
 

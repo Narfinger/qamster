@@ -79,6 +79,9 @@ func js_searchtask(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(s)
 }
 
+func warmup(w http.ResponseWriter, r *http.Request) {
+}
+
 func init() {
 	http.HandleFunc("/go/running", js_running)
 	http.HandleFunc("/go/timetable", js_timetable)
@@ -90,6 +93,7 @@ func init() {
 	http.HandleFunc("/cron/summarizedaily", ds_summarizeDaily)
 
 	http.HandleFunc("/go/createchannel", ch_createchannel)
-	http.HandleFunc("/_ah/channel/connected/", ch_clientConnected)
-	http.HandleFunc("/_ah/channel/disconnected/", ch_clientDisconnected)
+	http.HandleFunc("/_ah/channel/connected", ch_clientConnected)
+	http.HandleFunc("/_ah/channel/disconnected", ch_clientDisconnected)
+	http.HandleFunc("/_ah/warmup", warmup)
 }
