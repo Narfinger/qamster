@@ -82,6 +82,7 @@ app.controller('QamsterCtrl', function($scope, $mdSidenav, $http, $timeout, $int
     $scope.itemedText = '';
 
     // Initialize Firebase
+    //these are old and do not work anymore
     $scope.config = {
 	apiKey: "AIzaSyDwbmzF2phnOWZr9mx0J3ytYrcyFzKmKNc",
 	authDomain: "qamster-161707.firebaseapp.com",
