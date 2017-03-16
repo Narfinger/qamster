@@ -1,5 +1,4 @@
 'use strict';
-
 var app = angular.module('qamsterApp', ['ngMaterial', 'ngRoute', 'chart.js'])
   // Optional configuration
   .config(['ChartJsProvider', function(ChartJsProvider) {
@@ -81,7 +80,20 @@ app.controller('QamsterCtrl', function($scope, $mdSidenav, $http, $timeout, $int
 
     $scope.searchedText = '';
     $scope.itemedText = '';
-    
+
+    // Initialize Firebase
+    $scope.config = {
+	apiKey: "AIzaSyDwbmzF2phnOWZr9mx0J3ytYrcyFzKmKNc",
+	authDomain: "qamster-161707.firebaseapp.com",
+	databaseURL: "https://qamster-161707.firebaseio.com",
+	storageBucket: "qamster-161707.appspot.com",
+	messagingSenderId: "276334192917"
+    };
+    firebase.initializeApp($scope.config);
+    $scope.runningRef = firebase.database().ref('running');
+    $scope.runningRef.on('value', function(snapshot) {
+	$scope.channelMsg(snapshot.val());
+    });
     
     $scope.refresh = function () {
         $http.get('/go/timetable').
@@ -104,6 +116,8 @@ app.controller('QamsterCtrl', function($scope, $mdSidenav, $http, $timeout, $int
         $scope.tracking = '';
         $http.post('/go/addTask', string);
         $scope.showSimpleToast(string);
+
+	$scope.runningRef.set({running: true, name: string});
     };
 
     $scope.addTaskByTask = function(task) {
@@ -113,27 +127,17 @@ app.controller('QamsterCtrl', function($scope, $mdSidenav, $http, $timeout, $int
         $scope.addTaskByString(nstring);
     };
 
+    $scope.channelMsg = function(obj) {
+	$scope.updateRunning($scope, $http);
+    }
+
     $scope.addTask = function() {
         $scope.addTaskByString($scope.searchedText);
-    };
-
-    $scope.addTaskFromChannel = function(task) {
-        $scope.tracking = task.title;
-        $scope.runningtimemin = 0;
-        $scope.time = '0';
-        $scope.min_update_promise = $interval(function() {
-            $scope.runningtimemin = $scope.runningtimemin + 1;
-            $scope.time = $scope.secondsToTime($scope.runningtimemin * 60);}, 60 * 1000);
-
-        $scope.updateRunning($scope, $http);
-        
-        //reset field
-        $scope.searchedText = null;
-        $scope.itemedText = null;
     };
     
     $scope.stop = function() {
         $http.post('/go/stop');
+	$scope.runningRef.set({running: false});
     };
 
     //only works for h<24
@@ -167,8 +171,7 @@ app.controller('QamsterCtrl', function($scope, $mdSidenav, $http, $timeout, $int
                 return [];
             else
                 return response.data;});
-    };
-    
+    };    
         
     $scope.showSimpleToast = function(string) {
         var s = 'Started: ' + string;
@@ -179,47 +182,7 @@ app.controller('QamsterCtrl', function($scope, $mdSidenav, $http, $timeout, $int
 
     $scope.reloadPage = function() {
         location.reload();
-        //$route.reload();
     };
-
-    $scope.createSocket = function(channel) {
-        var socket = channel.open();
-        socket.onopen = function() {console.log("opened channel");};
-        socket.onclose = function() {
-            console.log("trying to reopen channel");
-            $scope.createSocket(channel);
-        };
-        socket.onerror = function(err) { console.log("some error"); console.log(err); };
-        socket.onmessage = $scope.channelMsg;
-    };
-    
-    $scope.createChannel = function() {
-        $http.get('/go/createchannel').success(function(data) {
-            var channel = new goog.appengine.Channel(data);
-            $scope.createSocket(channel);
-        });
-    };
-
-    $scope.channelMsg = function(d) {
-        //console.log("msg: " + JSON.stringify(d.data));
-        var msg = JSON.parse(d.data);
-        console.log("message recieved");
-        console.log(msg);
-        if (msg.message=="addtask") {
-            console.log("started task from channel");
-            $scope.addTaskFromChannel(msg.task);
-        } else if (msg.message=="stoptask") {
-            console.log("stopped task from channel");
-            $interval.cancel($scope.min_update_promise);
-            $timeout(function(n) { $scope.refresh();
-                                   $scope.updateRunning($scope, $http);}, 1000);
-        }
-    };
-
-    $scope.onCloseChannel = function() {
-        console.log("channel closed");
-    };
-
 
     $scope.updateRunning = function($scope, $http) {
         $http.get('/go/running').
@@ -259,7 +222,6 @@ app.controller('QamsterCtrl', function($scope, $mdSidenav, $http, $timeout, $int
     };
 
     //connect to channel
-    $scope.createChannel();
     $scope.updateRunning($scope, $http);
     $scope.refresh();
 

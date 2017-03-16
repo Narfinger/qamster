@@ -92,8 +92,8 @@ func init() {
 
 	http.HandleFunc("/cron/summarizedaily", ds_summarizeDaily)
 
-	http.HandleFunc("/go/createchannel", ch_createchannel)
-	http.HandleFunc("/_ah/channel/connected", ch_clientConnected)
-	http.HandleFunc("/_ah/channel/disconnected", ch_clientDisconnected)
+	// http.HandleFunc("/go/createchannel", ch_createchannel)
+	// http.HandleFunc("/_ah/channel/connected", ch_clientConnected)
+	// http.HandleFunc("/_ah/channel/disconnected", ch_clientDisconnected)
 	http.HandleFunc("/_ah/warmup", warmup)
 }

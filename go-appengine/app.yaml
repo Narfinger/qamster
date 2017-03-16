@@ -9,7 +9,6 @@ automatic_scaling:
 default_expiration: "1d"
 
 inbound_services:
-- channel_presence
 - warmup
 
 handlers:
