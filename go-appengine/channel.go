@@ -13,7 +13,7 @@ type ChannelMessage struct {
 }
 
 func ch_addTask(t Task, r *http.Request) {
-	var m = ChannelMessage{Message: msgAddTask, Task: t}
+	//var m = ChannelMessage{Message: msgAddTask, Task: t}
 	// str, _ := json.Marshal(m)
 
 }

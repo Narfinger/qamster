@@ -6,17 +6,23 @@
     "babel": "^6.23.0",
     "babel-loader": "^7.0.0",
     "babel-preset-react": "^6.24.1",
-    "fixed-data-table": "^0.6.4",
+    "bootstrap": "^3.3.7",
+    "file-loader": "^0.11.1",
     "react": "^15.5.4",
+    "react-bootstrap": "^0.31.0",
+    "react-bootstrap-table": "^3.3.5",
     "react-dom": "^15.5.4",
+    "style-loader": "^0.17.0",
+    "url-loader": "^0.5.8",
     "webpack": "^2.5.1"
   },
   "devDependencies": {
     "react-scripts": "0.9.5"
   },
   "scripts": {
-      "watch": "webpack -d --watch",
-      "build" : "webpack -p"
+    "watch": "webpack -d --watch",
+    "build": "webpack -p",
+    "build-dev": "webpack -d"
   },
   "main": "js/index.js",
   "license": "MIT"
