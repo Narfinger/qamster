@@ -1,0 +1,23 @@
+{
+  "name": "go-appengine",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-loader": "^7.0.0",
+    "babel-preset-react": "^6.24.1",
+    "fixed-data-table": "^0.6.4",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
+    "webpack": "^2.5.1"
+  },
+  "devDependencies": {
+    "react-scripts": "0.9.5"
+  },
+  "scripts": {
+      "watch": "webpack -d --watch",
+      "build" : "webpack -p"
+  },
+  "main": "js/index.js",
+  "license": "MIT"
+}
