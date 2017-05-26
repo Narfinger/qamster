@@ -1,5 +1,6 @@
 'use strict';
 require('./qamster.css');
+
 import Bootstrap from 'bootstrap/dist/css/bootstrap.css';
 import { Row, Col } from 'react-bootstrap';
 import React from 'react';
@@ -17,6 +18,21 @@ class TopBar extends React.Component {
 }
 
 class MainSite extends React.Component{
+    constructor(props) {
+	super(props);
+	this.state = {
+	    times: []
+	};
+    }
+
+    componentDidMount() {
+	console.log("called");
+	var req = new Request("/go/timetable");
+	fetch("/go/timetable")
+	    .then((responseText) => responseText.json())
+	    .then((response) => this.setState(response));
+    }
+
     render() {
 	return (
 	    <Row>
@@ -27,7 +43,7 @@ class MainSite extends React.Component{
 			    <TopBar />
 			</Row>
 			<Row>
-			    <BootstrapTable data={testobj} striped={true} hover={true}>
+			    <BootstrapTable data={this.state.times} striped hover>
 				<TableHeaderColumn isKey dataField='id'>Id</TableHeaderColumn>
 				<TableHeaderColumn dataField='start'>Start</TableHeaderColumn>
 				<TableHeaderColumn dataField='end'>End</TableHeaderColumn>
