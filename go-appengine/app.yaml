@@ -15,40 +15,40 @@ handlers:
 - url: /
   static_files: templates/index.html
   upload: templates/index.html
-  login: admin
+  # login: admin
   secure: always
 
 - url: /historyview.html
   static_files: templates/historyview.html
   upload: templates/historyview.html
-  login: admin
+  # login: admin
   secure: always
 
 - url: /mainview.html
   static_files: templates/mainview.html
   upload: templates/mainview.html
-  login: admin
+  # login: admin
   secure: always
 
 - url: /editdialog.html
   static_files: templates/editdialog.html
   upload: templates/editdialog.html
-  login: admin
+  # login: admin
   secure: always
 
 - url: /public
   static_dir: public/
-  login: admin
+  # login: admin
   secure: always
 
 - url: /go/.*
   script: _go_app
-  login: admin
+  # login: admin
   secure: always
 
 - url: /cron/summarizedaily
   script: _go_app
-  login: admin
+  # login: admin
   secure: always
 
 - url: /favicon\.ico
@@ -58,16 +58,6 @@ handlers:
 - url: /img/ic_menu_24px\.svg
   static_files: img/ic_menu_24px.svg
   upload: img/ic_menu_24px.svg
-
-- url: /_ah/channel/connected/
-  login: admin
-  secure: always
-  script: _go_app
-
-- url: /_ah/channel/disconnected/
-  script: _go_app
-  login: admin
-  secure: always
 
 - url: /_ah/warmup
   script: _go_app
