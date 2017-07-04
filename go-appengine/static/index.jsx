@@ -7,24 +7,48 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 
-const testobj = [{id: "1", start:"2017-05-18T09:53:39.782589Z",end:"2017-05-18T09:53:44.269315Z",title:"",category:""},
-		 {id: "2", start:"2017-05-18T09:53:44.274074Z",end:"2017-05-18T09:53:53.625158Z",title:"",category:""}];
-
 class InputBar extends React.Component {
+    constructor(props) {
+	super(props);
+	this.state = {value: []};
+	this.handleOnChange = this.handleOnChange.bind(this);
+	this.addTask = this.addTask.bind(this);
+    }
+
+    
+    handleOnChange(e) {
+	this.setState({
+	    value: e.target.value
+	});
+    }
+    
+    addTask() {
+	fetch("/go/addTask", {
+	    method: "post",
+	    body: this.state.value,
+	});	
+    }
+
+    stop() {
+	fetch("/go/stop", {
+	    method: "post",
+	});
+    }
+    
     render() {
 	return (
 	    <div>
 		<Col md={1}></Col>
 		<Col md={4}>
-		    <FormControl></FormControl>
+		    <FormControl type="text" value={this.state.value} onChange={this.handleOnChange}></FormControl>
 		</Col>
 		<Col md={1}>
-		    <Button bsStyle="success">
+		    <Button bsStyle="success" onClick={this.addTask}>
 			Add Task
 		    </Button>
 		</Col><Col md={1}></Col>
 		<Col md={1}>
-    		    <Button bsStyle="danger">
+    		    <Button bsStyle="danger" onClick={this.stop}>
 			Stop
 		    </Button>
 		</Col>
@@ -37,7 +61,7 @@ class TopBar extends React.Component {
 	return (
 	    <div>
 		<Row>
-		    <h1>TopBar</h1>
+		    <h2>TopBar with icon</h2>
 		</Row>
 		<Row>
 		    <InputBar />
@@ -68,7 +92,7 @@ class MainSite extends React.Component{
     }
 
     componentDidMount() {
-	var req = new Request("/go/timetable");
+//	var req = new Request("/go/timetable");
 	fetch("/go/timetable")
 	    .then((responseText) => responseText.json())
 	    .then((response) => this.setState({times: response.map(prepareTime)}));
