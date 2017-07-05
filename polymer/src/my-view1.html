@@ -1,0 +1,60 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="bower_components/paper-datatable-api/dist/paper-datatable-api-column.html">
+<link rel="import" href="bower_components/paper-datatable-api/dist/paper-datatable-api.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-view1">
+  <template id="app">
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+
+    <div class="card">
+	<h1>Main</h1>
+	<paper-datatable data="{{data}}">
+	    <paper-datatable-column header="Start" property="start" type="String">
+	    </paper-datatable-column>
+
+	    <paper-datatable-column header="End" property="end" type="String">
+	    </paper-datatable-column>
+
+	    <paper-datatable-column header="Title" property="title" type="String">
+	    </paper-datatable-column>
+
+	    <paper-datatable-column header="Category" property="category" type="String">
+	    </paper-datatable-column>
+	</paper-datatable>
+
+
+    </div>
+  </template>
+
+  <script>
+   var app = document.querySelector('#app');
+   var testitems = [];
+   for (var i = 0; i < 100; i++) {
+       testitems.push({start: 'First Name ' + i, end: 'Last Name ' + i, title:'title', category:"category"});
+   }
+   app.data = testitems;
+   
+   class MyView1 extends Polymer.Element {
+      static get is() { return 'my-view1'; }
+    }
+
+    window.customElements.define(MyView1.is, MyView1);
+  </script>
+</dom-module>
