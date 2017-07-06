@@ -22,6 +22,7 @@ static PASSWORD: &'static str = "test";
 
 enum Endpoint {
     List,
+    Status,
     Start(Task),
     Stop,
 }
@@ -40,8 +41,8 @@ impl std::fmt::Display for Task {
         let hours = dur.num_hours();
         let min = dur.num_minutes() % 60;
         let duration_string = match hours {
+            0 => format!("  {:02} min", min),
             s => format!("{}:{:02} min", s, min),
-            0 => format!("{:02} min", min) 
         };
         
         write!(f, "{1} {0} {2} {0} {3: ^20} {0} {4: ^20} {0} {5}",
@@ -62,9 +63,12 @@ static MOCKLIST: &'static str = "
         {\"start\": \"2017-07-06T14:00:38+00:00\", \"end\": \"2017-07-06T15:04:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"}
     ]";
 
+static MOCKSTATUS: &'static str = "{\"category1\": \"1:04\",\"category2\": \"4\", \"category3\": \"34\" }";
+
 fn mock_query_url(endpoint: Endpoint) -> Option<Vec<Task>> {
     match endpoint {
-        Endpoint::List => Some(serde_json::from_str(MOCKLIST).unwrap()),
+        Endpoint::List   => Some(serde_json::from_str(MOCKLIST).unwrap()),
+        Endpoint::Status => Some(serde_json::from_str(MOCKSTATUS).unwrap()),
         Endpoint::Start(_) | Endpoint::Stop => None,
     }
 }
@@ -73,6 +77,7 @@ fn query_url(endpoint: Endpoint) -> Option<Vec<Task>> {
     let client = reqwest::Client::new().expect("Could not create client");
     let url = match endpoint {
         Endpoint::List  => "/timetable/?",
+        Endpoint::Status => "/status/?",
         Endpoint::Start(ref task) => "/addTask/?",
         Endpoint::Stop  => "/stop/?"
     }.to_owned() + "password=" + PASSWORD;
@@ -87,6 +92,8 @@ fn print_list() {
     for (i,item) in mock_query_url(Endpoint::List).expect("No list returned").into_iter().enumerate() {
         println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
     }
+    let status = mock_query_url(Endpoint::Status);
+    println!("{:?}", status);
 }
 
 fn main() {
