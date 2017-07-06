@@ -1,3 +1,4 @@
+
 [package]
 name = "qamster"
 version = "0.1.0"
@@ -6,7 +7,7 @@ authors = ["Narfinger <Narfinger@users.noreply.github.com>"]
 [dependencies]
 ansi_term = "0.9"         # Library for ANSI terminal colours and styles (bold, underline)
 clippy = {version = "0.0", optional = true}
-chrono = "0.4"               # Date and time library for Rust
+chrono = {version = "0.4", features = ["serde"]}               # Date and time library for Rust
 clap = "2.25"               # A simple to use, efficient, and full featured  Command Line Argument Parser
 reqwest = "0.6"            # higher level HTTP client library
 serde = "1.0"                       # A generic serialization/deserialization framework
