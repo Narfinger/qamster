@@ -11,20 +11,19 @@ static PASSWORD: &'static str = "test";
 
 enum Endpoint {
     List,
-    Start,
+    Start(String),
     Stop,
 }
 
-fn query_url(endpoint: Endpoint, data: Option<String>) {
+fn query_url(endpoint: Endpoint) {
     let client = reqwest::Client::new().expect("Could not create client");
     let url = match endpoint {
-        Endpoint::List  => "/timetable/",
-        Endpoint::Start => "/addTask/",
-        Endpoint::Stop  => "/stop/"
-    };
-    let complete_url = SITE.to_owned() + url;
-    let res = client.post(complete_url.as_str())
-        .body(PASSWORD)
+        Endpoint::List  => "/timetable/?",
+        Endpoint::Start(value) => "/addTask/?",
+        Endpoint::Stop  => "/stop/?"
+    }.to_owned() + "password=" + PASSWORD;
+
+    let res = client.get(url.as_str())
         .send();
 }
 
