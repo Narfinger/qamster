@@ -23,6 +23,7 @@ static PASSWORD: &'static str = "test";
 enum Endpoint {
     List,
     Status,
+    Total,
     Start(Task),
     Stop,
 }
@@ -39,8 +40,8 @@ fn format_duration(dur: &chrono::Duration) -> String {
     let hours = dur.num_hours();
     let min = dur.num_minutes() % 60;
     match hours {
-        0 => format!("  {:02} min", min),
-        s => format!("{}:{:02} min", s, min),
+        0 => format!("   {:02} min", min),
+        s => format!(" {}:{:02} min", s, min),
     }
 }
 
@@ -85,6 +86,8 @@ static MOCKSTATUS: &'static str = "[
         { \"category\": \"Category 4\", \"duration\": 154}
 ]";
 
+static MOCKTOTAL: &'static str = "[{\"category\": \"Total\", \"duration\": 102948}]";
+
 #[derive(Debug)]
 enum QueryResult {
     List(Vec<Task>),
@@ -96,6 +99,7 @@ fn mock_query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
     match endpoint {
         Endpoint::List   => Ok(QueryResult::List(serde_json::from_str(MOCKLIST).unwrap())),
         Endpoint::Status => Ok(QueryResult::Status(serde_json::from_str(MOCKSTATUS).unwrap())),
+        Endpoint::Total  => Ok(QueryResult::Status(serde_json::from_str(MOCKTOTAL).unwrap())),
         Endpoint::Start(_) | Endpoint::Stop => Ok(QueryResult::None),
     }
 }
@@ -127,11 +131,15 @@ fn print_list() {
                 print!("{}", item);
                 print!(" | ");
             }
+            if let QueryResult::Status(s) = mock_query_url(Endpoint::Total).expect("No total found") {
+                print!("{}", s[0]);
+            }
         }
         
     } else {
         println!{"{}", Red.paint("Error in finding List")};
     }
+    println!("\nThis does not print percentage");
 }
 
 fn main() {
