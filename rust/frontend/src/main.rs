@@ -36,7 +36,21 @@ struct Task {
 
 impl std::fmt::Display for Task {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{} | {} | {} | {}", self.start, self.end, self.title, self.category)
+        let dur = self.end.signed_duration_since(self.start);
+        let hours = dur.num_hours();
+        let min = dur.num_minutes() % 60;
+        let duration_string = match hours {
+            s => format!("{}:{:02} min", s, min),
+            0 => format!("{:02} min", min) 
+        };
+        
+        write!(f, "{1} {0} {2} {0} {3: ^20} {0} {4: ^20} {0} {5}",
+               Purple.paint("|"),
+               self.start.format("%H:%M"),
+               self.end.format("%H:%M"),
+               self.title,
+               self.category,
+               duration_string)
     }
 }
 
@@ -44,7 +58,8 @@ static MOCKLIST: &'static str = "
     [
         {\"start\": \"2017-07-06T10:55:38+00:00\", \"end\": \"2017-07-06T11:05:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"},
         {\"start\": \"2017-07-06T11:05:38+00:00\", \"end\": \"2017-07-06T11:33:38+00:00\", \"title\": \"title2\", \"category\": \"category2\"},
-        {\"start\": \"2017-07-06T13:55:38+00:00\", \"end\": \"2017-07-06T13:59:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"}
+        {\"start\": \"2017-07-06T13:55:38+00:00\", \"end\": \"2017-07-06T13:59:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"},
+        {\"start\": \"2017-07-06T14:00:38+00:00\", \"end\": \"2017-07-06T15:04:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"}
     ]";
 
 fn mock_query_url(endpoint: Endpoint) -> Option<Vec<Task>> {
@@ -70,7 +85,7 @@ fn query_url(endpoint: Endpoint) -> Option<Vec<Task>> {
 
 fn print_list() {
     for (i,item) in mock_query_url(Endpoint::List).expect("No list returned").into_iter().enumerate() {
-        println!{"{} | {}", i+1, item};
+        println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
     }
 }
 
@@ -90,7 +105,7 @@ fn main() {
              .index(1))
         .get_matches();
 
-    if (matches.is_present("fuzzy") && matches.is_present("task")) {
+    if matches.is_present("fuzzy") && matches.is_present("task") {
         println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
     } else if matches.is_present("stop") {
         println!("{}", Purple.paint("Not yet implemented (task stop)."));
