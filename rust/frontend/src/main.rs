@@ -1,6 +1,14 @@
+#![cfg_attr(feature="clippy", feature(plugin))]
+#![cfg_attr(feature="clippy", plugin(clippy))]
 extern crate ansi_term;
+extern crate chrono;
 extern crate clap;
 extern crate reqwest;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
+
 
 use ansi_term::Colour::Purple;
 use clap::{App, Arg};
@@ -11,20 +19,34 @@ static PASSWORD: &'static str = "test";
 
 enum Endpoint {
     List,
-    Start(String),
+    Start(Task),
     Stop,
 }
 
-fn query_url(endpoint: Endpoint) {
+struct Task {
+    start: String,
+    end: String,
+}
+
+fn mock_query_url(endpoint: &Endpoint) -> Option<Vec<Task>> {
+    match *endpoint {
+        Endpoint::List => None,
+        Endpoint::Start(_) | Endpoint::Stop => None,
+    }
+}
+
+fn query_url(endpoint: &Endpoint) -> Option<Vec<Task>> {
     let client = reqwest::Client::new().expect("Could not create client");
-    let url = match endpoint {
+    let url = match *endpoint {
         Endpoint::List  => "/timetable/?",
-        Endpoint::Start(value) => "/addTask/?",
+        Endpoint::Start(ref task) => "/addTask/?",
         Endpoint::Stop  => "/stop/?"
     }.to_owned() + "password=" + PASSWORD;
 
     let res = client.get(url.as_str())
         .send();
+
+    None
 }
 
 fn main() {
