@@ -11,7 +11,7 @@ extern crate serde_derive;
 extern crate serde_json;
 
 
-use ansi_term::Colour::{Red,Purple};
+use ansi_term::Colour::{Red,Purple,Green};
 use chrono::DateTime;
 use chrono::offset::{Local,Utc};
 use clap::{App, Arg};
@@ -35,23 +35,25 @@ struct Task {
     category: String,
 }
 
+fn format_duration(dur: &chrono::Duration) -> String {
+    let hours = dur.num_hours();
+    let min = dur.num_minutes() % 60;
+    match hours {
+        0 => format!("  {:02} min", min),
+        s => format!("{}:{:02} min", s, min),
+    }
+}
+
 impl std::fmt::Display for Task {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let dur = self.end.signed_duration_since(self.start);
-        let hours = dur.num_hours();
-        let min = dur.num_minutes() % 60;
-        let duration_string = match hours {
-            0 => format!("  {:02} min", min),
-            s => format!("{}:{:02} min", s, min),
-        };
-        
         write!(f, "{1} {0} {2} {0} {3: ^20} {0} {4: ^20} {0} {5}",
                Purple.paint("|"),
                self.start.format("%H:%M"),
                self.end.format("%H:%M"),
                self.title,
                self.category,
-               duration_string)
+               format_duration(&dur))
     }
 }
 
@@ -59,6 +61,13 @@ impl std::fmt::Display for Task {
 struct Status {
     category: String,
     duration: i64,
+}
+
+impl std::fmt::Display for Status {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let dur = chrono::Duration::seconds(self.duration);
+        write!(f, "{}:{}", self.category, format_duration(&dur))
+    }
 }
 
 static MOCKLIST: &'static str = "
@@ -112,8 +121,14 @@ fn print_list() {
         for (i,item) in s.into_iter().enumerate() {
             println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
         }
-        let status = mock_query_url(Endpoint::Status);
-        println!("{:?}", status);
+        println!("{}", Green.paint("---------------------------------------------------------------------------"));
+        if let QueryResult::Status(s) = mock_query_url(Endpoint::Status).expect("No status found") {
+            for item in s {
+                print!("{}", item);
+                print!(" | ");
+            }
+        }
+        
     } else {
         println!{"{}", Red.paint("Error in finding List")};
     }
