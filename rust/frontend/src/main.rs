@@ -11,7 +11,7 @@ extern crate serde_derive;
 extern crate serde_json;
 
 
-use ansi_term::Colour::Purple;
+use ansi_term::Colour::{Red,Purple};
 use chrono::DateTime;
 use chrono::offset::{Local,Utc};
 use clap::{App, Arg};
@@ -55,6 +55,12 @@ impl std::fmt::Display for Task {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct Status {
+    category: String,
+    duration: i64,
+}
+
 static MOCKLIST: &'static str = "
     [
         {\"start\": \"2017-07-06T10:55:38+00:00\", \"end\": \"2017-07-06T11:05:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"},
@@ -63,37 +69,54 @@ static MOCKLIST: &'static str = "
         {\"start\": \"2017-07-06T14:00:38+00:00\", \"end\": \"2017-07-06T15:04:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"}
     ]";
 
-static MOCKSTATUS: &'static str = "{\"category1\": \"1:04\",\"category2\": \"4\", \"category3\": \"34\" }";
+static MOCKSTATUS: &'static str = "[
+        { \"category\": \"Category 1\", \"duration\": 120},
+        { \"category\": \"Category 2\", \"duration\": 4},
+        { \"category\": \"Category 3\", \"duration\": 34},
+        { \"category\": \"Category 4\", \"duration\": 154}
+]";
 
-fn mock_query_url(endpoint: Endpoint) -> Option<Vec<Task>> {
+#[derive(Debug)]
+enum QueryResult {
+    List(Vec<Task>),
+    Status(Vec<Status>),
+    None,
+}
+
+fn mock_query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
     match endpoint {
-        Endpoint::List   => Some(serde_json::from_str(MOCKLIST).unwrap()),
-        Endpoint::Status => Some(serde_json::from_str(MOCKSTATUS).unwrap()),
-        Endpoint::Start(_) | Endpoint::Stop => None,
+        Endpoint::List   => Ok(QueryResult::List(serde_json::from_str(MOCKLIST).unwrap())),
+        Endpoint::Status => Ok(QueryResult::Status(serde_json::from_str(MOCKSTATUS).unwrap())),
+        Endpoint::Start(_) | Endpoint::Stop => Ok(QueryResult::None),
     }
 }
 
-fn query_url(endpoint: Endpoint) -> Option<Vec<Task>> {
-    let client = reqwest::Client::new().expect("Could not create client");
-    let url = match endpoint {
-        Endpoint::List  => "/timetable/?",
-        Endpoint::Status => "/status/?",
-        Endpoint::Start(ref task) => "/addTask/?",
-        Endpoint::Stop  => "/stop/?"
-    }.to_owned() + "password=" + PASSWORD;
+fn query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
+    // let client = reqwest::Client::new().expect("Could not create client");
+    // let url = match endpoint {
+    //     Endpoint::List  => "/timetable/?",
+    //     Endpoint::Status => "/status/?",
+    //     Endpoint::Start(ref task) => "/addTask/?",
+    //     Endpoint::Stop  => "/stop/?"
+    // }.to_owned() + "password=" + PASSWORD;
 
-    let res = client.get(url.as_str())
-        .send();
+    // let res = client.get(url.as_str())
+    //     .send();
 
-    None
+    Ok(QueryResult::None)
 }
 
 fn print_list() {
-    for (i,item) in mock_query_url(Endpoint::List).expect("No list returned").into_iter().enumerate() {
-        println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
+    if let QueryResult::List(s) = mock_query_url(Endpoint::List).expect("No list returned") {
+
+        for (i,item) in s.into_iter().enumerate() {
+            println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
+        }
+        let status = mock_query_url(Endpoint::Status);
+        println!("{:?}", status);
+    } else {
+        println!{"{}", Red.paint("Error in finding List")};
     }
-    let status = mock_query_url(Endpoint::Status);
-    println!("{:?}", status);
 }
 
 fn main() {
