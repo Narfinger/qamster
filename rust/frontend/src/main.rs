@@ -9,7 +9,6 @@ extern crate reqwest;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-#[macro_use]
 extern crate serde_json;
 
 
@@ -23,6 +22,7 @@ use futures_cpupool::CpuPool;
 //these are temporary
 static SITE: &'static str = "https://localhost:8000";
 static PASSWORD: &'static str = "test";
+const DEBUG: bool = true;
 
 enum Endpoint {
     List,
@@ -99,35 +99,49 @@ enum QueryResult {
     None,
 }
 
-fn mock_query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
-    match endpoint {
-        Endpoint::List   => Ok(QueryResult::List(serde_json::from_str(MOCKLIST).unwrap())),
-        Endpoint::Status => Ok(QueryResult::Status(serde_json::from_str(MOCKSTATUS).unwrap())),
-        Endpoint::Total  => Ok(QueryResult::Status(serde_json::from_str(MOCKTOTAL).unwrap())),
-        Endpoint::Start(_,_) | Endpoint::Stop => Ok(QueryResult::None),
+fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
+    if DEBUG {
+        match *endpoint {
+            Endpoint::List   => Ok(QueryResult::List(serde_json::from_str(MOCKLIST).unwrap())),
+            Endpoint::Status => Ok(QueryResult::Status(serde_json::from_str(MOCKSTATUS).unwrap())),
+            Endpoint::Total  => Ok(QueryResult::Status(serde_json::from_str(MOCKTOTAL).unwrap())),
+            Endpoint::Start(_,_) | Endpoint::Stop => Ok(QueryResult::None),
+        }
+    } else {
+        
+        let client = reqwest::Client::new().expect("Could not create client");
+        let url = match *endpoint {
+            Endpoint::List  => "/timetable/?".to_owned(),
+            Endpoint::Status => "/status/?".to_owned(),
+            Endpoint::Total => "/total/?".to_owned(),
+            Endpoint::Start(ref title, ref category) =>
+                match *category {
+                    Some(ref s) => format!("/addTask/?title={}&category={}&", title, s),
+                    None    => format!("/addTask/?title={}&", title.clone()),
+                },
+            Endpoint::Stop  => "/stop/?".to_owned(),
+        } + "password=" + PASSWORD;
+        
+        let res = client.get(url.as_str())
+        .send();
+        
+        //return the correct thing
+        match *endpoint {
+            Endpoint::List       => res.and_then(|mut s| s.json()).map(|s| QueryResult::List(s)),
+            Endpoint::Status     => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(s)),
+            Endpoint::Total      => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(vec!(s))),
+            Endpoint::Start(_,_) => res                           .map(|_| QueryResult::None),
+            Endpoint::Stop       => res                           .map(|_| QueryResult::None),
+        }
     }
 }
 
-fn query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
-    // let client = reqwest::Client::new().expect("Could not create client");
-    // let url = match endpoint {
-    //     Endpoint::List  => "/timetable/?",
-    //     Endpoint::Status => "/status/?",
-    //     Endpoint::Start(ref task) => "/addTask/?",
-    //     Endpoint::Stop  => "/stop/?"
-    // }.to_owned() + "password=" + PASSWORD;
-
-    // let res = client.get(url.as_str())
-    //     .send();
-
-    Ok(QueryResult::None)
-}
 /// Starting a task
 fn start_task(s: &str) {
     let mut iterator = s.splitn(2,'@');
     let task = String::from(iterator.next().expect("No Task specified, empty string?"));
     let category = iterator.next().map(String::from);
-    mock_query_url(Endpoint::Start(task.clone(),category.clone()));
+    query_url(&Endpoint::Start(task.clone(),category.clone())).expect("Error in starting task");
     if let Some(s) = category {
         println!("Starting: {}@{}", Green.paint(task), Blue.paint(s));
     } else {
@@ -138,20 +152,20 @@ fn start_task(s: &str) {
 /// Printing the list
 fn print_list() {
     let pool = CpuPool::new_num_cpus();
-    let list_future = pool.spawn_fn(  || {mock_query_url(Endpoint::List)})
+    let list_future = pool.spawn_fn(  || {query_url(&Endpoint::List)})
         .map(|s| {
             match s {
                 QueryResult::List(v) => Some(v),
                 _ => None
             }});
 
-    let status_future = pool.spawn_fn( || {mock_query_url(Endpoint::Status)})
+    let status_future = pool.spawn_fn( || {query_url(&Endpoint::Status)})
         .map(|s| {
             match s {
                 QueryResult::Status(v) => Some(v),
                 _ => None
             }});
-    let total_future  = pool.spawn_fn( || {mock_query_url(Endpoint::Total)})
+    let total_future  = pool.spawn_fn( || {query_url(&Endpoint::Total)})
         .map(|s| {
             match s {
                 QueryResult::Status(v) => Some(v),
@@ -194,7 +208,7 @@ fn main() {
     if matches.is_present("fuzzy") && matches.is_present("task") {
         println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
     } else if matches.is_present("stop") {
-        mock_query_url(Endpoint::Stop);
+        query_url(&Endpoint::Stop).expect("Error in stop");
         println!("{}", Purple.paint("Stopping"));
         println!("{}", Green.paint("----------------------------------------------------------------------------"));
     } else if let Some(s) = matches.value_of("task") {
