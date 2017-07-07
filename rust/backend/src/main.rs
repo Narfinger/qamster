@@ -24,28 +24,41 @@ pub mod schema;
 
 struct DB(Pool<ConnectionManager<SqliteConnection>>);
 
+#[derive(Serializable,Queryable)]
+struct Task {
+    start: DateTime<Utc>,
+    end: DateTime<Utc>,
+    title: String,
+    category: String,
+}
+
+
 #[get("/list/")]
-fn list() -> JSON {
-    
+fn list(db: State<DB>) -> JSON {
+    use schema::task::dsl::*;
+    let dbconn - db.get().expect("DB Pool problem");
+    tasks.order(start)
+        .load(dbconn.deref())
+        .unwrap()
 }
 
 #[get("/status/")]
-fn status() -> JSON {
+fn status(db: State<DB>) -> JSON {
 
 }
 
 #[get("/total/")]
-fn total() -> JSON {
+fn total(db: State<DB>) -> JSON {
 
 }
 
 #[get("/start?<task>")]
-fn start(task: Task) {
+fn start(db: State<DB>, task: Task) {
     
 }
 
 #[get("/stop/")]
-fn stop() {
+fn stop(db: State<DB>) {
     
 }
 

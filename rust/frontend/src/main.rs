@@ -25,11 +25,11 @@ static PASSWORD: &'static str = include_str!("../../password.txt");
 const DEBUG: bool = true;
 
 enum Endpoint {
-    List,
-    Status,
-    Total,
-    Start(String,Option<String>),
-    Stop,
+    List, // /list/
+    Status, // /status/
+    Total,  // /total/
+    Start(String,Option<String>), // /start/
+    Stop,   // /stop/
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -111,13 +111,13 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
         
         let client = reqwest::Client::new().expect("Could not create client");
         let url = match *endpoint {
-            Endpoint::List  => "/timetable/?".to_owned(),
+            Endpoint::List  => "/list/?".to_owned(),
             Endpoint::Status => "/status/?".to_owned(),
             Endpoint::Total => "/total/?".to_owned(),
             Endpoint::Start(ref title, ref category) =>
                 match *category {
-                    Some(ref s) => format!("/addTask/?title={}&category={}&", title, s),
-                    None    => format!("/addTask/?title={}&", title.clone()),
+                    Some(ref s) => format!("/start/?title={}&category={}&", title, s),
+                    None    => format!("/start/?title={}&", title.clone()),
                 },
             Endpoint::Stop  => "/stop/?".to_owned(),
         } + "password=" + PASSWORD;
