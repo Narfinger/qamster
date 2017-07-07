@@ -5,7 +5,6 @@ authors = ["Narfinger <Narfinger@users.noreply.github.com>"]
 
 [dependencies]
 chrono = {version = "0.4", features = ["serde"]}
-chrono-tz = "0.4"
 clippy = {version = "0.0", optional = true}
 serde = "1.0"
 serde_json = "1.0"
