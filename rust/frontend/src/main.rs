@@ -15,7 +15,7 @@ extern crate serde_json;
 
 use ansi_term::Colour::{Blue,Red,Purple,Green};
 use chrono::DateTime;
-use chrono::offset::{Local,Utc};
+use chrono::offset::Utc;
 use clap::{App, Arg};
 use futures::Future;
 use futures_cpupool::CpuPool;
@@ -124,9 +124,9 @@ fn query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
 }
 /// Starting a task
 fn start_task(s: &str) {
-    let mut iterator = s.splitn(2,"@");
+    let mut iterator = s.splitn(2,'@');
     let task = String::from(iterator.next().expect("No Task specified, empty string?"));
-    let category = iterator.next().map(|s| String::from(s));
+    let category = iterator.next().map(String::from);
     mock_query_url(Endpoint::Start(task.clone(),category.clone()));
     if let Some(s) = category {
         println!("Starting: {}@{}", Green.paint(task), Blue.paint(s));
@@ -171,7 +171,7 @@ fn print_list() {
         }
     }
     if let Ok(Some(s)) = total_future.wait() { 
-        print!("{}\n", s[0]);
+        println!("{}", s[0]);
     }
 }
 
@@ -200,6 +200,9 @@ fn main() {
     } else if let Some(s) = matches.value_of("task") {
         start_task(s);
         println!("{}", Green.paint("----------------------------------------------------------------------------"));
+    } else if matches.is_present("fuzzy") {
+        println!("{}", Red.paint("Need task to do a fuzzy add."));
+        return
     }
     print_list();
 }
