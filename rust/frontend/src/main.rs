@@ -3,6 +3,8 @@
 extern crate ansi_term;
 extern crate chrono;
 extern crate clap;
+extern crate futures;
+extern crate futures_cpupool;
 extern crate reqwest;
 extern crate serde;
 #[macro_use]
@@ -15,6 +17,8 @@ use ansi_term::Colour::{Red,Purple,Green};
 use chrono::DateTime;
 use chrono::offset::{Local,Utc};
 use clap::{App, Arg};
+use futures::Future;
+use futures_cpupool::CpuPool;
 
 //these are temporary
 static SITE: &'static str = "https://localhost:8000";
@@ -120,26 +124,42 @@ fn query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
 }
 
 fn print_list() {
-    if let QueryResult::List(s) = mock_query_url(Endpoint::List).expect("No list returned") {
+    let pool = CpuPool::new_num_cpus();
+    let list_future = pool.spawn_fn(  || {mock_query_url(Endpoint::List)})
+        .map(|s| {
+            match s {
+                QueryResult::List(v) => Some(v),
+                _ => None
+            }});
 
+    let status_future = pool.spawn_fn( || {mock_query_url(Endpoint::Status)})
+        .map(|s| {
+            match s {
+                QueryResult::Status(v) => Some(v),
+                _ => None
+            }});
+    let total_future  = pool.spawn_fn( || {mock_query_url(Endpoint::Total)})
+        .map(|s| {
+            match s {
+                QueryResult::Status(v) => Some(v),
+                _ => None
+            }});
+
+    if let Ok(Some(s)) = list_future.wait() {
         for (i,item) in s.into_iter().enumerate() {
             println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
         }
         println!("{}", Green.paint("---------------------------------------------------------------------------"));
-        if let QueryResult::Status(s) = mock_query_url(Endpoint::Status).expect("No status found") {
-            for item in s {
-                print!("{}", item);
-                print!(" | ");
-            }
-            if let QueryResult::Status(s) = mock_query_url(Endpoint::Total).expect("No total found") {
-                print!("{}", s[0]);
-            }
-        }
-        
-    } else {
-        println!{"{}", Red.paint("Error in finding List")};
     }
-    println!("\nThis does not print percentage");
+    if let Ok(Some(s)) = status_future.wait() {
+        for item in s {
+            print!("{}", item);
+            print!(" | ");
+        }
+    }
+    if let Ok(Some(s)) = total_future.wait() { 
+        print!("{}\n", s[0]);
+    }
 }
 
 fn main() {
