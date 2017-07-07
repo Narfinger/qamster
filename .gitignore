@@ -30,4 +30,7 @@ Makefile*
 #QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
+
+
 /go-appengine/index.yaml
+/rust/password.txt

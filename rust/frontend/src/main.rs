@@ -21,7 +21,7 @@ use futures_cpupool::CpuPool;
 
 //these are temporary
 static SITE: &'static str = "https://localhost:8000";
-static PASSWORD: &'static str = "test";
+static PASSWORD: &'static str = include_str!("../../password.txt");
 const DEBUG: bool = true;
 
 enum Endpoint {
