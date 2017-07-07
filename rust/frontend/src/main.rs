@@ -13,7 +13,7 @@ extern crate serde_derive;
 extern crate serde_json;
 
 
-use ansi_term::Colour::{Red,Purple,Green};
+use ansi_term::Colour::{Blue,Red,Purple,Green};
 use chrono::DateTime;
 use chrono::offset::{Local,Utc};
 use clap::{App, Arg};
@@ -28,7 +28,7 @@ enum Endpoint {
     List,
     Status,
     Total,
-    Start(Task),
+    Start(String,Option<String>),
     Stop,
 }
 
@@ -104,7 +104,7 @@ fn mock_query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
         Endpoint::List   => Ok(QueryResult::List(serde_json::from_str(MOCKLIST).unwrap())),
         Endpoint::Status => Ok(QueryResult::Status(serde_json::from_str(MOCKSTATUS).unwrap())),
         Endpoint::Total  => Ok(QueryResult::Status(serde_json::from_str(MOCKTOTAL).unwrap())),
-        Endpoint::Start(_) | Endpoint::Stop => Ok(QueryResult::None),
+        Endpoint::Start(_,_) | Endpoint::Stop => Ok(QueryResult::None),
     }
 }
 
@@ -122,7 +122,20 @@ fn query_url(endpoint: Endpoint) -> Result<QueryResult, &'static str> {
 
     Ok(QueryResult::None)
 }
+/// Starting a task
+fn start_task(s: &str) {
+    let mut iterator = s.splitn(2,"@");
+    let task = String::from(iterator.next().expect("No Task specified, empty string?"));
+    let category = iterator.next().map(|s| String::from(s));
+    mock_query_url(Endpoint::Start(task.clone(),category.clone()));
+    if let Some(s) = category {
+        println!("Starting: {}@{}", Green.paint(task), Blue.paint(s));
+    } else {
+        println!("Starting: {}", Green.paint(task));
+    }
+}
 
+/// Printing the list
 fn print_list() {
     let pool = CpuPool::new_num_cpus();
     let list_future = pool.spawn_fn(  || {mock_query_url(Endpoint::List)})
@@ -181,11 +194,12 @@ fn main() {
     if matches.is_present("fuzzy") && matches.is_present("task") {
         println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
     } else if matches.is_present("stop") {
-        println!("{}", Purple.paint("Not yet implemented (task stop)."));
-    } else if matches.is_present("task") {
-        println!("{}", Purple.paint("Not yet implemented (normal task start)."));
-    } else {
-        print_list();
+        mock_query_url(Endpoint::Stop);
+        println!("{}", Purple.paint("Stopping"));
+        println!("{}", Green.paint("----------------------------------------------------------------------------"));
+    } else if let Some(s) = matches.value_of("task") {
+        start_task(s);
+        println!("{}", Green.paint("----------------------------------------------------------------------------"));
     }
-
+    print_list();
 }
