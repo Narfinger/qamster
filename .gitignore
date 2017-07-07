@@ -34,3 +34,4 @@ Makefile*
 
 /go-appengine/index.yaml
 /rust/password.txt
+/rust/frontend_url.txt
