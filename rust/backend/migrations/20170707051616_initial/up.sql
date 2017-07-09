@@ -5,3 +5,10 @@ CREATE TABLE task (
  title VARCHAR NOT NULL,
  category VARCHAR NOT NULL
 );
+
+CREATE TABLE running_task (
+ id Integer PRIMARY KEY NOT NULL,
+ start DATETIME NOT NULL,
+ title VARCHAR NOT NULL,
+ category VARCHAR NOT NULL
+);

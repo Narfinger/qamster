@@ -1,7 +1,7 @@
 #![cfg_attr(feature="clippy", feature(plugin))]
 #![cfg_attr(feature="clippy", plugin(clippy))]
 #![cfg_attr(feature="clippy", allow(needless_pass_by_value))] //rocket state uses this
-#![feature(plugin,custom_derive)]
+#![feature(plugin,custom_derive,custom_attribute)]
 #![plugin(rocket_codegen)]
 extern crate chrono;
 #[macro_use] extern crate diesel;
@@ -31,12 +31,23 @@ use rocket::http::ContentType;
 use rocket_contrib::JSON;
 
 pub mod schema;
+use schema::{task,running_task};
 
 struct DB(Pool<ConnectionManager<SqliteConnection>>);
 
 #[derive(Serialize,Deserialize,Queryable)]
+#[table_name="task"]
 struct Task {
     id: i32,
+    start: chrono::NaiveDateTime,
+    end: chrono::NaiveDateTime,
+    title: String,
+    category: String,
+}
+
+#[derive(Insertable)]
+#[table_name="task"]
+struct NewTask {
     start: chrono::NaiveDateTime,
     end: chrono::NaiveDateTime,
     title: String,
@@ -49,7 +60,24 @@ struct TaskForm {
     category: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize,Debug, Queryable)]
+#[table_name="running_task"]
+struct RunningTask {
+    id: i32,
+    start: chrono::NaiveDateTime,
+    title: String,
+    category: String,
+}
+
+#[derive(Debug, Insertable)]
+#[table_name="running_task"]
+struct NewRunningTask {
+    start: chrono::NaiveDateTime,
+    title: String,
+    category: String,
+}
+
+#[derive(Serialize,Deserialize,Debug)]
 struct Status {
     category: String,
     duration: i64,
@@ -77,7 +105,26 @@ fn total(db: State<DB>) -> JSON<Vec<Status>> {
 
 #[get("/start?<task>")]
 fn start(db: State<DB>, task: TaskForm) {
+    use schema::running_task::dsl::*;
+    use diesel::SelectDsl;
+    use diesel::select;
+    use diesel::expression::dsl::exists;
+    use chrono::prelude::*;
     
+    let dbconn = db.0.get().expect("DB Pool Problem");
+    let task_is_running = select(exists(running_task)).get_result(dbconn.deref());
+    if Ok(true) == task_is_running {
+        let task = running_task::load(dbconn.deref()).unwrap()[0];
+        let completed_task = NewTask{ start: task.start,
+                                      end: Utc::now(),
+                                      title: task.title,
+                                      category: task.category,
+        };
+        //insert this
+
+    }
+    //add new running task
+        
 }
 
 #[get("/stop")]
