@@ -21,7 +21,8 @@ use std::env;
 use std::collections::HashMap;
 use std::ops::Deref;
 use diesel::sqlite::SqliteConnection;
-use diesel::{OrderDsl, LoadDsl};
+use diesel::{GroupByDsl, ExecuteDsl, FilterDsl, ExpressionMethods,OrderDsl, LoadDsl, insert, delete, select};
+use diesel::expression::exists;
 use r2d2::Pool;
 use r2d2_diesel::ConnectionManager;
 use dotenv::dotenv;
@@ -34,7 +35,6 @@ use schema::{task,running_task};
 struct DB(Pool<ConnectionManager<SqliteConnection>>);
 
 #[derive(Serialize,Deserialize,Queryable)]
-#[table_name="task"]
 struct Task {
     id: i32,
     start: chrono::NaiveDateTime,
@@ -59,7 +59,6 @@ struct TaskForm {
 }
 
 #[derive(Serialize, Deserialize,Debug, Queryable)]
-#[table_name="running_task"]
 struct RunningTask {
     id: i32,
     start: chrono::NaiveDateTime,
@@ -93,21 +92,22 @@ fn list(db: State<DB>) -> JSON<Vec<Task>> {
 
 fn get_status(db: State<DB>) -> Vec<Status> {
     use schema::task::dsl::*;
-    use diesel::{GroupByDsl,ExecuteDsl, FilterDsl, ExpressionMethods};
     let dbconn = db.0.get().expect("DB Pool problem");
     let now = chrono::offset::utc::UTC::now().naive_utc();
     let tasks:Vec<Task> = task.filter(start.ge(now)).order(start).load(dbconn.deref()).expect("Error in finding tasks");//.group_by(category);
 
 
-    let mut map:HashMap<&str,i64> = HashMap::new();
+    let mut map:HashMap<String,i64> = HashMap::new();
+    
     for t in tasks {
         let time_diff = t.end.timestamp() - t.start.timestamp();
-        map[t.category.as_str()] += time_diff;
+        let time_add = time_diff + map[t.category.as_str()];
+        map.insert(t.category.clone(), time_add);
     }
 
     let mut res = Vec::new();
     for (k,i) in map {
-        let s = Status{category: k.to_owned(), duration: i};
+        let s = Status{category: k, duration: i};
         res.push(s);
     }
     res
@@ -129,8 +129,6 @@ fn total(db: State<DB>) -> JSON<Vec<Status>> {
 }
 /// Helper function for stopping a task
 fn stop_task(db: State<DB>) {
-    use diesel::{insert, delete, ExecuteDsl};
-
     let dbconn = db.0.get().expect("DB Pool Problem");
     let rtask:&RunningTask = &running_task::table.load(dbconn.deref()).unwrap()[0];
     let completed_task = NewTask{ start: rtask.start,
@@ -139,17 +137,14 @@ fn stop_task(db: State<DB>) {
                                   category: rtask.category.to_owned(),
     };
     //delete the task (whole table actually)
-    delete(running_task::table).execute(dbconn.deref());
+    delete(running_task::table).execute(dbconn.deref()).expect("Delete of running failed");
     
     //insert this
-    insert(&completed_task).into(task::table).execute(dbconn.deref());
+    insert(&completed_task).into(task::table).execute(dbconn.deref()).expect("Insert of completed failed");
 }
 
 #[get("/start?<taskform>")]
 fn start(db: State<DB>, taskform: TaskForm) {
-    use diesel::{select, insert, ExecuteDsl};
-    use diesel::expression::dsl::exists;
-    
     let dbconn = db.0.get().expect("DB Pool Problem");
     let task_is_running = select(exists(running_task::table)).get_result(dbconn.deref());
     if Ok(true) == task_is_running {
@@ -160,7 +155,7 @@ fn start(db: State<DB>, taskform: TaskForm) {
                                   title: taskform.title,
                                   category: taskform.category,
     };
-    insert(&nrtask).into(running_task::table).execute(dbconn.deref());
+    insert(&nrtask).into(running_task::table).execute(dbconn.deref()).expect("Insert of running failed");
 }
 
 #[get("/stop")]
