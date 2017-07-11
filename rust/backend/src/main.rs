@@ -18,6 +18,7 @@ extern crate serde_json;
 
 
 use std::env;
+use std::collections::HashMap;
 use std::ops::Deref;
 use diesel::sqlite::SqliteConnection;
 use diesel::{OrderDsl, LoadDsl};
@@ -90,14 +91,41 @@ fn list(db: State<DB>) -> JSON<Vec<Task>> {
     JSON(tasks)
 }
 
+fn get_status(db: State<DB>) -> Vec<Status> {
+    use schema::task::dsl::*;
+    use diesel::{GroupByDsl,ExecuteDsl, FilterDsl, ExpressionMethods};
+    let dbconn = db.0.get().expect("DB Pool problem");
+    let now = chrono::offset::utc::UTC::now().naive_utc();
+    let tasks:Vec<Task> = task.filter(start.ge(now)).order(start).load(dbconn.deref()).expect("Error in finding tasks");//.group_by(category);
+
+
+    let mut map:HashMap<&str,i64> = HashMap::new();
+    for t in tasks {
+        let time_diff = t.end.timestamp() - t.start.timestamp();
+        map[t.category.as_str()] += time_diff;
+    }
+
+    let mut res = Vec::new();
+    for (k,i) in map {
+        let s = Status{category: k.to_owned(), duration: i};
+        res.push(s);
+    }
+    res
+}
+
 #[get("/status")]
 fn status(db: State<DB>) -> JSON<Vec<Status>> {
-    JSON(vec![])
+    JSON(get_status(db))
 }
 
 #[get("/total")]
 fn total(db: State<DB>) -> JSON<Vec<Status>> {
-    JSON(vec![])
+    let mut s = Status{category: "Total".to_owned(), duration: 0};
+    let ss = get_status(db);
+    for i in ss {
+        s.duration += i.duration;
+    }
+    JSON(vec![s])
 }
 /// Helper function for stopping a task
 fn stop_task(db: State<DB>) {
@@ -137,7 +165,7 @@ fn start(db: State<DB>, taskform: TaskForm) {
 
 #[get("/stop")]
 fn stop(db: State<DB>) {
-    
+    stop_task(db);
 }
 
 fn main() {
