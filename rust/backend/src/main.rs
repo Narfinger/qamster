@@ -24,10 +24,7 @@ use diesel::{OrderDsl, LoadDsl};
 use r2d2::Pool;
 use r2d2_diesel::ConnectionManager;
 use dotenv::dotenv;
-use rocket::request::{State, Form, FromFormValue};
-use rocket::response::{Redirect, NamedFile};
-use rocket::response::content::Content;
-use rocket::http::ContentType;
+use rocket::request::{State};
 use rocket_contrib::JSON;
 
 pub mod schema;
@@ -102,29 +99,40 @@ fn status(db: State<DB>) -> JSON<Vec<Status>> {
 fn total(db: State<DB>) -> JSON<Vec<Status>> {
     JSON(vec![])
 }
+/// Helper function for stopping a task
+fn stop_task(db: State<DB>) {
+    use diesel::{insert, delete, ExecuteDsl};
 
-#[get("/start?<task>")]
-fn start(db: State<DB>, task: TaskForm) {
-    use schema::running_task::dsl::*;
-    use diesel::SelectDsl;
-    use diesel::select;
+    let dbconn = db.0.get().expect("DB Pool Problem");
+    let rtask:&RunningTask = &running_task::table.load(dbconn.deref()).unwrap()[0];
+    let completed_task = NewTask{ start: rtask.start,
+                                  end: chrono::offset::utc::UTC::now().naive_utc(),
+                                  title: rtask.title.to_owned(),
+                                  category: rtask.category.to_owned(),
+    };
+    //delete the task (whole table actually)
+    delete(running_task::table).execute(dbconn.deref());
+    
+    //insert this
+    insert(&completed_task).into(task::table).execute(dbconn.deref());
+}
+
+#[get("/start?<taskform>")]
+fn start(db: State<DB>, taskform: TaskForm) {
+    use diesel::{select, insert, ExecuteDsl};
     use diesel::expression::dsl::exists;
-    use chrono::prelude::*;
     
     let dbconn = db.0.get().expect("DB Pool Problem");
-    let task_is_running = select(exists(running_task)).get_result(dbconn.deref());
+    let task_is_running = select(exists(running_task::table)).get_result(dbconn.deref());
     if Ok(true) == task_is_running {
-        let task = running_task::load(dbconn.deref()).unwrap()[0];
-        let completed_task = NewTask{ start: task.start,
-                                      end: Utc::now(),
-                                      title: task.title,
-                                      category: task.category,
-        };
-        //insert this
-
+        stop_task(db);
     }
     //add new running task
-        
+    let nrtask = NewRunningTask { start: chrono::offset::utc::UTC::now().naive_utc(),
+                                  title: taskform.title,
+                                  category: taskform.category,
+    };
+    insert(&nrtask).into(running_task::table).execute(dbconn.deref());
 }
 
 #[get("/stop")]
