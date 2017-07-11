@@ -22,7 +22,7 @@ use futures_cpupool::CpuPool;
 //these are temporary
 static SITE: &'static str = include_str!("../../frontend_url.txt");
 static PASSWORD: &'static str = include_str!("../../password.txt");
-const DEBUG: bool = true;
+const DEBUG: bool = false;
 
 enum Endpoint {
     List, // /list/
@@ -122,7 +122,7 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
             Endpoint::Stop  => "/stop/?".to_owned(),
         } + "password=" + PASSWORD;
         
-        let res = client.get(url.as_str())
+        let res = client.get((SITE.to_owned() + url.as_str()).as_str())
         .send();
         
         //return the correct thing
