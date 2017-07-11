@@ -28,7 +28,7 @@ enum Endpoint {
     List, // /list/
     Status, // /status/
     Total,  // /total/
-    Start(String,Option<String>), // /start/
+    Start(String), // /start/
     Stop,   // /stop/
 }
 
@@ -105,7 +105,7 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
             Endpoint::List   => Ok(QueryResult::List(serde_json::from_str(MOCKLIST).unwrap())),
             Endpoint::Status => Ok(QueryResult::Status(serde_json::from_str(MOCKSTATUS).unwrap())),
             Endpoint::Total  => Ok(QueryResult::Status(serde_json::from_str(MOCKTOTAL).unwrap())),
-            Endpoint::Start(_,_) | Endpoint::Stop => Ok(QueryResult::None),
+            Endpoint::Start(_) | Endpoint::Stop => Ok(QueryResult::None),
         }
     } else {
         
@@ -114,11 +114,7 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
             Endpoint::List  => "/list/?".to_owned(),
             Endpoint::Status => "/status/?".to_owned(),
             Endpoint::Total => "/total/?".to_owned(),
-            Endpoint::Start(ref title, ref category) =>
-                match *category {
-                    Some(ref s) => format!("/start/?title={}&category={}&", title, s),
-                    None    => format!("/start/?title={}&", title.clone()),
-                },
+            Endpoint::Start(ref title) => format!("/start/?title={}&", title.clone()),
             Endpoint::Stop  => "/stop/?".to_owned(),
         } + "password=" + PASSWORD;
         
@@ -130,7 +126,7 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
             Endpoint::List       => res.and_then(|mut s| s.json()).map(|s| QueryResult::List(s)),
             Endpoint::Status     => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(s)),
             Endpoint::Total      => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(vec!(s))),
-            Endpoint::Start(_,_) => res                           .map(|_| QueryResult::None),
+            Endpoint::Start(_)   => res                           .map(|_| QueryResult::None),
             Endpoint::Stop       => res                           .map(|_| QueryResult::None),
         }
     }
@@ -138,15 +134,12 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
 
 /// Starting a task
 fn start_task(s: &str) {
-    let mut iterator = s.splitn(2,'@');
-    let task = String::from(iterator.next().expect("No Task specified, empty string?"));
-    let category = iterator.next().map(String::from);
-    query_url(&Endpoint::Start(task.clone(),category.clone())).expect("Error in starting task");
-    if let Some(s) = category {
-        println!("Starting: {}@{}", Green.paint(task), Blue.paint(s));
-    } else {
-        println!("Starting: {}", Green.paint(task));
-    }
+    query_url(&Endpoint::Start(s.to_string())).expect("Error in starting task");
+    //if let Some(s) = category {
+    //    println!("Starting: {}@{}", Green.paint(task), Blue.paint(s));
+    //} else {
+    println!("Starting: {}", Green.paint(s));
+    //}
 }
 
 /// Printing the list
@@ -172,19 +165,22 @@ fn print_list() {
                 _ => None
             }});
 
-    if let Ok(Some(s)) = list_future.wait() {
+    println!("Starting to print list");
+    if let Ok(QueryResult::List(s)) = query_url(&Endpoint::List) {//list_future.wait() {
         for (i,item) in s.into_iter().enumerate() {
             println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
         }
         println!("{}", Green.paint("---------------------------------------------------------------------------"));
     }
-    if let Ok(Some(s)) = status_future.wait() {
+    println!("Printing status");
+    if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Status) {//status_future.wait() {
         for item in s {
             print!("{}", item);
             print!(" | ");
         }
     }
-    if let Ok(Some(s)) = total_future.wait() { 
+    println!("Printint total");
+    if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Total) {//total_future.wait() {
         println!("{}", s[0]);
     }
 }

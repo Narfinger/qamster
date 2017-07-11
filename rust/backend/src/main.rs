@@ -20,6 +20,7 @@ extern crate serde_json;
 use std::env;
 use std::collections::HashMap;
 use std::ops::Deref;
+use chrono::Datelike;
 use diesel::sqlite::SqliteConnection;
 use diesel::{GroupByDsl, ExecuteDsl, FilterDsl, ExpressionMethods,OrderDsl, LoadDsl, insert, delete, select};
 use diesel::expression::exists;
@@ -34,7 +35,7 @@ use schema::{task,running_task};
 
 struct DB(Pool<ConnectionManager<SqliteConnection>>);
 
-#[derive(Serialize,Deserialize,Queryable)]
+#[derive(Serialize,Deserialize,Queryable,Debug)]
 struct Task {
     id: i32,
     start: chrono::NaiveDateTime,
@@ -43,7 +44,7 @@ struct Task {
     category: String,
 }
 
-#[derive(Insertable)]
+#[derive(Debug,Insertable)]
 #[table_name="task"]
 struct NewTask {
     start: chrono::NaiveDateTime,
@@ -55,10 +56,15 @@ struct NewTask {
 #[derive(FromForm)]
 struct TaskForm {
     title: String,
-    category: String,
+    password: String,
 }
 
-#[derive(Serialize, Deserialize,Debug, Queryable)]
+#[derive(FromForm)]
+struct PasswordForm {
+    password: String,
+}
+
+#[derive(Debug,Serialize, Deserialize,Queryable)]
 struct RunningTask {
     id: i32,
     start: chrono::NaiveDateTime,
@@ -84,9 +90,13 @@ struct Status {
 fn list(db: State<DB>) -> JSON<Vec<Task>> {
     use schema::task::dsl::*;
     let dbconn = db.0.get().expect("DB Pool problem");
+    let now = chrono::offset::utc::UTC::now().naive_utc();
+    let today = chrono::NaiveDate::from_ymd(now.year(),now.month(),now.day()).and_hms(0,0,0);
     let tasks = task.order(start)
+        .filter(start.ge(today))
         .load(dbconn.deref())
         .unwrap();
+
     JSON(tasks)
 }
 
@@ -94,16 +104,19 @@ fn get_status(db: State<DB>) -> Vec<Status> {
     use schema::task::dsl::*;
     let dbconn = db.0.get().expect("DB Pool problem");
     let now = chrono::offset::utc::UTC::now().naive_utc();
-    let tasks:Vec<Task> = task.filter(start.ge(now)).order(start).load(dbconn.deref()).expect("Error in finding tasks");//.group_by(category);
-
+    let today = chrono::NaiveDate::from_ymd(now.year(),now.month(),now.day()).and_hms(0,0,0);
+    let tasks:Vec<Task> = task.filter(start.ge(today)).load(dbconn.deref()).expect("Error in finding tasks");//.group_by(category);
+    println!("{:?}", tasks);
 
     let mut map:HashMap<String,i64> = HashMap::new();
     
     for t in tasks {
         let time_diff = t.end.timestamp() - t.start.timestamp();
-        let time_add = time_diff + map[t.category.as_str()];
+        let time_add = time_diff + map.get(t.category.as_str()).unwrap_or(&0);
+        println!("{:?}", t.category);
         map.insert(t.category.clone(), time_add);
     }
+    println!("{:?}", map);
 
     let mut res = Vec::new();
     for (k,i) in map {
@@ -115,7 +128,9 @@ fn get_status(db: State<DB>) -> Vec<Status> {
 
 #[get("/status")]
 fn status(db: State<DB>) -> JSON<Vec<Status>> {
-    JSON(get_status(db))
+    let stat = get_status(db);
+    println!("{:?}", stat);
+    JSON(stat)
 }
 
 #[get("/total")]
@@ -146,16 +161,22 @@ fn stop_task(db: State<DB>) {
 #[get("/start?<taskform>")]
 fn start(db: State<DB>, taskform: TaskForm) {
     let dbconn = db.0.get().expect("DB Pool Problem");
+    
+    let mut iterator = taskform.title.splitn(2,'@');
+    let task = String::from(iterator.next().expect("No Task specified, empty string?"));
+    let category = String::from(iterator.next().unwrap_or(""));
+
     let task_is_running = select(exists(running_task::table)).get_result(dbconn.deref());
     if Ok(true) == task_is_running {
         stop_task(db);
     }
     //add new running task
     let nrtask = NewRunningTask { start: chrono::offset::utc::UTC::now().naive_utc(),
-                                  title: taskform.title,
-                                  category: taskform.category,
+                                  title: task,
+                                  category: category,
     };
     insert(&nrtask).into(running_task::table).execute(dbconn.deref()).expect("Insert of running failed");
+    println!("starting something with: {:?}", nrtask);
 }
 
 #[get("/stop")]
@@ -171,6 +192,7 @@ fn main() {
     let manager = ConnectionManager::<SqliteConnection>::new(database_url);
     let pool = r2d2::Pool::new(config, manager).expect("Failed to create pool.");
 
+    //needs ssl
     rocket::ignite()
         .mount("/",
                routes![list, status, total, start, stop])
