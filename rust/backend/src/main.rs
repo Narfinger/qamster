@@ -27,7 +27,8 @@ use diesel::expression::exists;
 use r2d2::Pool;
 use r2d2_diesel::ConnectionManager;
 use dotenv::dotenv;
-use rocket::request::{State};
+use rocket::Outcome;
+use rocket::request::{Request, State, FromRequest};
 use rocket_contrib::Json;
 pub mod schema;
 use schema::{task,running_task};
@@ -58,6 +59,25 @@ struct TaskForm {
     password: String,
 }
 
+struct Password(String);
+impl<'a, 'r> FromRequest<'a, 'r> for Password {
+    type Error = ();
+
+    fn from_request(request: &'a Request<'r>) -> rocket::request::Outcome<Password, ()> {
+        let keys: Vec<_> = request.headers().get("x-password").collect();
+        if keys.len() != 1 {
+            return Outcome::Failure((rocket::http::Status::BadRequest, ()));
+        }
+
+        let supplied_password = keys[0].to_string();
+        if supplied_password != include_str!("../../password.txt") {
+            return Outcome::Failure((rocket::http::Status::BadRequest, ()));
+        }
+        
+        return Outcome::Success(Password(supplied_password));
+    }
+}
+
 #[derive(FromForm)]
 struct PasswordForm {
     password: String,
@@ -86,36 +106,33 @@ struct Status {
 }
 
 #[get("/list")]
-fn list(db: State<DB>) -> Json<Vec<Task>> {
+fn list(db: State<DB>, password: Password) -> Json<Vec<Task>> {
     use schema::task::dsl::*;
     let dbconn = db.0.get().expect("DB Pool problem");
     let now = chrono::offset::Utc::now().naive_utc();
     let today = chrono::NaiveDate::from_ymd(now.year(),now.month(),now.day()).and_hms(0,0,0);
     let tasks = task.order(start)
-        .filter(start.ge(today))
+//        .filter(start.ge(today))
         .load(dbconn.deref())
         .unwrap();
 
     Json(tasks)
 }
 
-fn get_status(db: State<DB>) -> Vec<Status> {
+fn get_status(db: State<DB>, password: Password) -> Vec<Status> {
     use schema::task::dsl::*;
     let dbconn = db.0.get().expect("DB Pool problem");
     let now = chrono::offset::Utc::now().naive_utc();
     let today = chrono::NaiveDate::from_ymd(now.year(),now.month(),now.day()).and_hms(0,0,0);
     let tasks:Vec<Task> = task.filter(start.ge(today)).load(dbconn.deref()).expect("Error in finding tasks");//.group_by(category);
-    println!("{:?}", tasks);
 
     let mut map:HashMap<String,i64> = HashMap::new();
     
     for t in tasks {
         let time_diff = t.end.timestamp() - t.start.timestamp();
         let time_add = time_diff + map.get(t.category.as_str()).unwrap_or(&0);
-        println!("{:?}", t.category);
         map.insert(t.category.clone(), time_add);
     }
-    println!("{:?}", map);
 
     let mut res = Vec::new();
     for (k,i) in map {
@@ -127,17 +144,17 @@ fn get_status(db: State<DB>) -> Vec<Status> {
 }
 
 #[get("/status")]
-fn status(db: State<DB>) -> Json<Vec<Status>> {
-    let stat = get_status(db);
-    println!("{:?}", stat);
+fn status(db: State<DB>, password: Password) -> Json<Vec<Status>> {
+    let stat = get_status(db, password);
+    println!("stat {:?}", stat);
 
     Json(stat)
 }
 
 #[get("/total")]
-fn total(db: State<DB>) -> Json<Vec<Status>> {
+fn total(db: State<DB>, password: Password) -> Json<Vec<Status>> {
     let mut s = Status{category: "Total".to_owned(), duration: 0};
-    let ss = get_status(db);
+    let ss = get_status(db, password);
     for i in ss {
         s.duration += i.duration;
     }
@@ -161,7 +178,7 @@ fn stop_task(db: State<DB>) {
 }
 
 #[get("/start?<taskform>")]
-fn start(db: State<DB>, taskform: TaskForm) {
+fn start(db: State<DB>, taskform: TaskForm, password: Password) {
     let dbconn = db.0.get().expect("DB Pool Problem");
     
     let mut iterator = taskform.title.splitn(2,'@');
@@ -182,7 +199,7 @@ fn start(db: State<DB>, taskform: TaskForm) {
 }
 
 #[get("/stop")]
-fn stop(db: State<DB>) {
+fn stop(db: State<DB>, password: Password) {
     stop_task(db);
 }
 

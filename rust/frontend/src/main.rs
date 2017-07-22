@@ -7,9 +7,9 @@ extern crate futures;
 extern crate futures_cpupool;
 extern crate reqwest;
 extern crate serde;
-#[macro_use]
-extern crate serde_derive;
+#[macro_use] extern crate serde_derive;
 extern crate serde_json;
+#[macro_use] extern crate hyper;
 
 
 use ansi_term::Colour::{Blue,Red,Purple,Green};
@@ -18,6 +18,10 @@ use chrono::offset::Utc;
 use clap::{App, Arg};
 use futures::Future;
 use futures_cpupool::CpuPool;
+use hyper::header::Headers;
+
+//define typed header for reqwest
+header! { (XPassword, "x-password") => [String] }
 
 //these are temporary
 static SITE: &'static str = include_str!("../../frontend_url.txt");
@@ -111,15 +115,19 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
         
         let client = reqwest::Client::new().expect("Could not create client");
         let url = match *endpoint {
-            Endpoint::List  => "/list/?".to_owned(),
-            Endpoint::Status => "/status/?".to_owned(),
-            Endpoint::Total => "/total/?".to_owned(),
+            Endpoint::List  => "/list/".to_owned(),
+            Endpoint::Status => "/status/".to_owned(),
+            Endpoint::Total => "/total/".to_owned(),
             Endpoint::Start(ref title) => format!("/start/?title={}&", title.clone()),
-            Endpoint::Stop  => "/stop/?".to_owned(),
-        } + "password=" + PASSWORD;
+            Endpoint::Stop  => "/stop/".to_owned(),
+        };
         
+        let mut headers = Headers::new();
+
+        headers.set(XPassword(PASSWORD.to_owned()));
         let res = client.get((SITE.to_owned() + url.as_str()).as_str())
-        .send();
+            .header(headers)
+            .send();
         
         //return the correct thing
         match *endpoint {
@@ -145,25 +153,25 @@ fn start_task(s: &str) {
 /// Printing the list
 fn print_list() {
     let pool = CpuPool::new_num_cpus();
-    let list_future = pool.spawn_fn(  || {query_url(&Endpoint::List)})
-        .map(|s| {
-            match s {
-                QueryResult::List(v) => Some(v),
-                _ => None
-            }});
+    // let list_future = pool.spawn_fn(  || {query_url(&Endpoint::List)})
+    //     .map(|s| {
+    //         match s {
+    //             QueryResult::List(v) => Some(v),
+    //             _ => None
+    //         }});
 
-    let status_future = pool.spawn_fn( || {query_url(&Endpoint::Status)})
-        .map(|s| {
-            match s {
-                QueryResult::Status(v) => Some(v),
-                _ => None
-            }});
-    let total_future  = pool.spawn_fn( || {query_url(&Endpoint::Total)})
-        .map(|s| {
-            match s {
-                QueryResult::Status(v) => Some(v),
-                _ => None
-            }});
+    // let status_future = pool.spawn_fn( || {query_url(&Endpoint::Status)})
+    //     .map(|s| {
+    //         match s {
+    //             QueryResult::Status(v) => Some(v),
+    //             _ => None
+    //         }});
+    // let total_future  = pool.spawn_fn( || {query_url(&Endpoint::Total)})
+    //     .map(|s| {
+    //         match s {
+    //             QueryResult::Status(v) => Some(v),
+    //             _ => None
+    //         }});
 
     println!("Starting to print list");
     if let Ok(QueryResult::List(s)) = query_url(&Endpoint::List) {//list_future.wait() {
