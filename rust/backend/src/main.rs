@@ -28,14 +28,13 @@ use r2d2::Pool;
 use r2d2_diesel::ConnectionManager;
 use dotenv::dotenv;
 use rocket::request::{State};
-use rocket_contrib::JSON;
-
+use rocket_contrib::Json;
 pub mod schema;
 use schema::{task,running_task};
 
 struct DB(Pool<ConnectionManager<SqliteConnection>>);
 
-#[derive(Serialize,Deserialize,Queryable,Debug)]
+#[derive(Queryable,Serialize,Deserialize,Debug)]
 struct Task {
     id: i32,
     start: chrono::NaiveDateTime,
@@ -64,7 +63,7 @@ struct PasswordForm {
     password: String,
 }
 
-#[derive(Debug,Serialize, Deserialize,Queryable)]
+#[derive(Debug,Serialize,Queryable)]
 struct RunningTask {
     id: i32,
     start: chrono::NaiveDateTime,
@@ -87,23 +86,23 @@ struct Status {
 }
 
 #[get("/list")]
-fn list(db: State<DB>) -> JSON<Vec<Task>> {
+fn list(db: State<DB>) -> Json<Vec<Task>> {
     use schema::task::dsl::*;
     let dbconn = db.0.get().expect("DB Pool problem");
-    let now = chrono::offset::utc::UTC::now().naive_utc();
+    let now = chrono::offset::Utc::now().naive_utc();
     let today = chrono::NaiveDate::from_ymd(now.year(),now.month(),now.day()).and_hms(0,0,0);
     let tasks = task.order(start)
         .filter(start.ge(today))
         .load(dbconn.deref())
         .unwrap();
 
-    JSON(tasks)
+    Json(tasks)
 }
 
 fn get_status(db: State<DB>) -> Vec<Status> {
     use schema::task::dsl::*;
     let dbconn = db.0.get().expect("DB Pool problem");
-    let now = chrono::offset::utc::UTC::now().naive_utc();
+    let now = chrono::offset::Utc::now().naive_utc();
     let today = chrono::NaiveDate::from_ymd(now.year(),now.month(),now.day()).and_hms(0,0,0);
     let tasks:Vec<Task> = task.filter(start.ge(today)).load(dbconn.deref()).expect("Error in finding tasks");//.group_by(category);
     println!("{:?}", tasks);
@@ -123,31 +122,34 @@ fn get_status(db: State<DB>) -> Vec<Status> {
         let s = Status{category: k, duration: i};
         res.push(s);
     }
+
     res
 }
 
 #[get("/status")]
-fn status(db: State<DB>) -> JSON<Vec<Status>> {
+fn status(db: State<DB>) -> Json<Vec<Status>> {
     let stat = get_status(db);
     println!("{:?}", stat);
-    JSON(stat)
+
+    Json(stat)
 }
 
 #[get("/total")]
-fn total(db: State<DB>) -> JSON<Vec<Status>> {
+fn total(db: State<DB>) -> Json<Vec<Status>> {
     let mut s = Status{category: "Total".to_owned(), duration: 0};
     let ss = get_status(db);
     for i in ss {
         s.duration += i.duration;
     }
-    JSON(vec![s])
+    
+    Json(vec![s])
 }
 /// Helper function for stopping a task
 fn stop_task(db: State<DB>) {
     let dbconn = db.0.get().expect("DB Pool Problem");
     let rtask:&RunningTask = &running_task::table.load(dbconn.deref()).unwrap()[0];
     let completed_task = NewTask{ start: rtask.start,
-                                  end: chrono::offset::utc::UTC::now().naive_utc(),
+                                  end: chrono::offset::Utc::now().naive_utc(),
                                   title: rtask.title.to_owned(),
                                   category: rtask.category.to_owned(),
     };
@@ -171,7 +173,7 @@ fn start(db: State<DB>, taskform: TaskForm) {
         stop_task(db);
     }
     //add new running task
-    let nrtask = NewRunningTask { start: chrono::offset::utc::UTC::now().naive_utc(),
+    let nrtask = NewRunningTask { start: chrono::offset::Utc::now().naive_utc(),
                                   title: task,
                                   category: category,
     };
