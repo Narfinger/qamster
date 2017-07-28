@@ -167,17 +167,19 @@ fn total(db: State<DB>, password: Password) -> Json<Vec<Status>> {
 /// Helper function for stopping a task
 fn stop_task(db: State<DB>) {
     let dbconn = db.0.get().expect("DB Pool Problem");
-    let rtask:&RunningTask = &running_task::table.load(dbconn.deref()).unwrap()[0];
-    let completed_task = NewTask{ start: rtask.start,
-                                  end: chrono::offset::Utc::now().naive_utc(),
-                                  title: rtask.title.to_owned(),
-                                  category: rtask.category.to_owned(),
-    };
-    //delete the task (whole table actually)
-    delete(running_task::table).execute(dbconn.deref()).expect("Delete of running failed");
-    
-    //insert this
-    insert(&completed_task).into(task::table).execute(dbconn.deref()).expect("Insert of completed failed");
+    let ortask:Option<RunningTask> = running_task::table.load(dbconn.deref()).unwrap().pop();
+    if let Some(rtask) = ortask {
+        let completed_task = NewTask{ start: rtask.start,
+                                      end: chrono::offset::Utc::now().naive_utc(),
+                                      title: rtask.title.to_owned(),
+                                      category: rtask.category.to_owned(),
+        };
+        //delete the task (whole table actually)
+        delete(running_task::table).execute(dbconn.deref()).expect("Delete of running failed");
+
+        //insert this
+        insert(&completed_task).into(task::table).execute(dbconn.deref()).expect("Insert of completed failed");
+    }
 }
 
 #[get("/start?<taskform>")]
