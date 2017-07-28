@@ -126,11 +126,15 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
             .header(XPassword(PASSWORD.to_owned()))
             .send();
 
+        // let mut resstring = String::new();
+        // res.unwrap().read_to_string(&mut resstring);
+        // println!("{:?}", resstring);
+        // Ok(QueryResult::None)
         //return the correct thing
         match *endpoint {
             Endpoint::List       => res.and_then(|mut s| s.json()).map(|s| QueryResult::List(s)),
             Endpoint::Status     => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(s)),
-            Endpoint::Total      => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(vec!(s))),
+            Endpoint::Total      => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(s)),
             Endpoint::Start(_)   => res                           .map(|_| QueryResult::None),
             Endpoint::Stop       => res                           .map(|_| QueryResult::None),
         }
@@ -170,24 +174,24 @@ fn print_list() {
     //             _ => None
     //         }});
 
-    println!("Starting to print list");
+    //println!("Starting to print list");
+    println!("{}", Green.paint("---------------------------------------------------------------------------"));
     if let Ok(QueryResult::List(s)) = query_url(&Endpoint::List) {//list_future.wait() {
         for (i,item) in s.into_iter().enumerate() {
             println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
         }
         println!("{}", Green.paint("---------------------------------------------------------------------------"));
     }
-    // println!("Printing status");
-    // if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Status) {//status_future.wait() {
-    //     for item in s {
-    //         print!("{}", item);
-    //         print!(" | ");
-    //     }
-    // }
-    // println!("Printint total");
-    // if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Total) {//total_future.wait() {
-    //     println!("{}", s[0]);
-    // }
+    //println!("Printing status");
+    if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Status) {//status_future.wait() {
+        for item in s {
+            print!("{}", item);
+            print!(" | ");
+        }
+    }
+    if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Total) {//total_future.wait() {
+        println!("{}", s[0]);
+    }
 }
 
 fn main() {

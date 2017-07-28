@@ -149,7 +149,7 @@ fn get_status(db: State<DB>, password: Password) -> Vec<Status> {
 #[get("/status")]
 fn status(db: State<DB>, password: Password) -> Json<Vec<Status>> {
     let stat = get_status(db, password);
-    println!("stat {:?}", stat);
+    //println!("stat {:?}", stat);
 
     Json(stat)
 }
@@ -200,7 +200,7 @@ fn start(db: State<DB>, taskform: TaskForm, password: Password) {
                                   category: category,
     };
     insert(&nrtask).into(running_task::table).execute(dbconn.deref()).expect("Insert of running failed");
-    println!("starting something with: {:?}", nrtask);
+    //println!("starting something with: {:?}", nrtask);
 }
 
 #[get("/stop")]
