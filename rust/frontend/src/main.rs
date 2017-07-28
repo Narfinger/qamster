@@ -19,6 +19,7 @@ use clap::{App, Arg};
 use futures::Future;
 use futures_cpupool::CpuPool;
 use hyper::header::Headers;
+use std::io::Read;
 
 //define typed header for reqwest
 header! { (XPassword, "x-password") => [String] }
@@ -38,8 +39,9 @@ enum Endpoint {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Task {
-    start: DateTime<Utc>,
-    end: DateTime<Utc>,
+    id: i64,
+    start: chrono::NaiveDateTime,
+    end: chrono::NaiveDateTime,
     title: String,
     category: String,
 }
@@ -81,10 +83,8 @@ impl std::fmt::Display for Status {
 
 static MOCKLIST: &'static str = "
     [
-        {\"start\": \"2017-07-06T10:55:38+00:00\", \"end\": \"2017-07-06T11:05:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"},
-        {\"start\": \"2017-07-06T11:05:38+00:00\", \"end\": \"2017-07-06T11:33:38+00:00\", \"title\": \"title2\", \"category\": \"category2\"},
-        {\"start\": \"2017-07-06T13:55:38+00:00\", \"end\": \"2017-07-06T13:59:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"},
-        {\"start\": \"2017-07-06T14:00:38+00:00\", \"end\": \"2017-07-06T15:04:38+00:00\", \"title\": \"title1\", \"category\": \"category1\"}
+        {\"start\": \"2017-07-11T03:48:58.613784\", \"end\": \"2017-07-11T07:48:58.613784\", \"title\": \"title1\", \"category\": \"category1\"},
+        {\"start\": \"2017-07-11T13:48:58.613784\", \"end\": \"2017-07-11T13:56:58.613784\", \"title\": \"title2\", \"category\": \"category2\"}
     ]";
 
 static MOCKSTATUS: &'static str = "[
@@ -118,17 +118,14 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
             Endpoint::List  => "/list/".to_owned(),
             Endpoint::Status => "/status/".to_owned(),
             Endpoint::Total => "/total/".to_owned(),
-            Endpoint::Start(ref title) => format!("/start/?title={}&", title.clone()),
+            Endpoint::Start(ref title) => format!("/start/?title={}", title.clone()),
             Endpoint::Stop  => "/stop/".to_owned(),
         };
-        
-        let mut headers = Headers::new();
 
-        headers.set(XPassword(PASSWORD.to_owned()));
         let res = client.get((SITE.to_owned() + url.as_str()).as_str())
-            .header(headers)
+            .header(XPassword(PASSWORD.to_owned()))
             .send();
-        
+
         //return the correct thing
         match *endpoint {
             Endpoint::List       => res.and_then(|mut s| s.json()).map(|s| QueryResult::List(s)),
@@ -180,17 +177,17 @@ fn print_list() {
         }
         println!("{}", Green.paint("---------------------------------------------------------------------------"));
     }
-    println!("Printing status");
-    if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Status) {//status_future.wait() {
-        for item in s {
-            print!("{}", item);
-            print!(" | ");
-        }
-    }
-    println!("Printint total");
-    if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Total) {//total_future.wait() {
-        println!("{}", s[0]);
-    }
+    // println!("Printing status");
+    // if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Status) {//status_future.wait() {
+    //     for item in s {
+    //         print!("{}", item);
+    //         print!(" | ");
+    //     }
+    // }
+    // println!("Printint total");
+    // if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Total) {//total_future.wait() {
+    //     println!("{}", s[0]);
+    // }
 }
 
 fn main() {

@@ -11,7 +11,7 @@ chrono = {version = "0.4", features = ["serde"]} # Date and time library for Rus
 clap = "2.25"               # A simple to use, efficient, and full featured  Command Line Argument Parser
 futures = "0.1"                     # An implementation of futures and streams featuring zero allocations, composability, and iterator-like interfaces. 
 futures-cpupool = "0.1"
-hyper = "0.11.1"                            # A modern HTTP library.
+hyper = "0.10"                            # A modern HTTP library.
 reqwest = "0.6"            # higher level HTTP client library
 serde = "1.0"                       # A generic serialization/deserialization framework
 serde_derive = "1.0"                # Macros 1.1 implementation of #[derive(Serialize, Deserialize)]
