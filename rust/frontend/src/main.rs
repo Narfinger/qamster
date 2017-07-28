@@ -132,9 +132,9 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
         // Ok(QueryResult::None)
         //return the correct thing
         match *endpoint {
-            Endpoint::List       => res.and_then(|mut s| s.json()).map(|s| QueryResult::List(s)),
-            Endpoint::Status     => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(s)),
-            Endpoint::Total      => res.and_then(|mut s| s.json()).map(|s| QueryResult::Status(s)),
+            Endpoint::List       => res.and_then(|mut s| s.json()).map(QueryResult::List),
+            Endpoint::Status     => res.and_then(|mut s| s.json()).map(QueryResult::Status),
+            Endpoint::Total      => res.and_then(|mut s| s.json()).map(QueryResult::Status),
             Endpoint::Start(_)   => res                           .map(|_| QueryResult::None),
             Endpoint::Stop       => res                           .map(|_| QueryResult::None),
         }
