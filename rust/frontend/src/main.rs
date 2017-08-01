@@ -10,7 +10,13 @@ extern crate serde;
 #[macro_use] extern crate serde_derive;
 extern crate serde_json;
 #[macro_use] extern crate hyper;
+#[macro_use] extern crate error_chain;
 
+mod errors {
+    error_chain!{
+    }
+}
+use errors::*;
 
 use ansi_term::Colour::{Blue,Red,Purple,Green};
 use clap::{App, Arg};
@@ -23,7 +29,6 @@ header! { (XPassword, "x-password") => [String] }
 //these are temporary
 static SITE: &'static str = include_str!("../../frontend_url.txt");
 static PASSWORD: &'static str = include_str!("../../password.txt");
-const DEBUG: bool = false;
 
 enum Endpoint {
     Current, // /current/
@@ -96,21 +101,6 @@ impl std::fmt::Display for Status {
     }
 }
 
-static MOCKLIST: &'static str = "
-    [
-        {\"start\": \"2017-07-11T03:48:58.613784\", \"end\": \"2017-07-11T07:48:58.613784\", \"title\": \"title1\", \"category\": \"category1\"},
-        {\"start\": \"2017-07-11T13:48:58.613784\", \"end\": \"2017-07-11T13:56:58.613784\", \"title\": \"title2\", \"category\": \"category2\"}
-    ]";
-
-static MOCKSTATUS: &'static str = "[
-        { \"category\": \"Category 1\", \"duration\": 120},
-        { \"category\": \"Category 2\", \"duration\": 4},
-        { \"category\": \"Category 3\", \"duration\": 34},
-        { \"category\": \"Category 4\", \"duration\": 154}
-]";
-
-static MOCKTOTAL: &'static str = "[{\"category\": \"Total\", \"duration\": 102948}]";
-
 #[derive(Debug)]
 enum QueryResult {
     List(Vec<Task>),
@@ -119,45 +109,34 @@ enum QueryResult {
     None,
 }
 
-fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
-    if DEBUG {
-        match *endpoint {
-            Endpoint::Current => Ok(QueryResult::None),
-            Endpoint::List   => Ok(QueryResult::List(serde_json::from_str(MOCKLIST).unwrap())),
-            Endpoint::Status => Ok(QueryResult::Status(serde_json::from_str(MOCKSTATUS).unwrap())),
-            Endpoint::Total  => Ok(QueryResult::Status(serde_json::from_str(MOCKTOTAL).unwrap())),
-            Endpoint::Start(_) | Endpoint::Stop => Ok(QueryResult::None),
-        }
-    } else {
-        
-        let client = reqwest::Client::new().expect("Could not create client");
-        let url = match *endpoint {
-            Endpoint::Current => "/current/".to_owned(),
-            Endpoint::List    => "/list/".to_owned(),
-            Endpoint::Status  => "/status/".to_owned(),
-            Endpoint::Total   => "/total/".to_owned(),
-            Endpoint::Start(ref title) => format!("/start/?title={}", title.clone()),
-            Endpoint::Stop    => "/stop/".to_owned(),
-        };
+fn query_url(endpoint: &Endpoint) -> Result<QueryResult> {        
+    let client = reqwest::Client::new().expect("Could not create client");
+    let url = match *endpoint {
+        Endpoint::Current => "/current/".to_owned(),
+        Endpoint::List    => "/list/".to_owned(),
+        Endpoint::Status  => "/status/".to_owned(),
+        Endpoint::Total   => "/total/".to_owned(),
+        Endpoint::Start(ref title) => format!("/start/?title={}", title.clone()),
+        Endpoint::Stop    => "/stop/".to_owned(),
+    };
 
-        let res = client.get((SITE.to_owned() + url.as_str()).as_str())
-            .header(XPassword(PASSWORD.to_owned()))
-            .send();
+    let res = client.get((SITE.to_owned() + url.as_str()).as_str())
+        .header(XPassword(PASSWORD.to_owned()))
+        .send();
 
-        // let mut resstring = String::new();
-        // res.unwrap().read_to_string(&mut resstring);
-        // println!("{:?}", resstring);
-        // Ok(QueryResult::None)
-        //return the correct thing
-        match *endpoint {
-            Endpoint::Current    => res.and_then(|mut s| s.json()).map(QueryResult::Current),
-            Endpoint::List       => res.and_then(|mut s| s.json()).map(QueryResult::List),
-            Endpoint::Status     => res.and_then(|mut s| s.json()).map(QueryResult::Status),
-            Endpoint::Total      => res.and_then(|mut s| s.json()).map(QueryResult::Status),
-            Endpoint::Start(_)   => res                           .map(|_| QueryResult::None),
-            Endpoint::Stop       => res                           .map(|_| QueryResult::None),
-        }
-    }
+    // let mut resstring = String::new();
+    // res.unwrap().read_to_string(&mut resstring);
+    // println!("{:?}", resstring);
+    // Ok(QueryResult::None)
+    //return the correct thing
+    match *endpoint {
+        Endpoint::Current    => res.and_then(|mut s| s.json()).map(QueryResult::Current),
+        Endpoint::List       => res.and_then(|mut s| s.json()).map(QueryResult::List),
+        Endpoint::Status     => res.and_then(|mut s| s.json()).map(QueryResult::Status),
+        Endpoint::Total      => res.and_then(|mut s| s.json()).map(QueryResult::Status),
+        Endpoint::Start(_)   => res                           .map(|_| QueryResult::None),
+        Endpoint::Stop       => res                           .map(|_| QueryResult::None),
+    }.map_err(|e| Error::with_chain(e, "Server Connection Error"))
 }
 
 /// Starting a task
@@ -227,6 +206,25 @@ fn print_list() {
     // }
 }
 
+fn run(matches: clap::ArgMatches) -> Result<()> {    
+    if matches.is_present("fuzzy") && matches.is_present("task") {
+        println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
+    } else if matches.is_present("stop") {
+        query_url(&Endpoint::Stop).expect("Error in stop");
+        println!("{}", Purple.paint("Stopping"));
+        println!("{}", Green.paint("----------------------------------------------------------------------------"));
+    } else if let Some(s) = matches.value_of("task") {
+        start_task(s);
+        println!("{}", Green.paint("----------------------------------------------------------------------------"));
+    } else if matches.is_present("fuzzy") {
+        println!("{}", Red.paint("Need task to do a fuzzy add."));
+        return Ok(())
+    }
+    print_list();
+    
+    Ok(())
+}
+
 fn main() {
     let matches = App::new("qamster")
         .about("Interfaces with qamster web service to control it")
@@ -243,18 +241,7 @@ fn main() {
              .index(1))
         .get_matches();
 
-    if matches.is_present("fuzzy") && matches.is_present("task") {
-        println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
-    } else if matches.is_present("stop") {
-        query_url(&Endpoint::Stop).expect("Error in stop");
-        println!("{}", Purple.paint("Stopping"));
-        println!("{}", Green.paint("----------------------------------------------------------------------------"));
-    } else if let Some(s) = matches.value_of("task") {
-        start_task(s);
-        println!("{}", Green.paint("----------------------------------------------------------------------------"));
-    } else if matches.is_present("fuzzy") {
-        println!("{}", Red.paint("Need task to do a fuzzy add."));
-        return
+    if let Err(e) = run(matches) {
+        println!("{}", e);
     }
-    print_list();
 }
