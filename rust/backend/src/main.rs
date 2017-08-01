@@ -86,7 +86,7 @@ struct PasswordForm {
     password: String,
 }
 
-#[derive(Debug,Serialize,Queryable)]
+#[derive(Debug,Serialize,Deserialize,Queryable)]
 struct RunningTask {
     id: i32,
     start: chrono::NaiveDateTime,
@@ -106,6 +106,12 @@ struct NewRunningTask {
 struct Status {
     category: String,
     duration: i64,
+}
+
+#[get("/current")]
+fn current(db: State<DB>, password: Password) -> Json<Option<RunningTask>> {
+    let dbconn = db.0.get().expect("DB Pool Problem");
+    Json(running_task::table.load(dbconn.deref()).unwrap().pop())
 }
 
 #[get("/list")]
@@ -219,7 +225,7 @@ fn main() {
     //needs ssl
     rocket::ignite()
         .mount("/",
-               routes![list, status, total, start, stop])
+               routes![current, list, status, total, start, stop])
         .manage(DB(pool))
         .launch();
 }

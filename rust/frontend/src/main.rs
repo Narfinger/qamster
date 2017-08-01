@@ -13,13 +13,9 @@ extern crate serde_json;
 
 
 use ansi_term::Colour::{Blue,Red,Purple,Green};
-use chrono::DateTime;
-use chrono::offset::Utc;
 use clap::{App, Arg};
 use futures::Future;
 use futures_cpupool::CpuPool;
-use hyper::header::Headers;
-use std::io::Read;
 
 //define typed header for reqwest
 header! { (XPassword, "x-password") => [String] }
@@ -30,6 +26,7 @@ static PASSWORD: &'static str = include_str!("../../password.txt");
 const DEBUG: bool = false;
 
 enum Endpoint {
+    Current, // /current/
     List, // /list/
     Status, // /status/
     Total,  // /total/
@@ -68,6 +65,24 @@ impl std::fmt::Display for Task {
     }
 }
 
+#[derive(Debug,Serialize,Deserialize)]
+struct RunningTask {
+    id: i32,
+    start: chrono::NaiveDateTime,
+    title: String,
+    category: String,
+}
+
+impl std::fmt::Display for RunningTask {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{1} {0} {2} {0} {3: ^20}",
+               Purple.paint("|"),
+               self.start.format("%H:%M"),
+               self.title,
+               self.category)
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Status {
     category: String,
@@ -100,12 +115,14 @@ static MOCKTOTAL: &'static str = "[{\"category\": \"Total\", \"duration\": 10294
 enum QueryResult {
     List(Vec<Task>),
     Status(Vec<Status>),
+    Current(Option<RunningTask>),
     None,
 }
 
 fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
     if DEBUG {
         match *endpoint {
+            Endpoint::Current => Ok(QueryResult::None),
             Endpoint::List   => Ok(QueryResult::List(serde_json::from_str(MOCKLIST).unwrap())),
             Endpoint::Status => Ok(QueryResult::Status(serde_json::from_str(MOCKSTATUS).unwrap())),
             Endpoint::Total  => Ok(QueryResult::Status(serde_json::from_str(MOCKTOTAL).unwrap())),
@@ -115,11 +132,12 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
         
         let client = reqwest::Client::new().expect("Could not create client");
         let url = match *endpoint {
-            Endpoint::List  => "/list/".to_owned(),
-            Endpoint::Status => "/status/".to_owned(),
-            Endpoint::Total => "/total/".to_owned(),
+            Endpoint::Current => "/current/".to_owned(),
+            Endpoint::List    => "/list/".to_owned(),
+            Endpoint::Status  => "/status/".to_owned(),
+            Endpoint::Total   => "/total/".to_owned(),
             Endpoint::Start(ref title) => format!("/start/?title={}", title.clone()),
-            Endpoint::Stop  => "/stop/".to_owned(),
+            Endpoint::Stop    => "/stop/".to_owned(),
         };
 
         let res = client.get((SITE.to_owned() + url.as_str()).as_str())
@@ -132,6 +150,7 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult, reqwest::Error> {
         // Ok(QueryResult::None)
         //return the correct thing
         match *endpoint {
+            Endpoint::Current    => res.and_then(|mut s| s.json()).map(QueryResult::Current),
             Endpoint::List       => res.and_then(|mut s| s.json()).map(QueryResult::List),
             Endpoint::Status     => res.and_then(|mut s| s.json()).map(QueryResult::Status),
             Endpoint::Total      => res.and_then(|mut s| s.json()).map(QueryResult::Status),
@@ -154,44 +173,58 @@ fn start_task(s: &str) {
 /// Printing the list
 fn print_list() {
     let pool = CpuPool::new_num_cpus();
-    // let list_future = pool.spawn_fn(  || {query_url(&Endpoint::List)})
-    //     .map(|s| {
-    //         match s {
-    //             QueryResult::List(v) => Some(v),
-    //             _ => None
-    //         }});
+    let current_future = pool.spawn_fn(|| {query_url(&Endpoint::Current)});
+    let list_future    = pool.spawn_fn(|| {query_url(&Endpoint::List)});
+    let status_future  = pool.spawn_fn(|| {query_url(&Endpoint::Status)});
+    let total_future   = pool.spawn_fn(|| {query_url(&Endpoint::Total)});
 
-    // let status_future = pool.spawn_fn( || {query_url(&Endpoint::Status)})
-    //     .map(|s| {
-    //         match s {
-    //             QueryResult::Status(v) => Some(v),
-    //             _ => None
-    //         }});
-    // let total_future  = pool.spawn_fn( || {query_url(&Endpoint::Total)})
-    //     .map(|s| {
-    //         match s {
-    //             QueryResult::Status(v) => Some(v),
-    //             _ => None
-    //         }});
-
-    //println!("Starting to print list");
+    if let Ok(QueryResult::Current(t)) = current_future.wait() {
+        if let Some(task) = t {
+            println!("{0} {1}", Green.paint("Started"), task);
+        } else {
+            println!("{}", Purple.paint("No task running"));
+        }
+    }
+    
     println!("{}", Green.paint("---------------------------------------------------------------------------"));
-    if let Ok(QueryResult::List(s)) = query_url(&Endpoint::List) {//list_future.wait() {
+    if let Ok(QueryResult::List(s)) = list_future.wait() {
         for (i,item) in s.into_iter().enumerate() {
             println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
         }
         println!("{}", Green.paint("---------------------------------------------------------------------------"));
     }
-    //println!("Printing status");
-    if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Status) {//status_future.wait() {
+
+    if let Ok(QueryResult::Status(s)) = status_future.wait() {
         for item in s {
             print!("{}", item);
             print!(" | ");
         }
     }
-    if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Total) {//total_future.wait() {
+
+    if let Ok(QueryResult::Status(s)) = total_future.wait() {
         println!("{}", s[0]);
     }
+
+    
+    // working code
+    // //println!("Starting to print list");
+    // println!("{}", Green.paint("---------------------------------------------------------------------------"));
+    // if let Ok(QueryResult::List(s)) = query_url(&Endpoint::List) {//list_future.wait() {
+    //     for (i,item) in s.into_iter().enumerate() {
+    //         println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
+    //     }
+    //     println!("{}", Green.paint("---------------------------------------------------------------------------"));
+    // }
+    // //println!("Printing status");
+    // if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Status) {//status_future.wait() {
+    //     for item in s {
+    //         print!("{}", item);
+    //         print!(" | ");
+    //     }
+    // }
+    // if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Total) {//total_future.wait() {
+    //     println!("{}", s[0]);
+    // }
 }
 
 fn main() {
