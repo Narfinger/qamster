@@ -63,9 +63,8 @@ impl<'a, 'r> FromRequest<'a, 'r> for Password {
     type Error = ();
 
     fn from_request(request: &'a Request<'r>) -> rocket::request::Outcome<Password, ()> {
-        return Outcome::Success(Password("".to_string()));
+        //return Outcome::Success(Password("".to_string()));
         //doing this for debug reasons
-
 
         let keys: Vec<_> = request.headers().get("x-password").collect();
         if keys.len() != 1 {
@@ -73,7 +72,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for Password {
         }
 
         let supplied_password = keys[0].to_string();
-        if supplied_password != include_str!("../../password.txt") {
+        if supplied_password != include_str!("../../password.txt").trim() {
             return Outcome::Failure((rocket::http::Status::BadRequest, ()));
         }
         
@@ -121,7 +120,7 @@ fn list(db: State<DB>, password: Password) -> Json<Vec<Task>> {
     let now = chrono::offset::Utc::now().naive_utc();
     let today = chrono::NaiveDate::from_ymd(now.year(),now.month(),now.day()).and_hms(0,0,0);
     let tasks = task.order(start)
-//        .filter(start.ge(today))
+        .filter(start.ge(today))
         .load(dbconn.deref())
         .unwrap();
 
