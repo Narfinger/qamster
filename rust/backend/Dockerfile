@@ -6,7 +6,7 @@ EXPOSE 8080
 ENV SOURCES=/sources
 
 RUN yum update -y
-RUN yum install -y file gcc gcc-c++ openssl-devel make sqlite sqlite-devel
+RUN yum install -y file gcc gcc-c++ openssl-devel make sqlite sqlite-devel mysql mysql-devel postgresql postgresql-devel 
 RUN curl -sSf https://static.rust-lang.org/rustup.sh | sh -s -- --disable-sudo
 
 RUN mkdir -p $SOURCES
@@ -14,7 +14,7 @@ ADD ./ $SOURCES
 
 WORKDIR $SOURCES
 RUN cargo install diesel_cli
-RUN diesel setup
+RUN ~/.cargo/bin/diesel setup
 RUN cargo build --release
 
 CMD cargo run --release
