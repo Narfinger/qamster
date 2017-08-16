@@ -1,6 +1,5 @@
 runtime: custom
 env: flex
 # Warning! skip_files doesn't work for custom runtime
-enable_health_check: False
 skip_files:
     - ^target.*$
