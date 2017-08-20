@@ -109,8 +109,7 @@ enum QueryResult {
     None,
 }
 
-fn query_url(endpoint: &Endpoint) -> Result<QueryResult> {        
-    let client = reqwest::Client::new().expect("Could not create client");
+fn query_url(client: reqwest::Client, endpoint: &Endpoint) -> Result<QueryResult> { 
     let url = match *endpoint {
         Endpoint::Current => "/current/".to_owned(),
         Endpoint::List    => "/list/".to_owned(),
@@ -140,8 +139,8 @@ fn query_url(endpoint: &Endpoint) -> Result<QueryResult> {
 }
 
 /// Starting a task
-fn start_task(s: &str) {
-    query_url(&Endpoint::Start(s.to_string())).expect("Error in starting task");
+fn start_task(client: reqwest::Client, s: &str) {
+    query_url(client, &Endpoint::Start(s.to_string())).expect("Error in starting task");
     //if let Some(s) = category {
     //    println!("Starting: {}@{}", Green.paint(task), Blue.paint(s));
     //} else {
@@ -150,12 +149,17 @@ fn start_task(s: &str) {
 }
 
 /// Printing the list
-fn print_list() {
+fn print_list(client: reqwest::Client) {
     let pool = CpuPool::new_num_cpus();
-    let current_future = pool.spawn_fn(|| {query_url(&Endpoint::Current)});
-    let list_future    = pool.spawn_fn(|| {query_url(&Endpoint::List)});
-    let status_future  = pool.spawn_fn(|| {query_url(&Endpoint::Status)});
-    let total_future   = pool.spawn_fn(|| {query_url(&Endpoint::Total)});
+    let c1 = client.clone();
+    let c2 = client.clone();
+    let c3 = client.clone();
+    let c4 = client.clone();
+
+    let current_future = pool.spawn_fn(|| {query_url(c1, &Endpoint::Current)});
+    let list_future    = pool.spawn_fn(|| {query_url(c2, &Endpoint::List)});
+    let status_future  = pool.spawn_fn(|| {query_url(c3, &Endpoint::Status)});
+    let total_future   = pool.spawn_fn(|| {query_url(c4, &Endpoint::Total)});
 
     if let Ok(QueryResult::Current(t)) = current_future.wait() {
         if let Some(task) = t {
@@ -207,9 +211,9 @@ fn print_list() {
 }
 
 fn run(matches: clap::ArgMatches) -> Result<()> {    
+    let client = reqwest::Client::new().expect("Could not create client");
     //checking online status
     {
-        let client = reqwest::Client::new().expect("Could not create client");
         let res = client.get((SITE.to_owned()).as_str())
             .send();
         if let Err(e) = res {
@@ -218,21 +222,28 @@ fn run(matches: clap::ArgMatches) -> Result<()> {
         }
     }
 
+    
     //continuing with the normal proram
     if matches.is_present("fuzzy") && matches.is_present("task") {
         println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
     } else if matches.is_present("stop") {
-        query_url(&Endpoint::Stop).expect("Error in stop");
+        let c1 = client.clone();
+        query_url(c1, &Endpoint::Stop).expect("Error in stop");
         println!("{}", Purple.paint("Stopping"));
         println!("{}", Green.paint("----------------------------------------------------------------------------"));
     } else if let Some(s) = matches.value_of("task") {
-        start_task(s);
+        let c1 = client.clone();
+        start_task(c1, s);
         println!("{}", Green.paint("----------------------------------------------------------------------------"));
     } else if matches.is_present("fuzzy") {
         println!("{}", Red.paint("Need task to do a fuzzy add."));
         return Ok(())
     }
-    print_list();
+
+    {
+        let c1 = client.clone();
+        print_list(c1);
+    }
     
     Ok(())
 }
