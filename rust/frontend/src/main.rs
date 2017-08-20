@@ -37,6 +37,7 @@ enum Endpoint {
     Total,  // /total/
     Start(String), // /start/
     Stop,   // /stop/
+    Fuzzy(String), // /fuzzy/
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -117,6 +118,7 @@ fn query_url(client: reqwest::Client, endpoint: &Endpoint) -> Result<QueryResult
         Endpoint::Total   => "/total/".to_owned(),
         Endpoint::Start(ref title) => format!("/start/?title={}", title.clone()),
         Endpoint::Stop    => "/stop/".to_owned(),
+        Endpoint::Fuzzy(ref query) => format!("/fuzz/?q={}", query.clone()),
     };
 
     let res = client.get((SITE.to_owned() + url.as_str()).as_str())
@@ -135,6 +137,7 @@ fn query_url(client: reqwest::Client, endpoint: &Endpoint) -> Result<QueryResult
         Endpoint::Total      => res.and_then(|mut s| s.json()).map(QueryResult::Status),
         Endpoint::Start(_)   => res                           .map(|_| QueryResult::None),
         Endpoint::Stop       => res                           .map(|_| QueryResult::None),
+        Endpoint::Fuzzy(_)   => res.and_then(|mut s| s.json()).map(QueryResult::List),
     }.map_err(|e| Error::with_chain(e, "Server Connection Error"))
 }
 
@@ -217,7 +220,7 @@ fn run(matches: clap::ArgMatches) -> Result<()> {
         let res = client.get((SITE.to_owned()).as_str())
             .send();
         if let Err(e) = res {
-            println!("Cannot connect");
+            println!("{}", Red.paint("Cannot connect to host."));
             return Ok(())
         }
     }
@@ -225,11 +228,24 @@ fn run(matches: clap::ArgMatches) -> Result<()> {
     
     //continuing with the normal proram
     if matches.is_present("fuzzy") && matches.is_present("task") {
+        let c1 = client.clone();
+        if let Ok(QueryResult::List(l)) = query_url(c1, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string())) {
+            if l.len()==1 {
+                let elem = &l[0];
+                let taskstring = elem.title.clone() + "@" + elem.category.as_str();
+                let c1 = client.clone();
+                println!("{}: {}", Green.paint("Starting task"), taskstring);
+                start_task(c1, taskstring.as_str());
+            } else {
+                println!("{}: {:?}", Red.paint("Not a unique match, found these matches"), l);
+            }
+        }
+
         println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
     } else if matches.is_present("stop") {
         let c1 = client.clone();
         query_url(c1, &Endpoint::Stop).expect("Error in stop");
-        println!("{}", Purple.paint("Stopping"));
+        println!("{}", Purple.paint("Stopping."));
         println!("{}", Green.paint("----------------------------------------------------------------------------"));
     } else if let Some(s) = matches.value_of("task") {
         let c1 = client.clone();

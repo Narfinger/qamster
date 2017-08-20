@@ -22,7 +22,7 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use chrono::Datelike;
 use diesel::sqlite::SqliteConnection;
-use diesel::{GroupByDsl, ExecuteDsl, FilterDsl, ExpressionMethods,OrderDsl, LoadDsl, insert, delete, select};
+use diesel::{GroupByDsl, ExecuteDsl, FilterDsl, ExpressionMethods,OrderDsl, LoadDsl, TextExpressionMethods, insert, delete, select};
 use diesel::expression::exists;
 use r2d2::Pool;
 use r2d2_diesel::ConnectionManager;
@@ -57,6 +57,12 @@ struct NewTask {
 struct TaskForm {
     title: String,
 }
+
+#[derive(FromForm)]
+struct FuzzyQuery {
+    q: String,
+}
+
 
 struct Password(String);
 impl<'a, 'r> FromRequest<'a, 'r> for Password {
@@ -211,6 +217,18 @@ fn start(db: State<DB>, taskform: TaskForm, password: Password) {
 #[get("/stop")]
 fn stop(db: State<DB>, password: Password) {
     stop_task(db);
+}
+
+#[get("/fuzzy?<fuzzyquery>")]
+fn fuzzy(db: State<DB>, fuzzyquery: FuzzyQuery, password: Password) -> Json<Vec<Task>> {
+    use schema::task::dsl::*;
+    let dbconn = db.0.get().expect("DB Pool Problem");
+    let tasks = task.order(start)
+        .filter(title.like(format!("%{}%", fuzzyquery.q)))
+        .load(dbconn.deref())
+        .unwrap();
+    
+    Json(tasks)
 }
 
 fn main() {
