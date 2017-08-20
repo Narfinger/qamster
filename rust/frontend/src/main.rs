@@ -207,6 +207,18 @@ fn print_list() {
 }
 
 fn run(matches: clap::ArgMatches) -> Result<()> {    
+    //checking online status
+    {
+        let client = reqwest::Client::new().expect("Could not create client");
+        let res = client.get((SITE.to_owned()).as_str())
+            .send();
+        if let Err(e) = res {
+            println!("Cannot connect");
+            return Ok(())
+        }
+    }
+
+    //continuing with the normal proram
     if matches.is_present("fuzzy") && matches.is_present("task") {
         println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
     } else if matches.is_present("stop") {
