@@ -21,7 +21,7 @@ use errors::*;
 use ansi_term::Colour::{Blue,Red,Purple,Green};
 use chrono::TimeZone;
 use clap::{App, Arg};
-use futures::Future;
+use futures::{Future};
 use futures_cpupool::CpuPool;
 
 //define typed header for reqwest
@@ -171,7 +171,7 @@ fn print_list(client: reqwest::Client) {
     let list_future    = pool.spawn_fn(|| {query_url(c2, &Endpoint::List)});
     let status_future  = pool.spawn_fn(|| {query_url(c3, &Endpoint::Status)});
     let total_future   = pool.spawn_fn(|| {query_url(c4, &Endpoint::Total)});
-
+       
     if let Ok(QueryResult::Current(t)) = current_future.wait() {
         if let Some(task) = t {
             println!("{0} {1}", Green.paint("Started"), task);
@@ -188,17 +188,18 @@ fn print_list(client: reqwest::Client) {
         println!("{}", Green.paint("---------------------------------------------------------------------------"));
     }
 
-    if let Ok(QueryResult::Status(s)) = status_future.wait() {
-        for item in s {
-            print!("{}", item);
-            print!(" | ");
+    if let Ok(QueryResult::Status(mut total)) = total_future.wait() {
+        if let Some(true_total) = total.pop() {
+            if let Ok(QueryResult::Status(s)) = status_future.wait() {
+                for item in s {
+                    print!("{} ({:.2})", item, item.duration as f64/true_total.duration as f64);
+                    print!(" | ");
+                }
+            }
+            
+            println!("{}", true_total);
         }
     }
-
-    if let Ok(QueryResult::Status(s)) = total_future.wait() {
-        println!("{}", s[0]);
-    }
-
     
     // working code
     // //println!("Starting to print list");
