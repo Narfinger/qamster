@@ -41,6 +41,10 @@ enum Endpoint {
     Fuzzy(String), // /fuzzy/
 }
 
+fn time_to_local_format<'a>(s: chrono::NaiveDateTime) -> chrono::format::DelayedFormat<chrono::format::StrftimeItems<'a>> {
+    chrono::Local.timestamp(s.timestamp(),0).format("%H:%M")
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Task {
     id: i64,
@@ -64,8 +68,8 @@ impl std::fmt::Display for Task {
         let dur = self.end.signed_duration_since(self.start);
         write!(f, "{1} {0} {2} {0} {3: ^20} {0} {4: ^20} {0} {5}",
                Purple.paint("|"),
-               chrono::Local.timestamp(self.start.timestamp(),0).format("%H:%M"),
-               chrono::Local.timestamp(self.end.timestamp(),0).format("%H:%M"),
+               time_to_local_format(self.start),
+               time_to_local_format(self.end),
                self.title,
                self.category,
                format_duration(&dur))
@@ -84,7 +88,7 @@ impl std::fmt::Display for RunningTask {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{1} {0} {2} {0} {3: ^20}",
                Purple.paint("|"),
-               chrono::Local.timestamp(self.start.timestamp(),0).format("%H:%M"),
+               time_to_local_format(self.start),
                self.title,
                self.category)
     }
