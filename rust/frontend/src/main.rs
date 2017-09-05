@@ -86,11 +86,13 @@ struct RunningTask {
 
 impl std::fmt::Display for RunningTask {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{1} {0} {2} {0} {3: ^20}",
+        let running_since = chrono::Utc::now().timestamp() - self.start.timestamp();
+        write!(f, "{1} {0} {2} {0} {3: ^20} {0} Running since {4}",
                Purple.paint("|"),
                time_to_local_format(self.start),
                self.title,
-               self.category)
+               self.category,
+               running_since)
     }
 }
 
