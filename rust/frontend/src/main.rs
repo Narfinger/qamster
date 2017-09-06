@@ -183,7 +183,7 @@ fn print_list(client: reqwest::Client) {
     println!("{}", Green.paint("---------------------------------------------------------------------------"));
     if let Ok(QueryResult::List(s)) = list_future.wait() {
         for (i,item) in s.into_iter().enumerate() {
-            println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
+            println!{"{1:>2} {0} {2}", Purple.paint("|"), i+1, item};
         }
         println!("{}", Green.paint("---------------------------------------------------------------------------"));
     }
