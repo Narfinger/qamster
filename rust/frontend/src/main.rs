@@ -97,7 +97,7 @@ impl std::fmt::Display for RunningTask {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Eq, Debug)]
 struct Status {
     category: String,
     duration: i64,
@@ -107,6 +107,24 @@ impl std::fmt::Display for Status {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let dur = chrono::Duration::seconds(self.duration);
         write!(f, "{}:{}", self.category, format_duration(&dur))
+    }
+}
+
+impl std::cmp::Ord for Status {
+    fn cmp(&self, other: &Status) -> std::cmp::Ordering {
+        self.category.cmp(&other.category)
+    }
+}
+
+impl std::cmp::PartialOrd for Status {
+    fn partial_cmp(&self, other: &Status) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl std::cmp::PartialEq for Status {
+    fn eq(&self, other: &Status) -> bool {
+        self.category == other.category
     }
 }
 
@@ -126,7 +144,7 @@ fn query_url(client: reqwest::Client, endpoint: &Endpoint) -> Result<QueryResult
         Endpoint::Total   => "/total/".to_owned(),
         Endpoint::Start(ref title) => format!("/start/?title={}", title.clone()),
         Endpoint::Stop    => "/stop/".to_owned(),
-        Endpoint::Fuzzy(ref query) => format!("/fuzz/?q={}", query.clone()),
+        Endpoint::Fuzzy(ref query) => format!("/fuzzy/?q={}", query.clone()),
     };
 
     let res = client.get((SITE.to_owned() + url.as_str()).as_str())
@@ -190,8 +208,9 @@ fn print_list(client: reqwest::Client) {
 
     if let Ok(QueryResult::Status(mut total)) = total_future.wait() {
         if let Some(true_total) = total.pop() {
-            if let Ok(QueryResult::Status(s)) = status_future.wait() {
-                for item in s {
+            if let Ok(QueryResult::Status(mut s)) = status_future.wait() {
+                s.sort_unstable();
+                for item in s.into_iter() {
                     print!("{} ({:.2})", item, item.duration as f64/true_total.duration as f64);
                     print!(" | ");
                 }
@@ -200,26 +219,6 @@ fn print_list(client: reqwest::Client) {
             println!("{}", true_total);
         }
     }
-    
-    // working code
-    // //println!("Starting to print list");
-    // println!("{}", Green.paint("---------------------------------------------------------------------------"));
-    // if let Ok(QueryResult::List(s)) = query_url(&Endpoint::List) {//list_future.wait() {
-    //     for (i,item) in s.into_iter().enumerate() {
-    //         println!{"{1} {0} {2}", Purple.paint("|"), i+1, item};
-    //     }
-    //     println!("{}", Green.paint("---------------------------------------------------------------------------"));
-    // }
-    // //println!("Printing status");
-    // if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Status) {//status_future.wait() {
-    //     for item in s {
-    //         print!("{}", item);
-    //         print!(" | ");
-    //     }
-    // }
-    // if let Ok(QueryResult::Status(s)) = query_url(&Endpoint::Total) {//total_future.wait() {
-    //     println!("{}", s[0]);
-    // }
 }
 
 fn run(matches: clap::ArgMatches) -> Result<()> {    
@@ -237,8 +236,13 @@ fn run(matches: clap::ArgMatches) -> Result<()> {
     
     //continuing with the normal proram
     if matches.is_present("fuzzy") && matches.is_present("task") {
+        println!("matching");
         let c1 = client.clone();
+        let c2 = client.clone();
+        let blubb = query_url(c2, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string()));
+        println!("{:?}", blubb);
         if let Ok(QueryResult::List(l)) = query_url(c1, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string())) {
+            println!("the thing we match{:?}", l);
             if l.len()==1 {
                 let elem = &l[0];
                 let taskstring = elem.title.clone() + "@" + elem.category.as_str();
@@ -248,9 +252,10 @@ fn run(matches: clap::ArgMatches) -> Result<()> {
             } else {
                 println!("{}: {:?}", Red.paint("Not a unique match, found these matches"), l);
             }
+        } else {
+            println!("You didn't supply any matching argument");
+            return Ok(());
         }
-
-        println!("{}", Purple.paint("Not yet implemented (fuzzy task start)."));
     } else if matches.is_present("stop") {
         let c1 = client.clone();
         query_url(c1, &Endpoint::Stop).expect("Error in stop");
