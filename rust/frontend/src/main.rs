@@ -6,9 +6,7 @@ extern crate clap;
 extern crate futures;
 extern crate futures_cpupool;
 extern crate reqwest;
-extern crate serde;
 #[macro_use] extern crate serde_derive;
-extern crate serde_json;
 #[macro_use] extern crate hyper;
 #[macro_use] extern crate error_chain;
 
@@ -18,7 +16,7 @@ mod errors {
 }
 use errors::*;
 
-use ansi_term::Colour::{Blue,Red,Purple,Green};
+use ansi_term::Colour::{Red,Purple,Green};
 use chrono::TimeZone;
 use clap::{App, Arg};
 use futures::{Future};
@@ -136,7 +134,7 @@ enum QueryResult {
     None,
 }
 
-fn query_url(client: reqwest::Client, endpoint: &Endpoint) -> Result<QueryResult> { 
+fn query_url(client: &reqwest::Client, endpoint: &Endpoint) -> Result<QueryResult> { 
     let url = match *endpoint {
         Endpoint::Current => "/current/".to_owned(),
         Endpoint::List    => "/list/".to_owned(),
@@ -168,7 +166,7 @@ fn query_url(client: reqwest::Client, endpoint: &Endpoint) -> Result<QueryResult
 }
 
 /// Starting a task
-fn start_task(client: reqwest::Client, s: &str) {
+fn start_task(client: &reqwest::Client, s: &str) {
     query_url(client, &Endpoint::Start(s.to_string())).expect("Error in starting task");
     //if let Some(s) = category {
     //    println!("Starting: {}@{}", Green.paint(task), Blue.paint(s));
@@ -178,17 +176,17 @@ fn start_task(client: reqwest::Client, s: &str) {
 }
 
 /// Printing the list
-fn print_list(client: reqwest::Client) {
+fn print_list(client: &reqwest::Client) {
     let pool = CpuPool::new_num_cpus();
     let c1 = client.clone();
     let c2 = client.clone();
     let c3 = client.clone();
     let c4 = client.clone();
 
-    let current_future = pool.spawn_fn(|| {query_url(c1, &Endpoint::Current)});
-    let list_future    = pool.spawn_fn(|| {query_url(c2, &Endpoint::List)});
-    let status_future  = pool.spawn_fn(|| {query_url(c3, &Endpoint::Status)});
-    let total_future   = pool.spawn_fn(|| {query_url(c4, &Endpoint::Total)});
+    let current_future = pool.spawn_fn(move || {query_url(&c1, &Endpoint::Current)});
+    let list_future    = pool.spawn_fn(move || {query_url(&c2, &Endpoint::List)});
+    let status_future  = pool.spawn_fn(move || {query_url(&c3, &Endpoint::Status)});
+    let total_future   = pool.spawn_fn(move || {query_url(&c4, &Endpoint::Total)});
        
     if let Ok(QueryResult::Current(t)) = current_future.wait() {
         if let Some(task) = t {
@@ -210,7 +208,7 @@ fn print_list(client: reqwest::Client) {
         if let Some(true_total) = total.pop() {
             if let Ok(QueryResult::Status(mut s)) = status_future.wait() {
                 s.sort_unstable();
-                for item in s.into_iter() {
+                for item in s {
                     print!("{} ({:.2})", item, item.duration as f64/true_total.duration as f64);
                     print!(" | ");
                 }
@@ -221,13 +219,13 @@ fn print_list(client: reqwest::Client) {
     }
 }
 
-fn run(matches: clap::ArgMatches) -> Result<()> {    
+fn run(matches: &clap::ArgMatches) -> Result<()> {    
     let client = reqwest::Client::new().expect("Could not create client");
     //checking online status
     {
         let res = client.get((SITE.to_owned()).as_str())
             .send();
-        if let Err(e) = res {
+        if res.is_err() {
             println!("{}", Red.paint("Cannot connect to host."));
             return Ok(())
         }
@@ -239,16 +237,16 @@ fn run(matches: clap::ArgMatches) -> Result<()> {
         println!("matching");
         let c1 = client.clone();
         let c2 = client.clone();
-        let blubb = query_url(c2, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string()));
+        let blubb = query_url(&c2, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string()));
         println!("{:?}", blubb);
-        if let Ok(QueryResult::List(l)) = query_url(c1, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string())) {
+        if let Ok(QueryResult::List(l)) = query_url(&c1, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string())) {
             println!("the thing we match{:?}", l);
             if l.len()==1 {
                 let elem = &l[0];
                 let taskstring = elem.title.clone() + "@" + elem.category.as_str();
                 let c1 = client.clone();
                 println!("{}: {}", Green.paint("Starting task"), taskstring);
-                start_task(c1, taskstring.as_str());
+                start_task(&c1, taskstring.as_str());
             } else {
                 println!("{}: {:?}", Red.paint("Not a unique match, found these matches"), l);
             }
@@ -258,12 +256,12 @@ fn run(matches: clap::ArgMatches) -> Result<()> {
         }
     } else if matches.is_present("stop") {
         let c1 = client.clone();
-        query_url(c1, &Endpoint::Stop).expect("Error in stop");
+        query_url(&c1, &Endpoint::Stop).expect("Error in stop");
         println!("{}", Purple.paint("Stopping."));
         println!("{}", Green.paint("----------------------------------------------------------------------------"));
     } else if let Some(s) = matches.value_of("task") {
         let c1 = client.clone();
-        start_task(c1, s);
+        start_task(&c1, s);
         println!("{}", Green.paint("----------------------------------------------------------------------------"));
     } else if matches.is_present("fuzzy") {
         println!("{}", Red.paint("Need task to do a fuzzy add."));
@@ -272,7 +270,7 @@ fn run(matches: clap::ArgMatches) -> Result<()> {
 
     {
         let c1 = client.clone();
-        print_list(c1);
+        print_list(&c1);
     }
     
     Ok(())
@@ -294,7 +292,7 @@ fn main() {
              .index(1))
         .get_matches();
 
-    if let Err(e) = run(matches) {
+    if let Err(e) = run(&matches) {
         println!("{}", e);
     }
 }
