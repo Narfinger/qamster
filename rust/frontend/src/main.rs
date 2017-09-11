@@ -126,11 +126,18 @@ impl std::cmp::PartialEq for Status {
     }
 }
 
+#[derive(Deserialize,Debug)]
+struct FuzzyResult {
+    title: String,
+    category: String,
+}
+
 #[derive(Debug)]
 enum QueryResult {
     List(Vec<Task>),
     Status(Vec<Status>),
     Current(Option<RunningTask>),
+    FuzzyList(Vec<FuzzyResult>),
     None,
 }
 
@@ -161,7 +168,7 @@ fn query_url(client: &reqwest::Client, endpoint: &Endpoint) -> Result<QueryResul
         Endpoint::Total      => res.and_then(|mut s| s.json()).map(QueryResult::Status),
         Endpoint::Start(_)   => res                           .map(|_| QueryResult::None),
         Endpoint::Stop       => res                           .map(|_| QueryResult::None),
-        Endpoint::Fuzzy(_)   => res.and_then(|mut s| s.json()).map(QueryResult::List),
+        Endpoint::Fuzzy(_)   => res.and_then(|mut s| s.json()).map(QueryResult::FuzzyList),
     }.map_err(|e| Error::with_chain(e, "Server Connection Error"))
 }
 
@@ -236,11 +243,7 @@ fn run(matches: &clap::ArgMatches) -> Result<()> {
     if matches.is_present("fuzzy") && matches.is_present("task") {
         println!("matching");
         let c1 = client.clone();
-        let c2 = client.clone();
-        let blubb = query_url(&c2, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string()));
-        println!("{:?}", blubb);
-        if let Ok(QueryResult::List(l)) = query_url(&c1, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string())) {
-            println!("the thing we match{:?}", l);
+        if let Ok(QueryResult::FuzzyList(l)) = query_url(&c1, &Endpoint::Fuzzy(matches.value_of("task").unwrap().to_string())) {
             if l.len()==1 {
                 let elem = &l[0];
                 let taskstring = elem.title.clone() + "@" + elem.category.as_str();
@@ -248,7 +251,12 @@ fn run(matches: &clap::ArgMatches) -> Result<()> {
                 println!("{}: {}", Green.paint("Starting task"), taskstring);
                 start_task(&c1, taskstring.as_str());
             } else {
-                println!("{}: {:?}", Red.paint("Not a unique match, found these matches"), l);
+                println!("{}", Red.paint("Not a unique match, found these matches"));
+                for i in l {
+                    print!("\"{}@{}\" ", i.title, i.category);
+                }
+                print!("\n");
+                return Ok(());
             }
         } else {
             println!("You didn't supply any matching argument");

@@ -22,7 +22,7 @@ use std::collections::HashMap;
 use std::ops::Deref;
 use chrono::Datelike;
 use diesel::sqlite::SqliteConnection;
-use diesel::{GroupByDsl, ExecuteDsl, FilterDsl, ExpressionMethods,OrderDsl, LoadDsl, TextExpressionMethods, insert, delete, select};
+use diesel::{SelectDsl, GroupByDsl, DistinctDsl, ExecuteDsl, FilterDsl, ExpressionMethods,OrderDsl, LoadDsl, TextExpressionMethods, insert, delete, select};
 use diesel::expression::exists;
 use r2d2::Pool;
 use r2d2_diesel::ConnectionManager;
@@ -63,13 +63,19 @@ struct FuzzyQuery {
     q: String,
 }
 
+#[derive(Queryable,Serialize)]
+#[table_name="task"]
+struct FuzzyResult {
+    title: String,
+    category: String,
+}
 
 struct Password(String);
 impl<'a, 'r> FromRequest<'a, 'r> for Password {
     type Error = ();
 
     fn from_request(request: &'a Request<'r>) -> rocket::request::Outcome<Password, ()> {
-        //return Outcome::Success(Password("".to_string()));
+        return Outcome::Success(Password("".to_string()));
         //doing this for debug reasons
 
         let keys: Vec<_> = request.headers().get("x-password").collect();
@@ -220,11 +226,13 @@ fn stop(db: State<DB>, password: Password) {
 }
 
 #[get("/fuzzy?<fuzzyquery>")]
-fn fuzzy(db: State<DB>, fuzzyquery: FuzzyQuery, password: Password) -> Json<Vec<Task>> {
+fn fuzzy(db: State<DB>, fuzzyquery: FuzzyQuery, password: Password) -> Json<Vec<FuzzyResult>> {
     use schema::task::dsl::*;
     let dbconn = db.0.get().expect("DB Pool Problem");
     let tasks = task.order(start)
         .filter(title.like(format!("%{}%", fuzzyquery.q)))
+        .select((title,category))
+        .distinct()
         .load(dbconn.deref())
         .unwrap();
     
@@ -242,7 +250,7 @@ fn main() {
     //needs ssl
     rocket::ignite()
         .mount("/",
-               routes![current, list, status, total, start, stop])
+               routes![current, list, status, total, start, stop, fuzzy])
         .manage(DB(pool))
         .launch();
 }
